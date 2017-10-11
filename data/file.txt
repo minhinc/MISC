@@ -1,0 +1,29 @@
+Note:- Please Enable html mode to see in html view.
+
+Minh Inc. provides quality solution in product development
+based on Qt and Python. Founded in 2015 company develops
+Linux Device drivers, Qt and Python based products on 2D/3D
+graphics and networking.
+
+
+Minh Inc. has 3 products contributed to Open Source under
+GPLV3. 
+Products based upon Qt.
+a) YOU TUBE DOWNLOADER - Provides various format option for
+   download and play with inbuilt multi format player. 
+   link: http://www.minhinc.com/product/gfd.html
+b) FLIGHT SIMULATOR - 3D OpenGL simulation over Google Maps.
+   link: http://www.minhinc.com/product/nazfs.html
+c) LIGHT WEIGHT MEDIA PLAYER - 2D Media Player.
+   link: http://www.minhinc.com/product/gmp.html
+
+Minh Inc. has 5 publications. Publications on Python,
+Algorithms, C++, Design Patterns, Perl, Qt and OpenGL.
+link: http://www.minhinc.com/research
+
+Contact us at
+Minh Inc.
+85,5 Main, P&T Colony
+Bangalore - 94
++91 9483160160
+sales@minhinc.com www.minhinc.com

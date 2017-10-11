@@ -1,0 +1,39 @@
+<html>
+<head>
+<title>Minh, Inc. Software development and Outsourcing | Ask A Programming Question</title>
+<link rel="stylesheet" href="./test.css" type = "text/css" media = "all" />
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-81633607-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+<body>
+<ul class="common">
+<li class="header"><p>Ask a Question</p></li>
+</ul>
+<form class="common" action="send_form_question.php" method="post" target="myIframe"">
+<p>Technology:
+   <select name="technology"></p>
+   <option value="Python" Selected>Python</option>
+   <option value="C">C</option>
+   <option value="Cpp" Selected>C++</option>
+   <option value="Javascript">Javascript</option>
+   <option value="Qt">Qt</option>
+   <option value="OpenGL">OpenGL</option>
+   <option value="LDD">Linux Device Driver</option>
+</select>
+<p>Name:<input type="text" name="name" placeholder="Your Name"></p>
+<p>Email:<input type="text" name="email" placeholder="Email Address"></p>
+<p class="txtar">Query:<textarea rows="5" name="message" cols="40"></textarea></p>
+<input type="submit" name="submit" value="Submit">
+<iframe name="myIframe" frameborder="0" height="35px" width="200px" scrolling="no">
+</iframe>
+</form>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<div class="footer">
+ <hr>
+ <ul class="fl">
+  <li><p class="bold">Minh, Inc.</p></li>
+  <li><p>#85, 5th Main, P&T<br>
+   SanjayNagar, Bangalore<br>
+   Karnataka, India 560094<br>
+   Ph - +91 9483160610<br></p>
+  </li>
+ </ul>
+ <ul class="menu">
+  <li class="top"><a href="./product/home.html">Product</a>
+   <ul>
+    <li><hr class="product"></li>
+    <li><a href="./product/gfd.html">Youtube Downloader</a><li> 
+    <li><a href="./product/gmp.html">Media Player</a><li> 
+    <li><a href="./product/nfs.html">Flight Simulator</a><li> 
+    <li><a href="./product/mas.html">Medical Annotation Software</a><li> 
+    <li><a href="./product/dv.html">3D Data Viewer</a><li> 
+   </ul>
+  </li>
+  <li class="top"><a href="./training/home.html">Training</a>
+   <ul>
+    <li><hr class="training"></li>
+    <li><a href="./training/py.html">Python</a></li>
+    <li><a href="./training/c.html">C</a></li>
+    <li><a href="./training/qt.html">Qt</a></li>
+    <li><a href="./training/cpp.html">C++</a></li>
+    <li><a href="./training/opengl.html">OpenGL</a></li>
+    <li><a href="./training/li.html">Linux Internals</a></li>
+    <li><a href="./training/ldd.html">Linux Device Driver</a></li>
+   </ul>
+  </li>
+  <li class="top"><a href="./services/home.html">Services</a>
+   <ul>
+    <li><hr class="services"></li>
+    <li><a href="./service/network.html">Networking</a><li>
+    <li><a href="./service/multimedia.html">Multimedia</a></li>
+    <li><a href="./service/medicalsystem.html">Medical Systems</a></li>
+   </ul>
+  </li>
+  <li class="top"><a href="./career/home.html">Career</a>
+   <ul>
+    <li><hr class="career"></li>
+   </ul>
+  </li>
+  <li class="top"><a href="./about/home.html">Help</a>
+   <ul>
+    <li><hr class="help"></li>
+    <li><a href="./about/question.html">Ask a programming question</a></li>
+    <li><a href="./about/contact.html">Contact Us</a></li>
+   </ul>
+  </li>
+ </ul>
+ <ul class="fr">
+  <li><p>&copy Minh Corporation 2015-2017</p></li>
+  <li class="img"><a href="https://github.com/minhinc/"><img src="./image/githubs.png"/></a><a href="https://linkedin.com/in/pravinkumarsinha/"><img src="./image/linkedins.png"/></a><a href="https://facebook.com/ghamaila/"><img src="./image/fbs.png"/></a></li>
+ </ul>
+</div>
