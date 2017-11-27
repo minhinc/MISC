@@ -28,7 +28,7 @@ class sendmailc(fetchc):
   self.wdgt.entry.insert(0,"Enter password")
  def message(self,strFrom,strTo):
   msgRoot=MIMEMultipart('related')
-  msgRoot['Subject']='Qt Training and Development'
+  msgRoot['Subject']='Embedded development with Qt'
   msgRoot['From']=strFrom
   msgRoot['To']=strTo
   msgRoot.preamble='This is a multi-part message in MIME format.'
@@ -71,7 +71,7 @@ class sendmailc(fetchc):
   print(self.mailsent)
   self.vc.acquire()
   for mail in self.mailsent:
-   self.db.conn.execute('UPDATE track SET expire=? WHERE email=?',(int(re.sub('-','',str(datetime.date.today()+datetime.timedelta(days=30)))),mail))
+   self.db.conn.execute('UPDATE track SET expire=? WHERE email=?',(int(re.sub('-','',str(datetime.date.today()+datetime.timedelta(days=60)))),mail))
   self.db.conn.commit()
   self.wdgt.after_cancel(self.timerid)
   self.mailsent=[]
@@ -101,7 +101,7 @@ class sendmailc(fetchc):
 #    for mail in line.split():
     for mail in [x for x in line.split() if re.match(r'(\b[A-Za-z0-9._%-]+\@\w+[.](?:\w+[.]?)*\b)',x) and not re.search(r"\b%s\b" % x, open('data/blocked.txt').read(),re.I)]:
      self.push(self.wdgt.text2,"%s" % (mail+' '))
-     smtp.sendmail('sales@minhinc.com',mail,self.message('sales@minhinc.com',mail).as_string())
+     smtp.sendmail('sales@minhinc.com',mail,self.message('Minh INC <sales@minhinc.com>',mail).as_string())
      self.mailsent.append(mail)
      self.addtag(mail)
      self.push(self.wdgt.text2,'...\n')
