@@ -2,7 +2,8 @@ import threading,time
 import os
 import re
 from fetchm import fetchc
-import urllib.request
+#import urllib.request
+import urllib2
 class getcontactc(fetchc):
  def __init__(self,next,wgt,db):
   fetchc.__init__(self,next,wgt,db)
@@ -43,12 +44,12 @@ class getcontactc(fetchc):
   for line in [ line for line in open(self.wdgt.filename) if not re.search('^\s*(#|$)',line) and not re.search(re.sub(r'[^a-zA-Z0-9._%-]','_','https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search',flags=re.I),open('data/link.txt','r').read(),flags=re.I) and self.fetching ]:
    self.addtag(re.sub(r'(^\s*|\s*$)','',line))
    try:
-    data=repr(urllib.request.urlopen(urllib.request.Request('https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search',headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
+    data=repr(urllib2.urlopen(urllib2.Request('https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search',headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
     open(r'./data/link.txt','a').write('\n'+re.sub(r'[^a-zA-Z0-9._%-]','_','https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search'))
     for x in [ x for x in re.findall(r'url\?q=(http[^&]+)',data) if not re.search(re.sub(r'[^a-zA-Z0-9._%-]','_',x,flags=re.I),open('./data/link.txt','r').read(),flags=re.I) and not re.search(r'(webcache|googleuser|wikipedia|wikimedia|wiktionary|linkedin|facebook|twitter|youtube|naukri|glassdoor[.]co|huntable[.]co|hdfcbank|yesbank[.]in|bloomberg|[.]txt|[.]zip$|[.]rar$|[.]7z$|[.]pdf$|[.]doc$|[.]php$|[.]ppt$|[.]xls$|[.]aspx$|[.]cms$|[.]ece$|[.]cp*?$)',x,flags=re.I) and self.fetching ]:
      self.push(self.wdgt.text2,"%s\n" % (x))
      try:
-      data=repr(urllib.request.urlopen(urllib.request.Request(x,headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=10).read())
+      data=repr(urllib2.urlopen(urllib2.Request(x,headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=10).read())
       open(r'./data/link.txt','a').write('\n'+re.sub(r'[^a-zA-Z0-9._%-]','_',x))
       mail.extend([ x for x in re.findall(r'([A-Za-z0-9._%-]+\@\w+[.](?:\w+[.]?)*\b)',data) if not re.search('(abc@xyz.com|admin@olatopper.com|askme@infodial.in|contactusdialbe@gmail.com|contactus@shine.com|content@glassdoor.com|copyright2016-17@indiacom.com|example@email.com|feedback@justdial.com|hello@edugorilla.com|info@monsterindia.com|info@click.in|info@kahiyeyellowpages.com|info@smvacademy.com|info@trainingbox.in|info@useityellowpages.com|mail@example.com|mail@gdial.in|mailto@example.com|ram@gmail.com|rusers@justdial.com|sales@shiksha.com|sarah@example.com|solutions@mapsofindia.com|support@magicbricks.com|support@urbanpro.com|imesjobs@timesgroup.com|username@example.com|webadmin@deldure.com|webmaster@yet5.com|your.email@domain.name|xyz@mail.com|sales@fundoodata.com|x9cname@example.com)|[.](png|jpg|jpeg|gif|svg)$',x,flags=re.I) ])
      except:

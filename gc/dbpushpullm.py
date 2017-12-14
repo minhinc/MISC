@@ -35,7 +35,8 @@ class dbpushpullc(fetchc):
      self.push(self.wdgt.text2,"\n")
    self.wdgt.text1.delete('1.0','end')
    companyname='NULL'
-   for row in self.db.conn.execute('SELECT track.email,company.name FROM track JOIN company ON track.company_id=company.id WHERE ?>=track.expire ORDER BY track.company_id',(int(re.sub('-','',datetime.date.today().isoformat())),)):
+#   for row in self.db.conn.execute('SELECT track.email,company.name FROM track JOIN company ON track.company_id=company.id WHERE ?>=track.expire ORDER BY track.company_id',(int(re.sub('-','',datetime.date.today().isoformat())),)):
+   for row in self.db.getemailcompany():
     if(companyname!=row[1]):
      if(companyname=='NULL'):
       self.push(self.wdgt.text1,"%s %s" % (row[1],row[0]))

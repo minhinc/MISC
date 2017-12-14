@@ -1,4 +1,5 @@
-from tkinter import *
+#from tkinter import *
+from Tkinter import *#for python 2.x
 class listwidgetc(Frame):
  def __init__(self,parent=None):
   Frame.__init__(self,parent)

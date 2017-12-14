@@ -2,7 +2,8 @@ import datetime
 import threading
 import sys
 import os
-import urllib.request
+#import urllib.request
+import urllib2
 import re
 from fetchm import fetchc
 from email.mime.multipart import MIMEMultipart
@@ -19,9 +20,9 @@ class sendmailc(fetchc):
   for file in ('file.txt','file.html','file.gif'):
    if not os.path.exists(r'./data/'+file):
     self.push(self.wdgt.text2,'fetching '+file+'\n')
-    open('./data/'+file,'wb').write(urllib.request.urlopen(urllib.request.Request('http://www.minhinc.com/misc/'+file,headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
+    open('./data/'+file,'wb').write(urllib2.urlopen(urllib2.Request('http://www.minhinc.com/misc/'+file,headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
   self.push(self.wdgt.text2,'fetching blocked.txt\n')
-  open('./data/blocked.txt','wb').write(urllib.request.urlopen(urllib.request.Request('http://www.minhinc.com/about/blocked.txt',headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
+  open('./data/blocked.txt','wb').write(urllib2.urlopen(urllib2.Request('http://www.minhinc.com/about/blocked.txt',headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
   fetchc.handle(self)
   self.wdgt.state="password"
   self.wdgt.entry.delete(0,'end')
@@ -71,8 +72,9 @@ class sendmailc(fetchc):
   print(self.mailsent)
   self.vc.acquire()
   for mail in self.mailsent:
-   self.db.conn.execute('UPDATE track SET expire=? WHERE email=?',(int(re.sub('-','',str(datetime.date.today()+datetime.timedelta(days=60)))),mail))
-  self.db.conn.commit()
+#   self.db.conn.execute('UPDATE track SET expire=? WHERE email=?',(int(re.sub('-','',str(datetime.date.today()+datetime.timedelta(days=60)))),mail))
+    self.db.updatedate(mail)
+#  self.db.conn.commit()
   self.wdgt.after_cancel(self.timerid)
   self.mailsent=[]
   print('added to database')
