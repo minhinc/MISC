@@ -22,9 +22,10 @@ class scrolledtextc(Frame):
   self.entry.bind('<Return>',self.fetch)
 
   self.frm2=Frame(self)
-  self.lwtech=listwidgetm.listwidgetc(self.frm2)
-  self.lwcity=listwidgetm.listwidgetc(self.frm2)
+  self.lwtech=listwidgetm.listwidgetc(self.frm2,8)
+  self.lwcity=listwidgetm.listwidgetc(self.frm2,12)
   self.lwcountry=listwidgetm.listwidgetc(self.frm2)
+  self.lwmtopic=listwidgetm.listwidgetc(self.frm2)
 
   self.m=PanedWindow(self)
   self.m.pack(expand=YES,fill=BOTH)
@@ -59,7 +60,7 @@ class scrolledtextc(Frame):
  def save(self):
   open(self.filename,'w').write(self.text1.get(1.0,'end'+'-1c'))
  def fetch(self,event):
-  matchobjsas=re.match(r'^\s*<(\w+[.]\w+)',self.entry.get())
+  matchobjsas=re.match(r'^\s*[<:](\w+[.]\w+)',self.entry.get())
   matchobj=re.match(r'/?(.*)/(.*)/?',self.entry.get())
   matchobjopn=re.match(r'^\s*(\w+[.]\w+)',self.entry.get())
   if(self.state and self.state=="password"):
