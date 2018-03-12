@@ -11,15 +11,16 @@ class dbpushpullc(fetchc):
   self.wdgt.lwcountry.lwt.bind('<<ListboxSelect>>',self.onselect)
   self.wdgt.lwcountry.lwt.bind('<Key>',self.key)
  def handle(self):
-  self.wdgt.lwtech.populate(self.db.get('tech','name'))
+  self.wdgt.lwtech.populate(self.db.get('tech','name',orderby='id'))
   self.wdgt.lwcountry.populate(self.db.get('country','name',orderby='id'))
-  self.wdgt.lwmtopic.populate(self.db.get('mtopic','name',orderby='id'))
+#  self.wdgt.lwmtopic.populate(self.db.get('mtopic','name',orderby='id'))
   self.wdgt.show()
   fetchc.handle(self)
  def get(self):
   companyname=None
   matchobj=None
-  if not len(self.wdgt.lwtech.lwt.curselection())*len(self.wdgt.lwcity.lwt.curselection())*len(self.wdgt.lwcountry.lwt.curselection())*len(self.wdgt.lwmtopic.lwt.curselection()):
+  #if not len(self.wdgt.lwtech.lwt.curselection())*len(self.wdgt.lwcity.lwt.curselection())*len(self.wdgt.lwcountry.lwt.curselection())*len(self.wdgt.lwmtopic.lwt.curselection()):
+  if not len(self.wdgt.lwtech.lwt.curselection())*len(self.wdgt.lwcity.lwt.curselection())*len(self.wdgt.lwcountry.lwt.curselection()):
    self.wdgt.entry.delete(0,'end')
    self.wdgt.entry.insert(0,'select all list')
   else:
@@ -56,4 +57,4 @@ class dbpushpullc(fetchc):
   print("List Box Select")
   countryid=self.db.get('country','id','name',self.wdgt.lwcountry.lwt.get(self.wdgt.lwcountry.lwt.curselection()[0]))[0][0]
   print("countryid %d" % countryid)
-  self.wdgt.lwcity.populate(self.db.get('city','name','country',countryid))
+  self.wdgt.lwcity.populate(self.db.get('city','name','country',countryid,orderby='id'))

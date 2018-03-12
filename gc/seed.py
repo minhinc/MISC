@@ -33,6 +33,12 @@ else:
    for i in range(3,len(sys.argv)):
     dbi.fill('city',((re.sub(r'^([^,]+),.*',r'\1',sys.argv[i]).lower(),_id_(dbi,re.sub(r'^[^,]+,(.*)$',r'\1',sys.argv[i]).lower())),))
     print("%s - %d" % (re.sub(r'^([^,]+),.*',r'\1',sys.argv[i]),_id_(dbi,re.sub(r'^[^,]+,(.*)$',r'\1',sys.argv[i]).lower())))
+  elif re.search('country',sys.argv[2],flags=re.I):
+   for i in range(3,len(sys.argv)):
+    print("adding %s %s" % (i,sys.argv[i]))
+    dbi.fill('country',((sys.argv[i].lower(),),))
+    print("update %s %s" % (i,sys.argv[i]))
+    dbi.update('country','id',i-2,'id',0)
   else:
    for i in range(3,len(sys.argv)):
     dbi.fill(sys.argv[2],((sys.argv[i].lower(),),))

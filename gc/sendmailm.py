@@ -12,18 +12,33 @@ class sendmailc(fetchc):
  def __init__(self,next,wgt,db):
   fetchc.__init__(self,next,wgt,db)
   self.mtopicdir=None
-#  self.mtopicinst=self.mtopicdir=None
   self.mailsent=[]
   self.vc=threading.Condition()
  def handle(self):
-  self.mtopicdir=str(self.db.get('mtopic','id','name',self.wdgt.lwmtopic.lwt.get(self.wdgt.lwmtopic.lwt.curselection()[0]))[0][0])
+  self.mtopicdir=str(self.db.get('tech','id','name',self.wdgt.lwtech.lwt.get(self.wdgt.lwtech.lwt.curselection()[0]))[0][0])+'.'+str(self.db.get('city','id','name',self.wdgt.lwcity.lwt.get(self.wdgt.lwcity.lwt.curselection()[0]))[0][0])+'.'+str(self.db.get('country','id','name',self.wdgt.lwcountry.lwt.get(self.wdgt.lwcountry.lwt.curselection()[0]))[0][0])
+  if not os.path.exists(self.mtopicdir):
+   if not os.path.isfile(self.mtopicdir+'.zip'):
+    if os.system("wget -q "+'www.minhinc.com/advertisement/'+self.mtopicdir+'.zip'):
+     print("no www.minhinc.com/advertisement/%s.zip" % self.mtopicdir)
+     self.push(self.wdgt.text2,"no www.minhinc.com/advertisement/%s.zip\n" % self.mtopicdir)
+     self.mtopicdir='1'
+     if os.system('wget -q www.minhinc.com/advertisement/1.zip'):
+      print("no www.minhinc.com/advertisement/%s.zip" % self.mtopicdir)
+      self.push(self.wdgt.text2,"no www.minhinc.com/advertisement/%s.zip\n" % self.mtopicdir)
+      return False
+   zip_ref=zipfile.ZipFile(self.mtopicdir+'.zip','r')
+   zip_ref.extractall('.')
+   zip_ref.close()
+  self.subject=[re.sub(r'.*<!--\s*subject\s*(.*)\s*-->\s*$','\\1',line) for line in open(self.mtopicdir+'/file.html') if re.search('<!--\s*subject\s*.*-->\s*$',line)][0]
+  print("mtopicdir %s %s " % (self.mtopicdir,self.subject) )
+#  self.mtopicdir=str(self.db.get('mtopic','id','name',self.wdgt.lwmtopic.lwt.get(self.wdgt.lwmtopic.lwt.curselection()[0]))[0][0])
   fetchc.handle(self)
   self.wdgt.state="password"
   self.wdgt.entry.delete(0,'end')
   self.wdgt.entry.insert(0,"Enter password")
  def message(self,strFrom,strTo):
   msgRoot=MIMEMultipart('related')
-  msgRoot['Subject']=self.db.get('mtopic','name','id',self.mtopicdir)[0][0]
+  msgRoot['Subject']=self.subject
   msgRoot['From']=strFrom
   msgRoot['To']=strTo
   msgRoot.preamble='This is a multi-part message in MIME format.'
@@ -35,23 +50,18 @@ class sendmailc(fetchc):
   msgHTML.replace_header('Content-Type','text/html')
   msgAlternative.attach(msgHTML)
 
-  for i in range(1,self.db.get('mtopic','ic','id',self.mtopicdir)[0][0]+1):
-   print("message %s" % i)
-   fp=open(self.mtopicdir+'/file'+str(i)+'.gif','rb')
+#  for i in range(1,self.db.get('mtopic','ic','id',self.mtopicdir)[0][0]+1):
+  for i in [i for i in os.listdir(self.mtopicdir) if i!='file.html']:
+   print("files %s" % i)
+   fp=open(self.mtopicdir+'/'+i,'rb')
    msgImage=MIMEImage(fp.read())
    fp.close()
-   msgImage.add_header('Content-ID','<image'+str(i)+'>')
-   msgImage.add_header('Content-Disposition','inline', filename='file'+str(i)+'.gif')
+   msgImage.add_header('Content-ID','<image'+re.sub(r'file(\d+).*$','\\1',i)+'>')
+   msgImage.add_header('Content-Disposition','inline', filename=i)
    msgRoot.attach(msgImage)
 
   return msgRoot
  def get(self):
-  if not os.path.exists(self.mtopicdir):
-   if not os.path.isfile(self.mtopicdir+'.zip'):
-    os.system("wget -q "+'www.minhinc.com/about/'+self.mtopicdir+'.zip')
-   zip_ref=zipfile.ZipFile(self.mtopicdir+'.zip','r')
-   zip_ref.extractall('.')
-   zip_ref.close()
 #  if not self.mtopicinst:
 #   module=__import__(self.mtopicdir)
 #   my_class=getattr(module,'mtopicc')

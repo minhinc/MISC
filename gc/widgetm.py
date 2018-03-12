@@ -25,7 +25,7 @@ class scrolledtextc(Frame):
   self.lwtech=listwidgetm.listwidgetc(self.frm2,8)
   self.lwcity=listwidgetm.listwidgetc(self.frm2,12)
   self.lwcountry=listwidgetm.listwidgetc(self.frm2)
-  self.lwmtopic=listwidgetm.listwidgetc(self.frm2)
+#  self.lwmtopic=listwidgetm.listwidgetc(self.frm2)
 
   self.m=PanedWindow(self)
   self.m.pack(expand=YES,fill=BOTH)
