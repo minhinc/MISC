@@ -1,25 +1,27 @@
-#import msilib
 import datetime
 import re
 import string
+import time
+import uuid
 from fetchm import fetchc
 import databasem
-import uuid
 class dbpushpullc(fetchc):
  def __init__(self,next,wdgt,db):
   fetchc.__init__(self,next,wdgt,db)
+  self.eventchar=''
+  self.ctime=time.time()
   self.wdgt.lwcountry.lwt.bind('<<ListboxSelect>>',self.onselect)
   self.wdgt.lwcountry.lwt.bind('<Key>',self.key)
  def handle(self):
   self.wdgt.lwtech.populate(self.db.get('tech','name',orderby='id'))
   self.wdgt.lwcountry.populate(self.db.get('country','name',orderby='id'))
-#  self.wdgt.lwmtopic.populate(self.db.get('mtopic','name',orderby='id'))
   self.wdgt.show()
   fetchc.handle(self)
+  self.wdgt.entry.config(state='disabled')
  def get(self):
   companyname=None
   matchobj=None
-  #if not len(self.wdgt.lwtech.lwt.curselection())*len(self.wdgt.lwcity.lwt.curselection())*len(self.wdgt.lwcountry.lwt.curselection())*len(self.wdgt.lwmtopic.lwt.curselection()):
+  self.db.delete('linkvisited','date',int(re.sub('-','',datetime.date.today().isoformat()))-59)
   if not len(self.wdgt.lwtech.lwt.curselection())*len(self.wdgt.lwcity.lwt.curselection())*len(self.wdgt.lwcountry.lwt.curselection()):
    self.wdgt.entry.delete(0,'end')
    self.wdgt.entry.insert(0,'select all list')
@@ -38,7 +40,6 @@ class dbpushpullc(fetchc):
      self.push(self.wdgt.text2,"\n")
    self.wdgt.text1.delete('1.0','end')
    companyname='NULL'
-#   for row in self.db.conn.execute('SELECT track.email,company.name FROM track JOIN company ON track.company_id=company.id WHERE ?>=track.expire ORDER BY track.company_id',(int(re.sub('-','',datetime.date.today().isoformat())),)):
    for row in self.db.getemailcompany():
     if(companyname!=row[1]):
      if(companyname=='NULL'):
@@ -52,9 +53,12 @@ class dbpushpullc(fetchc):
    self.wdgt.save()
    self.clean()
  def key(self,event):
-  self.wdgt.lwcountry.lwt.see([i for i,item in enumerate(self.db.get('country','name',orderby='id')) if re.search(r'^'+event.char,item[0],flags=re.I)][0]+1)
+  if (time.time()-self.ctime)<3:
+   self.eventchar=self.eventchar+event.char
+  else:
+   self.eventchar=event.char
+  self.ctime=time.time()
+  self.wdgt.lwcountry.lwt.see([i for i,item in enumerate(self.db.get('country','name',orderby='id')) if re.search(r'^'+self.eventchar,item[0])][0]+1)
  def onselect(self,event):
-  print("List Box Select")
   countryid=self.db.get('country','id','name',self.wdgt.lwcountry.lwt.get(self.wdgt.lwcountry.lwt.curselection()[0]))[0][0]
-  print("countryid %d" % countryid)
   self.wdgt.lwcity.populate(self.db.get('city','name','country',countryid,orderby='id'))

@@ -1,45 +1,54 @@
 @font-face {
     font-family: mytwcenmt;
-    src: url('./ufonts.com_tw-cen-mt.ttf')
+    src: url("../misc/ufonts.com_tw-cen-mt.ttf")
 }
 @font-face {
     font-family: mybembo;
-    src: url('./fontyukle_Bembo.ttf')
+    src: url("../misc/fontyukle_Bembo.ttf")
 }
 @font-face {
     font-family: myconsolas;
-    src: url('./Consolas.ttf')
+    src: url("../misc/Consolas.ttf")
 }
-* {margin:0px;padding:0px;font-family:mybembo; font-size:13pt;color:#000; text-decoration:none;}
+* {margin:0px;padding:0px;font-family:Tw Cen MT,Bembo; font-size:13pt;color:#000; text-decoration:none;}
 html{overflow:scroll;}
 body {width:860;margin:0 auto;background-color:#fff;}
-
-hr{float:left;width:100%;color:#888888}
-
 /*pg, every page*/
-div.pg {position:relative;height:1250px;width:100%;margin-top:10px;}
-div.pg a{color:#0000aa}
-div.pg pre.ftr{position:absolute;bottom:0px;right:0px;font-family:mytwcenmt;color:#004000;font-size:8pt}
+/*div.pg {position:relative;height:1357px;width:100%;margin-top:10px;font-size:13pt;}*/
+div.pg {position:relative;height:1347px;width:100%;padding-top:20px;font-size:13pt;}
+div.pg hr{float:left;width:100%;color:#888888}
+div.pg a{color:#0000aa;font-size:13pt;font-family:mytwcenmt;text-decoration:none}
+div.pg pre.ftr{position:absolute;bottom:0px;left:45%;color:#004000;font-family:mytwcenmt;font-size:8pt}
+div.pg pre.pn{position:absolute;bottom:0px;right:0px;color:#040;font-family:mytwcenmt;font-size:8pt}
 
-div.pg pre.title{text-align:center;font-size:24pt;font-weight:bold}
+div.pg a.logo{position:absolute;top:44%;left:36.5%;}
+div.pg a.logo pre.copy {position:absolute;top:10%;left:5%;}
+div.pg a.logo pre.logot{font-family:mytwcenmt;color:#040;font-size:82pt}
+div.pg a.logo pre.logob{ont-family:mytwcentmt;color:#888;font-size:16pt}
+div.pg img.logo{position:absolute;top:44%;left:64%;}
+/*div.pg pre.logot{position:absolute;top:46%;left:44%;font-family:mytwcenmt;color:#040;font-size:48pt}
+div.pg pre.logob{position:absolute;top:51%;left:40.4%;font-family:mytwcentmt;color:#888;font-size:9pt}
+div.pg img.logo{position:absolute;top:46%;left:57.6%;}*/
+
+div.pg pre.title{margin-top:60px;text-align:center;font-size:24pt;font-weight:bold;}
 div.pg pre.subtitle{text-align:center;font-size:18pt;}
-div.pg pre.company{text-align:center;font-size:16pt;margin-bottom:100px}
+div.pg pre.company{text-align:center;font-size:16pt;margin-bottom:100px;color:#004000;font-family:mytwcenmt}
 div.pg div.headerleft{float:left;background-color:#c9c6ff;height:100%;width:24.9%;font-weight:bold;font-size:16pt;}
 div.pg div.headerright{float:right;background-color:#eaebff;height:100%;width:74.9%;}
-div.pg div.headerleft > pre{font-size:16pt;padding:10 0 0 10}
-div.pg div.headerright > pre{padding:10 0 0 10}
+div.pg div.headerleft > pre{font-size:16pt;padding:10 0 0 10;font-family:mytwcenmt}
+div.pg div.headerright > pre{padding:10 0 0 10;font-family:mytwcenmt}
 
 div.pg div.header2 {}
-div.pg div.header2 pre.header {background-color:#c9c6ff;line-height:45px;font-size:16pt;font-weight:bold;;padding-left:10px;}
-div.pg div.header2 pre.content {background-color:#eaebff;padding:10 0 0 10}
+div.pg div.header2 pre.header {background-color:#c9c6ff;line-height:45px;font-size:16pt;font-weight:bold;font-family:mytwcenmt;padding-left:10px;}
+div.pg div.header2 pre.content {background-color:#eaebff;padding:10 0 0 10;font-family:mytwcenmt}
 
 div.pg div.dayheader {float:left;width:100%}
-div.pg div.dayheader pre{margin-left:5px;font-size:26px;font-weight:bold;font-family:mytwcenmt;color:#396986}
+div.pg div.dayheader pre{margin-left:5px;font-size:26px;font-weight:bold;color:#396986;font-family:mytwcenmt}
 div.pg div.dayheader hr{margin-top:20px}
 
 div.pg div.dayheaderleft {clear:both;float:left;width:50%;}
 div.pg div.dayheaderright {float:right;width:50%;}
 div.pg pre.dayheader {background-color:#c9c6ff;width:100%;line-height:45px;font-weight:bold;font-size:11pt}
 div.pg ul.daycontent {background-color:#eaebff;padding-top:10px;width:99.7%;}
-div.pg ul.daycontent li{margin-left:45px;font-size:11pt;}
-div.pg ul.daycontent li pre{font-size:13pt;}
+div.pg ul.daycontent li{margin-left:45px;font-size:11pt;list-style:disc}
+div.pg ul.daycontent li pre{font-size:13pt;font-family:mytwcenmt}

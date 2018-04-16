@@ -1,36 +1,42 @@
 import os
 import datetime
 import re
+import sys
+if re.search(r'^(win|cygwin).*',sys.platform,flags=re.I):
+ import pymysql
+ pymysql.install_as_MySQLdb()
 import MySQLdb
 import time
 class databasec:
  def __init__(self,ct=True): #ct-createtable
   self.conn=None
+  self.cc=0#connection count
   self.reconnect()
   if(ct):
    self.create()
  def create(self):
   crsr=self.conn.cursor()
-  crsr.execute("CREATE TABLE IF NOT EXISTS track (email VARCHAR(80) NOT NULL PRIMARY KEY, uuid VARCHAR(80), company_id INT, tech_id INT, city_id INT, country_id INT, expire INT, status INT DEFAULT 0, message INT DEFAULT 0)") #status 0 normal, 1-registered, 2-unregistered message-unregistration reason
+  crsr.execute("CREATE TABLE IF NOT EXISTS track (email VARCHAR(80) NOT NULL PRIMARY KEY, uuid VARCHAR(80), company_id INT, tech_id INT, city_id INT, country_id INT, expire INT, status INT DEFAULT 0, message INT DEFAULT 0)") #status 0 normal, 1-registered, 2-unregistered, 3-senderror message-unregistration reason
   crsr.execute("CREATE TABLE IF NOT EXISTS company (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(240), phone VARCHAR(80), UNIQUE(name))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS city (id INT DEFAULT 0 PRIMARY KEY, name VARCHAR(80), country INT, UNIQUE(name,country))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS tech (id INT DEFAULT 0 PRIMARY KEY, name VARCHAR(80),UNIQUE(name))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS city (id INT  DEFAULT 0, name VARCHAR(80), country INT, PRIMARY KEY(name,country),FOREIGN KEY(country) REFERENCES country(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS tech (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(80), training VARCHAR(1024), research VARCHAR(4096), product VARCHAR(4096), service VARCHAR(1024), UNIQUE(name))")
   crsr.execute("CREATE TABLE IF NOT EXISTS country (id INT DEFAULT 0 PRIMARY KEY, name VARCHAR(80),UNIQUE(name))")
 
   crsr.execute("CREATE TABLE IF NOT EXISTS message (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(80))")
   crsr.execute("CREATE TABLE IF NOT EXISTS resume (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(80), uuid VARCHAR(80), email VARCHAR(80), phone VARCHAR(80), address VARCHAR(280), UNIQUE(email))")
 
-  crsr.execute("CREATE TABLE IF NOT EXISTS linkvisited (name VARCHAR(360) NOT NULL PRIMARY KEY)")
+  crsr.execute("CREATE TABLE IF NOT EXISTS linkvisited (name VARCHAR(360) NOT NULL PRIMARY KEY,date INT)")
   crsr.execute("CREATE TABLE IF NOT EXISTS junkemail (name VARCHAR(80) NOT NULL PRIMARY KEY)")
   crsr.execute("CREATE TABLE IF NOT EXISTS junkextension (name VARCHAR(80) NOT NULL PRIMARY KEY)")
 
-  crsr.execute("CREATE TABLE IF NOT EXISTS qt (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480),UNIQUE(id))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS c (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480),UNIQUE(id))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS cpp (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480),UNIQUE(id))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS gl (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480),UNIQUE(id))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS py (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480),UNIQUE(id))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS li (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480),UNIQUE(id))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS ldd (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480),UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS qt (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS qml (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS c (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS cpp (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS gl (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS py (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS li (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS ldd (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
 
   print('table created')
   self.conn.commit()
@@ -42,29 +48,38 @@ class databasec:
    print('database could not be connected')
    return False
   else:
+   self.cc=self.cc+1
+   if self.cc>4:
+    print("number of retry %s" % self.cc)
+    return False
    return True
- def fill(self,table,primary):
+ def fill(self,table,primary,fetchmany=False):
   try:
    crsr=self.conn.cursor()
-   for rowprimary in primary:
-    if(table=='track'):
-     crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s'" % (rowprimary[0], ))
-     if crsr.fetchone()[0] == 0:
-      crsr.execute("INSERT INTO track(email,uuid,company_id,tech_id,city_id,country_id,expire) VALUES('%s','%s','%d','%d','%d','%d','%d')" % rowprimary)
-    elif(table=='city'):
-     crsr.execute("SELECT COUNT(*) FROM city WHERE name='%s' and country='%d'" % (rowprimary[0],rowprimary[1] ))
-     if crsr.fetchone()[0] == 0:
-      crsr.execute("INSERT INTO city(name,country) VALUES('%s','%d')" % rowprimary)
-    else:
-      print("fill %s %s" % (table,rowprimary[0]))
-      crsr.execute("INSERT INTO %s (name) VALUES('%s')" % (table, rowprimary[0]))
+   if fetchmany:
+    if table=='linkvisited':
+     crsr.executemany("INSERT INTO linkvisited(name,date) VALUES(%s,%s)",primary)
+   else:
+    for rowprimary in primary:
+     if(table=='track'):
+       [self.delete('track','email',rowprimary[0]) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s' and tech_id!='%d' and status<2" % (rowprimary[0],int(rowprimary[3]) )) and crsr.fetchone()[0] != 0]
+       [crsr.execute("INSERT INTO track(email,uuid,company_id,tech_id,city_id,country_id,expire) VALUES('%s','%s','%d','%d','%d','%d','%d')" % rowprimary) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s'" % (rowprimary[0], )) and crsr.fetchone()[0] == 0]
+     elif(table=='city'):
+       [crsr.execute("INSERT INTO city(name,country) VALUES('%s','%d')" % rowprimary) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM city WHERE name='%s' and country='%d'" % (rowprimary[0],rowprimary[1] )) and crsr.fetchone()[0] == 0]
+     elif re.search(r'^(qt|qml|py|gl|c|cpp|ldd|li)$',table,flags=re.I):
+       [crsr.execute("INSERT INTO %s (name) VALUES('%s')" % (table, rowprimary[0])) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM %s WHERE id='%d'" % (table, 0 )) and crsr.fetchone()[0] == 0]
+     else:
+       [crsr.execute("INSERT INTO %s (name) VALUES('%s')" % (table, rowprimary[0])) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM %s WHERE name='%s'" % (table,rowprimary[0] )) and crsr.fetchone()[0] == 0]
   except:
    if self.reconnect():
-    self.fill(table,primary)
+    return self.fill(table,primary,fetchmany)
+   else:
+    return False
   else:
    self.conn.commit()
+   return True
  def get(self,table,columnoutput='*',column='',columninput='', orderby=None,regex=None):
-#  print("get %s,%s,%s,%s,%s,%s" % (table,columnoutput,column,columninput,orderby,regex))
+  #print("get %s,%s,%s,%s,%s,%s" % (table,columnoutput,column,columninput,orderby,regex))
   try:
    crsr=self.conn.cursor()
    if (column==''):
@@ -83,24 +98,36 @@ class databasec:
     else:
      crsr.execute("SELECT {} FROM {} WHERE {}='{}'".format(columnoutput,table,column,columninput))
   except:
-   print("exception")
+   #print("exception")
    if self.reconnect():
-    self.get(table,columnoutput,column,columninput,orderby,regex)
+    return self.get(table,columnoutput,column,columninput,orderby,regex)
+   else:
+    return False
   else:
    return crsr.fetchall()
  def update(self,table,column,value,where,wherevalue):
   try:
    self.conn.cursor().execute("UPDATE {} SET {}='{}' WHERE {}='{}'".format(table,column,value,where,wherevalue))
   except:
-   self.reconnect()
-   self.update(self,table,column,value,where,wherevalue)
- def search(self,table,columnvalue='',column='name'):
+   if self.reconnect():
+    return self.update(self,table,column,value,where,wherevalue)
+   else:
+    return False
+  else:
+   return True
+ def search(self,table,columnvalue='',column='name',regex=False):
+  #print("table,columnvalue,column,regex %s,%s,%s,%s" % (table,columnvalue,column,regex))
   try:
    crsr=self.conn.cursor()
-   crsr.execute("SELECT COUNT(*) FROM %s WHERE %s='%s'" % (table,column,columnvalue))
+   if not regex:
+    crsr.execute("SELECT COUNT(*) FROM %s WHERE %s='%s'" % (table,column,columnvalue))
+   else:
+    crsr.execute("SELECT COUNT(*) FROM %s WHERE %s REGEXP '%s'" % (table,column,columnvalue))
   except:
    if self.reconnect():
-    self.search(self.table,columnvalue,column)
+    return self.search(table,columnvalue,column)
+   else:
+    return False
   else:
    if crsr.fetchone()[0] == 0:
     return False
@@ -111,7 +138,9 @@ class databasec:
    crsr.execute("SELECT track.email,company.name FROM track JOIN company ON track.company_id=company.id WHERE %s>=track.expire ORDER BY track.company_id" % (int(re.sub('-','',datetime.date.today().isoformat())),))
   except:
    if self.reconnect():
-    self.getemailcompany()
+    return self.getemailcompany()
+   else:
+    return False
   else:
    return crsr.fetchall()
  def updatedate(self,mail):#called from sendmail
@@ -119,9 +148,19 @@ class databasec:
    self.conn.cursor().execute("UPDATE track SET expire='%d' WHERE email='%s'" % (int(re.sub('-','',str(datetime.date.today()+datetime.timedelta(days=60)))),mail))
   except:
    if self.reconnect():
-    self.updatedate(mail)
+    return self.updatedate(mail)
+   else:
+    return False
   else:
    self.conn.commit()
+   return True
+ def delete(self,table,where,wherevalue):
+  crsr=self.conn.cursor()
+  if table=='linkvisited':
+   crsr.execute("DELETE FROM {} WHERE {} < {}".format(table,where,wherevalue))
+  else:
+   crsr.execute("DELETE FROM {} WHERE {}='{}'".format(table,where,wherevalue))
+  self.conn.commit()
  def close(self):
   try:
    self.conn.commit()

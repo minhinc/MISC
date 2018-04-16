@@ -1,6 +1,7 @@
 import re
-#from tkinter import *
-from Tkinter import *#for python 2.x
+import sys
+from tkinter import *
+#from Tkinter import *#for python2.7
 import listwidgetm
 class scrolledtextc(Frame):
  def __init__(self,parent=None):

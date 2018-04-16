@@ -1,6 +1,7 @@
 import re
-#from tkinter import *
-from Tkinter import *#for python 2.x
+import sys
+from tkinter import *
+#from Tkinter import *#python 2.7
 class listwidgetc(Frame):
  def __init__(self,parent=None,widthp=20):
   Frame.__init__(self,parent)
