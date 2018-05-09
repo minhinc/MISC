@@ -1,0 +1,168 @@
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-81633607-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+<body>
+<a href="../home.html"><img src="../image/topconLogo.png"/></a>
+<br>
+<div class="ddm">
+ <ul class="drop">
+  <li><a href="../about/home.html" style="color:X">About Minh</li>
+  <li><div></div><a href="../product/home.html" style="color:X">Products</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="../product/nfs.html">Flight Simulator</a></li>
+    <li><a href="../product/gmp.html">Media Player</a></li>
+    <li><a href="../product/gfd.html">YouTube Downloader</a></li>
+    <li><a href="../product/mas.html">Medical Annotation Software</a></li>
+    <li><a href="../product/dv.html">3D Data Viewer</a></li>
+   </ul>
+  </li>
+  <li><div></div><a href="../training/home.html" style="color:#f38502">Training</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><div></div><a href="../training/py.html">Python</a>
+     <ul>
+      <li><a class="leaf" href="../training/advance-py-agenda.pdf">Agenda</a></li>
+      <li><div></div><a href="../research/home.html">Articles</a>
+       <ul>
+        <li><a href="http://www.minhinc.com/research/accessingfilesinpython.txt">Accessing Files in Python</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="../training/c.html">C</a>
+     <ul>
+      <li><a class="leaf" href="../training/advance-c-agenda.pdf">Agenda</a></li>
+      <li><a class="leaf" href="../training/advance-c-slides.pdf">Slides</a></li>
+      <li><div></div><a href="../research/home.html">Articles</a>
+       <ul>
+        <li><a href="http://www.ibm.com/developerworks/aix/library/au-aix-stack-tree-traversal">Stack Based Tree Traversal</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="../training/cpp.html">C++</a>
+     <ul>
+      <li><a class="leaf" href="../training/advance-cpp-agenda.pdf">Agenda</a></li>
+      <li><a class="leaf" href="../training/advance-cpp-slides.pdf">Slides</a></li>
+      <li><div></div><a href="../research/home.html">Articles</a>
+       <ul>
+        <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/using-the-qt-2d-display-on-a-raspberry-pi3.html">The Qt 2d Display on a Raspberry pi3</a></li>
+        <li><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.html">OpenGL drawing on Google Maps</a></li>
+        <li><a href="http://www.codeguru.com/tools/commsoftfreecondit/qt-basics-the-chain-of-responsibility-pattern.html">Qt: Chain Of Responsibility</a></li>
+        <li><a href="http://www.codeproject.com/Articles/869923/Class-Level-Generic-Logger">C++ Class Level Logger</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="../training/qt.html">Qt</a>
+     <ul>
+      <li><a class="leaf" href="../training/advance-qt-agenda.pdf">Agenda</a></li>
+      <li><div></div><a href="../research/home.html">Articles</a>
+       <ul>
+        <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/using-the-qt-2d-display-on-a-raspberry-pi3.html">The Qt 2d Display on a Raspberry pi3</a></li>
+        <li><a href="http://www.codeguru.com/tools/commsoftfreecondit/qt-basics-the-chain-of-responsibility-pattern.html">Qt: Chain Of Responsibility</a></li>
+        <li><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.html">OpenGL drawing on Google Maps</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="../training/opengl.html">OpenGL</a>
+     <ul>
+      <li><a class="leaf" href="../training/advance-gl-agenda.pdf">Agenda</a></li>
+      <li><div></div><a href="../research/home.html">Articles</a>
+       <ul>
+        <li><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.html">OpenGL drawing on Google Maps</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="../training/ldd.html">Linux Device Driver</a>
+     <ul>
+      <li><a class="leaf" href="../training/advance-ldd-agenda.pdf">Agenda</a></li>
+     </ul>
+    </li>
+    <li><div></div><a href="../training/li.html">Linux Internals</a>
+     <ul>
+      <li><a class="leaf" href="../training/advance-li-agenda.pdf">Agenda</a></li>
+      <li><a class="leaf" href="../training/advance-linux-slides.pdf">Slides</a></li>
+      <li><div></div><a href="../research/home.html">Articles</a>
+       <ul>
+        <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/raspberry-pi-3-hardware-and-system-software-reference.html">Raspberry Pi 3 Hardware And System Software Reference</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+   </ul>
+  </li>
+  <li><div></div><a href="../research/home.html" style="color:X">Research</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
+    <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
+    <li><a href="http://www.codeguru.com/IoT/raspberry-pi-3-hardware-and-system-software-reference.html">Raspberry Pi 3 Hardware And System Software Reference</a></li>
+    <li><a href="http://www.codeguru.com/IoT/using-the-qt-2d-display-on-a-raspberry-pi3.html">The Qt 2d Display on a Raspberry pi3</a></li>
+    <li><a href="http://www.developer.com/open/accessing-files-using-python.html">Accessing files using Python</a></li>
+    <li><div></div><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.html">Qt OpenGL 3D drawing on Google Maps</a>
+     <ul>
+      <li><div></div><a href="../product/home.html">Product</a>
+       <ul>
+        <li><a href="../product/nfs.html">Flight Simulator</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><a href="http://www.codeguru.com/tools/commsoftfreecondit/qt-basics-the-chain-of-responsibility-pattern.html">Qt Basic: The Chain Of Responsibility</a></li>
+    <li><a href="http://www.codeproject.com/Articles/869923/Class-Level-Generic-Logger">C++ Class Level Generic Logger</a></li>
+    <li><a href="http://sdjournal.org/download/sdj-open/">Design Patterns in Perl</a></li>
+    <li><a href="http://www.ibm.com/developerworks/aix/library/au-aix-stack-tree-traversal">Stack Based BFS Traversal</a></li>
+   </ul>
+  </li>
+  <li><div></div><a href="../service/home.html" style="color:X">Services</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="../service/network.html">Network</a></li>
+    <li><a href="../service/multimedia.html">Multimedia</a></li>
+    <li><a href="../service/medicalsystem.html">Medical Systems</a></li>
+   </ul>
+  </li>
+  <li><div></div><a href="../career/home.html" style="color:X">Career</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="../career/home.html">Upload CV</a></li>
+   </ul>
+  </li>
+  <li><div></div><a href="../about/home.html" style="color:X">Help</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="../about/home.html">About Minh, Inc.</a></li>
+    <li><a href="../about/question.html">Ask a Programming Question</a></li>
+    <li><a href="../about/contact.html">Contact Us</a></li>
+   </ul>
+  </li>
+ </ul>
+</div>
+<br>
+ <ul class="domain">
+  <li><a href="../service/network.html">Networking</a></li>
+  <li>|</li>
+  <li><a href="../service/multimedia.html">MultiMedia</a></li>
+  <li>|</li>
+  <li><a href="../service/medicalsystem.html">Medical Systems</a></li>
+ </ul>
+<br>
+<link rel="stylesheet" type="text/css" href="../css/agenda.css" media="all"/>

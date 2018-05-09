@@ -89,5 +89,5 @@ else:
     print(dbi.get(sys.argv[2],'*',sys.argv[4],sys.argv[5],regex=True))
   else:
    if dbi.search(sys.argv[2],sys.argv[4],sys.argv[3]):
-    print(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4]))
+    print(str(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4])).replace('\\n','\n').replace(", '",", \n'"))
  dbi.close()
