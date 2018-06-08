@@ -165,4 +165,3 @@
   <li><a href="../service/medicalsystem.html">Medical Systems</a></li>
  </ul>
 <br>
-<link rel="stylesheet" type="text/css" href="../css/agenda.css" media="all"/>

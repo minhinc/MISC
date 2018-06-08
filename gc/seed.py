@@ -19,6 +19,7 @@ def usage():
  python seed.py insert junkextension .*[.]doc$
  python seed.py insert country 101 "United State Of Americas"
  python seed.py insert city 101 "Los Angles,United State Of Americas"
+ python seed.py insert gl 101 "OpenGL integration with Qt"
  python seed.py delete linkvisited [regexp] name .*minh.*
  python seed.py delete linkvisited date 20180318
  python seed.py update track status 2 email sales@minhinc.com

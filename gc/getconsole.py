@@ -30,7 +30,7 @@ for fetcher in [eval(fetcher)() for fetcher in testdir.__all__]:
   i=re.sub(r'(ñ|ń|Ñ)','n',i)
   i=re.sub(r'(ö|Ō|ó|ô|õ|ò|Ó|Ö|Ò|Ó|Ô|Õ|Ö)','o',i)
   i=re.sub(r'ř','r',i)
-  i=re.sub(r'(ū|ü|ú|Ù|Ú|Û|Ü|ù)','u',i)
+  i=re.sub(r'(ü|ú|Ù|Ú|Û|Ü|ù)','u',i)
   i=re.sub(r'ş','s',i)
   i=re.sub(r'(ý|ÿ)','y',i)
   i=re.sub(r'ź','z',i)
