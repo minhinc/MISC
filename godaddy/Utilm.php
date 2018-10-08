@@ -1,0 +1,283 @@
+<?
+require_once('Utilbm.php');
+class Utilc extends Utilbc{
+public function drawscript(){
+echo file_get_contents($this->script.'.txt');
+}
+public function draw(){
+ require_once($this->json['pattern'].'.php');
+ draw($this);
+}
+
+public function drawheader(){
+?>
+<html>
+<head>
+<title>Minh, Inc. Software development and Outsourcing <? echo "| ".$this->subitem." ".$this->headername." Bangalore India"; ?></title>
+<link rel="stylesheet" type="text/css" href="<? echo $this->level ?>/css/main.css" media="all"/>
+<link rel="stylesheet" type="text/css" href="<? echo $this->level ?>/css/agenda.css" media="all"/>
+</head>
+<body>
+<?php include_once('analyticstracking.php') ?>
+<a href="<? echo $this->level ?>/"><img src="<? echo $this->level ?>/image/topconLogo.png"/></a>
+<br>
+<div class="ddm">
+ <ul class="drop">
+  <li><a href="<? echo $this->level ?>/about/" style="<?php echo ($this->headername=='about'?'color:#f38502':'') ?>">About Minh</li>
+  <li><div></div><a href="<? echo $this->level ?>/product/" style="<?php echo ($this->headername=='product'?'color:#f38502':'') ?>">Products</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="<? echo $this->level ?>/product/fs">Flight Simulator</a></li>
+    <li><a href="<? echo $this->level ?>/product/mp">Media Player</a></li>
+    <li><a href="<? echo $this->level ?>/product/ytd">YouTube Downloader</a></li>
+    <li><a href="<? echo $this->level ?>/product/mas">Medical Annotation Software</a></li>
+    <li><a href="<? echo $this->level ?>/product/3dv">3D Data Viewer</a></li>
+   </ul>
+  </li>
+  <li><div></div><a href="<? echo $this->level ?>/training/" style="<?php echo ($this->headername=='training'?'color:#f38502':'') ?>">Training</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><div></div><a href="<? echo $this->level ?>/training/py">Python</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/py/advance-py-slides.php">Slides</a></li>
+      <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
+       <ul>
+        <li><a href="http://www.minhinc.com/research/accessingfilesinpython.txt">Accessing Files in Python</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="<? echo $this->level ?>/training/c">C</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/c/advance-c-slides.php">Slides</a></li>
+      <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
+       <ul>
+        <li><a href="http://www.ibm.com/developerworks/aix/library/au-aix-stack-tree-traversal">Stack Based Tree Traversal</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="<? echo $this->level ?>/training/cpp">C++</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/cpp/advance-cpp-slides.php">Slides</a></li>
+      <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
+       <ul>
+        <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/using-the-qt-2d-display-on-a-raspberry-pi3.html">The Qt 2d Display on a Raspberry pi3</a></li>
+        <li><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.html">OpenGL drawing on Google Maps</a></li>
+        <li><a href="http://www.codeguru.com/tools/commsoftfreecondit/qt-basics-the-chain-of-responsibility-pattern.html">Qt: Chain Of Responsibility</a></li>
+        <li><a href="http://www.codeproject.com/Articles/869923/Class-Level-Generic-Logger">C++ Class Level Logger</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="<? echo $this->level ?>/training/qt">Qt</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/qt/advance-qt-slides.php">Slides</a></li>
+      <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
+       <ul>
+        <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/using-the-qt-2d-display-on-a-raspberry-pi3.html">The Qt 2d Display on a Raspberry pi3</a></li>
+        <li><a href="http://www.codeguru.com/tools/commsoftfreecondit/qt-basics-the-chain-of-responsibility-pattern.html">Qt: Chain Of Responsibility</a></li>
+        <li><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.html">OpenGL drawing on Google Maps</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="<? echo $this->level ?>/training/gl">OpenGL</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/gl/advance-gl-slides.php">Slides</a></li>
+      <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
+       <ul>
+        <li><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.htmlhp">OpenGL drawing on Google Maps</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><div></div><a href="<? echo $this->level ?>/training/qml">Qml</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/qml/advance-qml-slides.php">Slides</a></li>
+     </ul>
+    </li>
+    <li><div></div><a href="<? echo $this->level ?>/training/ldd">Linux Device Driver</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/ldd/advance-ldd-slides.php">Slides</a></li>
+     </ul>
+    </li>
+    <li><div></div><a href="<? echo $this->level ?>/training/li">Linux Internals</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/li/advance-li-slides.php">Slides</a></li>
+      <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
+       <ul>
+        <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
+        <li><a href="http://www.codeguru.com/IoT/raspberry-pi-3-hardware-and-system-software-reference.html">Raspberry Pi 3 Hardware And System Software Reference</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+   </ul>
+  </li>
+  <li><div></div><a href="<? echo $this->level ?>/research/" style="<?php echo ($this->headername=='research'?'color:#f38502':'') ?>">Research</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
+    <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
+    <li><a href="http://www.codeguru.com/IoT/raspberry-pi-3-hardware-and-system-software-reference.html">Raspberry Pi 3 Hardware And System Software Reference</a></li>
+    <li><a href="http://www.codeguru.com/IoT/using-the-qt-2d-display-on-a-raspberry-pi3.html">The Qt 2d Display on a Raspberry pi3</a></li>
+    <li><a href="http://www.developer.com/open/accessing-files-using-python.html">Accessing files using Python</a></li>
+    <li><div></div><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.html">Qt OpenGL 3D drawing on Google Maps</a>
+     <ul>
+      <li><div></div><a href="<? echo $this->level ?>/product/">Product</a>
+       <ul>
+        <li><a href="<? echo $this->level ?>/product/fs">Flight Simulator</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
+    <li><a href="http://www.codeguru.com/tools/commsoftfreecondit/qt-basics-the-chain-of-responsibility-pattern.html">Qt Basic: The Chain Of Responsibility</a></li>
+    <li><a href="http://www.codeproject.com/Articles/869923/Class-Level-Generic-Logger">C++ Class Level Generic Logger</a></li>
+    <li><a href="http://sdjournal.org/download/sdj-open/">Design Patterns in Perl</a></li>
+    <li><a href="http://www.ibm.com/developerworks/aix/library/au-aix-stack-tree-traversal">Stack Based BFS Traversal</a></li>
+   </ul>
+  </li>
+  <li><div></div><a href="<? echo $this->level ?>/service/" style="<?php echo ($this->headername=='service'?'color:#f38502':'') ?>">Services</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="<? echo $this->level ?>/service/network">Network</a></li>
+    <li><a href="<? echo $this->level ?>/service/multimedia">Multimedia</a></li>
+    <li><a href="<? echo $this->level ?>/service/medicalsystem">Medical Systems</a></li>
+   </ul>
+  </li>
+  <li><div></div><a href="<? echo $this->level ?>/career/" style="<?php echo ($this->headername=='career'?'color:#f38502':'') ?>">Career</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="<? echo $this->level ?>/career/">Upload CV</a></li>
+   </ul>
+  </li>
+  <li><div></div><a href="<? echo $this->level ?>/about/" style="<?php echo ($this->headername=='help'?'color:#f38502':'') ?>">Help</a>
+   <ul>
+    <li class="blank">" "</li>
+    <li><a href="<? echo $this->level ?>/about/">About Minh, Inc.</a></li>
+    <li><a href="<? echo $this->level ?>/about/online">Online Training</a></li>
+    <li><a href="<? echo $this->level ?>/about/question">Ask a Programming Question</a></li>
+    <li><a href="<? echo $this->level ?>/about/contact">Contact Us</a></li>
+   </ul>
+  </li>
+ </ul>
+</div>
+<br>
+ <ul class="domain">
+  <li><a href="<? echo $this->level ?>/service/network">Networking</a></li>
+  <li>|</li>
+  <li><a href="<? echo $this->level ?>/service/multimedia">MultiMedia</a></li>
+  <li>|</li>
+  <li><a href="<? echo $this->level ?>/service/medicalsystem">Medical Systems</a></li>
+ </ul>
+<br>
+<?
+}
+public function drawfooter(){
+/*$this->headername="";
+$this->subitem="";
+foreach(split("\/",split("public_html\/?",ereg_replace("\/*$","",getcwd()))[1]) as $item){
+if(empty($this->headername)){
+ $this->headername=$item;
+}elseif(empty($this->subitem) and !empty($this->headername)){
+ $this->subitem=$item;
+}
+}*/
+?>
+<div class="footer">
+ <hr>
+ <ul class="fl">
+  <li><p class="bold" style="margin:0px;padding:0px;">Minh, Inc.</p></li>
+  <li><p>#85, 5th Main, P&T<br>
+   SanjayNagar, Bangalore<br>
+   Karnataka, India 560094<br>
+   <b>+91 9483160610</b> <img src="<? echo $this->level.'/image/whatsapp.png' ?>" width="20px" height="20px"></p>
+  </li>
+ </ul>
+ <ul class="menu">
+  <li class="top"><a href="<? echo $this->level ?>/product/">Product</a>
+   <ul>
+    <li><hr class="product" style="<?php echo ($this->headername=='product'?'background-color:#f38502':'') ?>"></li>
+    <li><a href="<? echo $this->level ?>/product/ytd" <? echo ($this->subitem=='ytd'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Youtube Downloader</a><li>
+    <li><a href="<? echo $this->level ?>/product/mp" <? echo ($this->subitem=='mp'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Media Player</a><li>
+    <li><a href="<? echo $this->level ?>/product/fs" <? echo ($this->subitem=='fs'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Flight Simulator</a><li>
+    <li><a href="<? echo $this->level ?>/product/mas" <? echo ($this->subitem=='mas'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Medical Annotation Software</a><li>
+    <li><a href="<? echo $this->level ?>/product/3dv" <? echo ($this->subitem=='3dv'?'style="font-weight:bold;color:#aa4400;"':'') ?>>3D Data Viewer</a><li>
+   </ul>
+  </li>
+  <li class="top"><a href="<? echo $this->level ?>/training/">Training</a>
+   <ul>
+    <li><hr class="training" style="<?php echo ($this->headername=='training'?'background-color:#f38502':'') ?>"></li>
+    <li><a href="<? echo $this->level ?>/training/py" <? echo ($this->subitem=='py'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Python</a></li>
+    <li><a href="<? echo $this->level ?>/training/c"  <? echo ($this->subitem=='c'?'style="font-weight:bold;color:#aa4400;"':'') ?>>C</a></li>
+    <li><a href="<? echo $this->level ?>/training/qt" <? echo ($this->subitem=='qt'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Qt</a></li>
+    <li><a href="<? echo $this->level ?>/training/qml" <? echo ($this->subitem=='qml'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Qml</a></li>
+    <li><a href="<? echo $this->level ?>/training/cpp" <? echo ($this->subitem=='cpp'?'style="font-weight:bold;color:#aa4400;"':'') ?>>C++</a></li>
+    <li><a href="<? echo $this->level ?>/training/gl" <? echo ($this->subitem=='gl'?'style="font-weight:bold;color:#aa4400;"':'') ?>>OpenGL</a></li>
+    <li><a href="<? echo $this->level ?>/training/ldd" <? echo ($this->subitem=='ldd'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Linux Device Driver</a></li>
+    <li><a href="<? echo $this->level ?>/training/li" <? echo ($this->subitem=='li'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Linux Internals</a></li>
+   </ul>
+  </li>
+  <li class="top"><a href="<? echo $this->level ?>/research/">Research</a>
+   <ul>
+    <li><hr class="research" style="<?php echo ($this->headername=='research'?'background-color:#f38502':'') ?>"></li>
+   </ul>
+  </li>
+  <li class="top"><a href="<? echo $this->level ?>/services/">Services</a>
+   <ul>
+    <li><hr class="services" style="<?php echo ($this->headername=='service'?'background-color:#f38502':'') ?>"></li>
+    <li><a href="<? echo $this->level ?>/service/network" <? echo ($this->subitem=='network'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Networking</a><li>
+    <li><a href="<? echo $this->level ?>/service/multimedia" <? echo ($this->subitem=='multimedia'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Multimedia</a></li>
+    <li><a href="<? echo $this->level ?>/service/medicalsystem" <? echo ($this->subitem=='medicalsystem'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Medical Systems</a></li>
+   </ul>
+  </li>
+  <li class="top"><a href="<? echo $this->level ?>/career/">Career</a>
+   <ul>
+    <li><hr class="career" style="<?php echo ($this->headername=='career'?'background-color:#f38502':'') ?>"></li>
+   </ul>
+  </li>
+  <li class="top"><a href="<? echo $this->level ?>/about/">Help</a>
+   <ul>
+    <li><hr class="help" style="<?php echo ($this->headername=='about'?'background-color:#f38502':'') ?>"></li>
+    <li><a href="<? echo $this->level ?>/about/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
+    <li><a href="<? echo $this->level ?>/about/question" <? echo ($this->subitem=='question'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Ask a programming question</a></li>
+    <li><a href="<? echo $this->level ?>/about/contact" <? echo ($this->subitem=='contact'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Contact Us</a></li>
+   </ul>
+  </li>
+ </ul>
+ <ul class="fr">
+  <li><p>&copy Minh Inc 2015-2018</p></li>
+  <li class="img"><a href="https://github.com/minhinc/"><img src="<? echo $this->level ?>/image/githubs.png"/></a><a href="https://linkedin.com/in/pravinkumarsinha/"><img src="<? echo $this->level ?>/image/linkedins.png"/></a><a href="https://facebook.com/minhinc/"><img src="<? echo $this->level ?>/image/fbs.png"/></a></li>
+ </ul>
+</div>
+</body>
+</html>
+<?
+}
+
+public function drawmenuleft(){
+$light="light";
+$json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$this->headername))[0],true);
+echo '<div class="downloadleft">
+<ul class="tablist">
+<a href="'.$this->level.'/'.$this->headername.'"><li class="header"><p>'.json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$this->headername))[0],true)['title'].'</p></li></a>';
+foreach($json['child'] as $key){
+if($this->subitem == $key){
+echo '<li class="current"><p class="padtop">'.json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key))[0],true)['title'].'</p></li>';
+}else{
+echo '<a href="'.$level.'/'.$this->headername.'/'.$key.'"><li class='.$light.'><p>'.json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key))[0],true)['title'].'</p></li></a>';
+}
+if($light=="light"){$light="dark";}else{$light="light";}
+}
+echo ' </ul>
+</div>';
+}
+
+}
+?>

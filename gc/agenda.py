@@ -3,440 +3,422 @@ import re
 from PIL import Image
 from databasem import databasec
 import urllib.request as urllib2
+import urllib.error as urllib3
 import string
-if len(sys.argv)<4:
+print(sys.argv)
+if len(sys.argv)<6 or not re.search(r'^(m|d).*',sys.argv[1],flags=re.I) or not re.search(r'^(agenda|pdf|php)$',sys.argv[2],flags=re.I):
  print(''' ---usage---
- agenda.py <tech> <company> <iddaywise>
- agenda.py qt claysol "1 2 3:4 L" "4 5 6:L"
- agenda.py qt '' "1 2 3:4 L" "4 5 6:L"''')
+ agenda.py <backend> <mode> <tech> <company> <iddaywise>
+ agenda.py mobile php qt '' "1 2 3:4 L" "4 5 6:L"
+ agenda.py [desktop|mobile] [agenda|pdf|php] [c|cpp|gl|li|ldd|py|qt|qml] '' "1 2 3:4 L" "4 5 6:L"''')
  exit(-1)
-day=[]
-company=sys.argv[2] if not re.search(r'^(''|"")$',sys.argv[2],flags=re.I) else None
-for i in range(3,len(sys.argv)):
- if re.search(r':',sys.argv[i]):
-  day.append(sys.argv[i].split(':')[0].split()+[':']+sys.argv[i].split(':')[1].split())
- else:
-  day.append(sys.argv[i].split())
-f=open('advance-'+sys.argv[1]+'-agenda.html','w')
-db=databasec(False)
-TM=20;PH=1375-TM;hc=0
-LH=22;HH=40;CHH=40;HHH=50;CHG=95;HCG=40;CCG=80;OFST=25#lineheight,headerheight,contentheaderheight,contentheadergap,headercontentgap,contentcontentgap
-BTMOFST=20
-htmlstr="";pagenumber=0
-def prepareheader():
- global htmlstr;global pagenumber
- global PH;global hc;
- top='';left=True;
- tech=sys.argv[1]
- l='';header=''
- numofline=0
- height=0
- agendadaydata=[]
- htmlstr+="""<html>
-<head>
-<title>%s</title>
-<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../css/main.css" media="all"/>
-<link rel="stylesheet" type="text/css" href="../css/agenda.css" media="all"/>
-%s
-<div class="pg" style="margin-top:%spx;height:%spx">
-""" % ('Minh, Inc. Software development and Outsourcing | '+string.capwords(tech)+' Training Bangalore',open('header.txt').read(),2*TM,PH-TM)
-
- for data in db.get(tech,'*','name','[[:<:]]h_',orderby='id',regex=True):
-  numofline=numofline+max(len(re.findall(r'\n',str(data[1])))+1,len(re.findall(r'\n',str(data[2])))+1)
- htmlstr+=""" <pre class=title>%s</pre>
+class agenda:
+ def __init__(self):
+  self.backend=sys.argv[1]
+  self.mode=sys.argv[2]
+  self.tech=sys.argv[3]
+  self.company=sys.argv[4]
+  self.day=[]
+  for i in range(5,len(sys.argv)):
+   if re.search(r':',sys.argv[i]):
+    self.day.append(sys.argv[i].split(':')[0].split()+[':']+sys.argv[i].split(':')[1].split())
+   else:
+    self.day.append(sys.argv[i].split())
+  self.TM=20
+#  self.PH=(1375 if self.mode=="agenda" else 1415 if self.tech!='qt' else 1430)-self.TM
+  self.PH=(1375 if self.mode=="agenda" else 1415)-self.TM
+  self.BTMOFST=20
+  self.hc=0
+  self.htmlstr=''
+  if self.backend[0]=='m':
+   self.file=open('advance-'+self.tech+'-slides_m.txt','w')
+  else:
+   self.file=open('advance-'+self.tech+'-slides.txt','w')
+  self.db=databasec(False)
+  self.pagenumber=0
+  self.prepareagenda()
+  if self.mode!='agenda':
+   self.preparecontent()
+  self.preparepdf()
+ def prepareagenda(self):
+  LH=22;HH=40;OFST=25#headerheight
+  CHH=40;HHH=50;CHG=95;HCG=40;CCG=80#contentheaderheight,contentheadergap,headercontentgap,contentcontentgap
+  numofline=0
+  top='';left=True;
+  l='';header=''
+  height=0
+  agendadaydata=[]
+  subtopiccount=0
+  self.placetopbreak(True)
+  self.htmlstr+=""" <pre class=title>%s</pre>
  <pre class=subtitle>%s</pre>
  <pre class=company>%s</pre>
-""" % (db.get(tech,'value','name','title')[0][0],db.get(tech,'value','name','subtitle')[0][0],'('+company+')' if company else '')
-
- for data in db.get(tech,'*','name','[[:<:]]h_',orderby='id',regex=True):
-  if not re.search(r'h_hr',data[1]):
-   htmlstr+=""" <div style="height:%spx;">
-  <div class="headerleft"> <pre>%s</pre></div>
-  <div class="headerright"> <pre>%s</pre></div>
- </div>
+""" % (self.db.get(self.tech,'value','name','title')[0][0],self.db.get(self.tech,'value','name','subtitle')[0][0],'('+self.company+')' if self.company else '')
+  for data in self.db.get(self.tech,'*','name','[[:<:]]h_',orderby='id',regex=True):
+   numofline=numofline+max(len(re.findall(r'\n',str(data[1])))+1,len(re.findall(r'\n',str(data[2])))+1)
+  for data in self.db.get(self.tech,'*','name','[[:<:]]h_',orderby='id',regex=True):
+   if not re.search(r'h_hr',data[1]):
+    self.htmlstr+=""" <div style="height:%spx;">
+   <div class="headerleft"> <pre>%s</pre></div>
+   <div class="headerright"> <pre>%s</pre></div>
+  </div>
 """ % (max(len(re.findall(r'\n',data[1]))+1,len(re.findall(r'\n',data[2]))+1)*LH+int((50*OFST)/numofline),re.sub(r'^h_','',data[1]),data[2])
-  else:
-   htmlstr+=''' <hr>
+   else:
+    self.htmlstr+=''' <hr>
 '''
- pagenumber=pagenumber+1
- htmlstr+="""<pre class="ftr">&copy www.MinhInc.com</pre><pre class="pn">%s</pre>
-</div>
-
-<div class="pg" style="margin-top:%spx;height:%spx">
-""" % (pagenumber,TM,PH)
- pagenumber+=1
- hc=0
- for data in db.get(tech,'*','name','[[:<:]]h2_',orderby='id',regex=True):
-  htmlstr+=""" <div class="header2" style="margin-top:%spx;">
-  <pre class="header" style="line-height:%spx">%s</pre>
-  <pre class="content" style="height:%spx">%s</pre>
- </div>
-""" % (0 if not hc else OFST*5,HH,re.sub(r'^h2_','',data[1]),len(re.findall(r'\n',data[2]))*LH+OFST,data[2])
-  hc=HH+(len(re.findall(r'\n',data[2]))+1)*LH+OFST if not hc else hc+5*OFST+HH+(len(re.findall(r'\n',data[2]))+1)*LH+OFST
- 
- for k in range(0,len(day)):
-  for i in range(0,len(day[k])):
-   if not re.search(r'^(\d+|:|l|L)$',day[k][i],flags=re.I):
-    tech=day[k][i]
-    continue
-   if not re.search(r'^[Ll:]$',day[k][i]):
-    l=db.get(tech,'lab','id',day[k][i])[0][0] if l=='' else l+'\n'+db.get(tech,'lab','id',day[k][i])[0][0];
-   if top and (left or i==0 or day[k][i]==':'):
-    top=header+top
-    height=height+CHG+HHH+HCG+CHH if header else height+CCG+CHH
-    agendadaydata.append({'height':height,'data':top})
-    top=header=''
-    height=0
-   if i==0 or day[k][i]==':':
-    left=True
-    header=""" <div class="dayheader" style="margin-top:XXXpx;height:%spx"><pre>Day %s %s</pre><hr></div>
-""" % (str(HHH),k+1,"Afternoon" if day[k][i]==':' else "Morning")
-    if day[k][i]==':':
+  self.placepagebreak()
+  self.hc=0
+  for data in self.db.get(self.tech,'*','name','[[:<:]]h2_',orderby='id',regex=True):
+   self.htmlstr+=""" <div class="header2" style="margin-top:%spx;">
+   <pre class="header" style="line-height:%spx">%s</pre>
+   <pre class="content" style="height:%spx">%s</pre>
+  </div>
+""" % (0 if not self.hc and self.backend!='m' else OFST*5,HH,re.sub(r'^h2_','',data[1]),len(re.findall(r'\n',data[2]))*LH+OFST,data[2])
+   self.hc=HH+(len(re.findall(r'\n',data[2]))+1)*LH+OFST if not self.hc else self.hc+5*OFST+HH+(len(re.findall(r'\n',data[2]))+1)*LH+OFST
+  
+  for k in range(0,len(self.day)):
+   for i in range(0,len(self.day[k])):
+    if not re.search(r'^(\d+|:|l|L)$',self.day[k][i],flags=re.I):
+     self.tech=self.day[k][i]
      continue
-   top+=""" <div class=%s style="margin-top:YYYpx;height:%spx">
-  <pre class="%s" style="line-height:%spx">%s</pre>
-  <ul class="%s" style="padding-top:10px;float:%s">
-""" % ('dayheaderleft' if left else 'dayheaderright',(len(re.findall(r'\n',l))+1)*LH+CHH if re.search(r'^[Ll]$',day[k][i]) else (len(re.findall(r'\n',db.get(tech,'value','id',day[k][i])[0][0]))+1)*LH+CHH,'dayheader',str(CHH),'     Lab' if re.search(r'[Ll]',day[k][i]) else '  Lecture - '+db.get(tech,'name','id',day[k][i])[0][0],'daycontent','left' if left else 'right')  
-   for le in [re.sub(r'\n$','',e) for e in re.split(r'[*]',l if  re.search(r'^[Ll]$',day[k][i]) else db.get(tech,'value','id',day[k][i])[0][0]) if e]:
-    top+="""   <li><pre>%s</pre></li>
-""" % le
-   top+='''
-  </ul>
- </div>
+    if not re.search(r'^[Ll:]$',self.day[k][i]):
+     l=self.db.get(self.tech,'lab','id',self.day[k][i])[0][0] if l=='' else l+('\n'+self.db.get(self.tech,'lab','id',self.day[k][i])[0][0] if self.db.get(self.tech,'lab','id',self.day[k][i])[0][0] else '')
+    if top and (left or i==0 or self.day[k][i]==':' or (i==1 and not re.search(r'^(\d+|:|l|L)$',self.day[k][0],flags=re.I))):
+     top=header+top
+     height=height+CHG+HHH+HCG+CHH if header else height+CCG+CHH
+     agendadaydata.append({'height':height,'data':top})
+     top=header=''
+     height=0
+    if i==0 or self.day[k][i]==':' or (i==1 and not re.search(r'^(\d+|:|l|L)$',self.day[k][0],flags=re.I)):
+     left=True
+     header=""" <div class="dayheader" style="margin-top:XXXpx;height:%spx"><pre>Day %s %s</pre><hr></div>
+""" % (str(HHH),k+1,"Afternoon" if self.day[k][i]==':' else "Morning")
+     if self.day[k][i]==':':
+      continue
+    top+=""" <div class=%s style="margin-top:YYYpx;%s">
+   <div class="dayheaderheader" style="height:%spx">%s class="%s" style="padding-top:%spx;%spx">%s%s</div>
+   <ul class="%s" style="padding-top:10px;float:%s">
+""" % ('dayheaderleft' if left else 'dayheaderright','height:'+str((len(re.findall(r'\n',l))+1)*LH+CHH)+'px' if re.search(r'^[Ll]$',self.day[k][i]) and self.backend!='m' else 'height:'+str((len(re.findall(r'\n',self.db.get(self.tech,'value','id',self.day[k][i])[0][0]))+1)*LH+CHH)+'px' if self.backend!='m' else '',CHH,'<pre' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "<a name=\"main"+self.day[k][i]+"\" href=\"#chap"+str(self.day[k][i])+"\"",'dayheader',CHH/4 if not re.search(r'^[Ll]$',self.day[k][i]) else 0,'height:'+str(CHH) if not re.search(r'^[Ll]$',self.day[k][i]) else 'line-height:'+str(CHH),'     Lab' if re.search(r'[Ll]',self.day[k][i]) else '  Lecture - '+self.db.get(self.tech,'name','id',self.day[k][i])[0][0],'</pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else '</a>','daycontent','left' if left else 'right')
+    subtopiccount=0
+    for le in [re.sub(r'^\n*(.*?)\n*$',r'\1',e,flags=re.DOTALL) for e in re.split(r'[*]',l if  re.search(r'^[Ll]$',self.day[k][i]) else self.db.get(self.tech,'value','id',self.day[k][i])[0][0]) if e]:
+     top+="""   <li>%s%s%s</li>
+""" % ('<pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "<a href=\"#chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">" if self.mode=='pdf' and not re.search(r'^[Ll]$',self.day[k][i]) else '<a href=\"#chap'+self.day[k][i]+'_'+str(subtopiccount)+'\">'+'<pre>',re.sub(r'\n','<br>',le,flags=re.DOTALL) if self.mode=='pdf' and not re.search(r'^[Ll]$',self.day[k][i]) else le,'</pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "</a>" if self.mode=='pdf' and not re.search(r'^[Ll]$',self.day[k][i]) else '</pre></a>')
+     subtopiccount+=1
+    top+='''
+   </ul>
+  </div>
 '''
-   height=max(height,(len(re.findall(r'\n',l))+1)*LH+10 if re.search(r'^[Ll]$',day[k][i]) else (len(re.findall(r'\n',db.get(tech,'value','id',day[k][i])[0][0]))+1)*LH+10)#10 is ul padding top
-   if re.search(r'^[Ll]$',day[k][i]): l=''
-   left=not left
- if top:
-  top=header+top
-  height=height+CHG+HHH+HCG+CHH if header else height+CCG+CHH
-  agendadaydata.append({'height':height,'data':top})
+    height=max(height,(len(re.findall(r'\n',l))+1)*LH+10 if re.search(r'^[Ll]$',self.day[k][i]) else (len(re.findall(r'\n',self.db.get(self.tech,'value','id',self.day[k][i])[0][0]))+1)*LH+10)#10 is ul padding top
+    if re.search(r'^[Ll]$',self.day[k][i]): l=''
+    left=not left
+  if top:
+   top=header+top
+   height=height+CHG+HHH+HCG+CHH if header else height+CCG+CHH
+   agendadaydata.append({'height':height,'data':top})
 
- hc+=BTMOFST
- boundry=hf=cf=ii=0
- for k in range(0,len(agendadaydata)):
-  if k==boundry: ii=k
-  while k==boundry and ii<len(agendadaydata) and (PH-hc-agendadaydata[ii]['height'])>0:
-   hc+=agendadaydata[ii]['height']
-   if re.search(r'XXX',agendadaydata[ii]['data']):
-    hf+=1
-   else:
-    cf+=1
-   ii+=1
+  if self.backend[0]=='m':
+   for k in range(0,len(agendadaydata)):
+    if re.search(r'XXX',agendadaydata[k]['data'],flags=re.I):
+     self.htmlstr+=re.sub(r'XXX',str(CHG/2),re.sub(r'YYY',str(HCG/2),agendadaydata[k]['data'],flags=re.I),flags=re.I)
+    else:
+     self.htmlstr+=re.sub(r'YYY',str(CCG/2),agendadaydata[k]['data'],flags=re.I)
   else:
-   if re.search(r'XXX',agendadaydata[k]['data']):
-    if re.search(r'height:\d+px">\n$',htmlstr,flags=re.DOTALL):
-     agendadaydata[k]['data']=re.sub(r'XXX',str(0),agendadaydata[k]['data'])
-     hc=hc-CHG
-    else:
-     if re.search(r'AfterNoon',agendadaydata[k]['data'],flags=re.I):
-      agendadaydata[k]['data']=re.sub(r'XXX',str(CHG+(PH-hc)/hf if (PH-hc)/hf < PH/4 else CHG+(2*(PH-hc))/(3*hf)),agendadaydata[k]['data'])
-      hc=hc+(PH-hc)/hf if (PH-hc)/hf < PH/4 else hc+(2*(PH-hc))/(3*hf)
+   self.hc+=self.BTMOFST
+   boundry=hf=cf=ii=0
+   for k in range(0,len(agendadaydata)):
+    if k==boundry: ii=k
+    while k==boundry and ii<len(agendadaydata) and (self.PH-self.hc-agendadaydata[ii]['height'])>0:
+     self.hc+=agendadaydata[ii]['height']
+     if re.search(r'XXX',agendadaydata[ii]['data']):
+      hf+=1
      else:
-      agendadaydata[k]['data']=re.sub(r'XXX',str(CHG+(PH-hc)/hf),agendadaydata[k]['data'])
-      hc=hc+(PH-hc)/hf
-    agendadaydata[k]['data']=re.sub(r'YYY',str(HCG),agendadaydata[k]['data'])
-    hf=hf-1
-   else:
-    if re.search(r'height:\d+px">\n$',htmlstr,flags=re.DOTALL):
-     agendadaydata[k]['data']=re.sub(r'YYY',str(0),agendadaydata[k]['data'])
-     hc=hc-CCG
+      cf+=1
+     ii+=1
     else:
-     if not hf:
-      agendadaydata[k]['data']=re.sub(r'YYY',str(CCG+(PH-hc)/(4*cf)),agendadaydata[k]['data'])
-      hc=hc+(PH-hc)/(4*cf)
+     if re.search(r'XXX',agendadaydata[k]['data']):
+      if re.search(r'height:\d+px">\n$',self.htmlstr,flags=re.DOTALL):
+       agendadaydata[k]['data']=re.sub(r'XXX',str(0),agendadaydata[k]['data'])
+       self.hc=self.hc-CHG
+      else:
+       if re.search(r'AfterNoon',agendadaydata[k]['data'],flags=re.I):
+        agendadaydata[k]['data']=re.sub(r'XXX',str(CHG+(self.PH-self.hc)/hf if (self.PH-self.hc)/hf < self.PH/4 else CHG+(2*(self.PH-self.hc))/(3*hf)),agendadaydata[k]['data'])
+        self.hc=self.hc+(self.PH-self.hc)/hf if (self.PH-self.hc)/hf < self.PH/4 else self.hc+(2*(self.PH-self.hc))/(3*hf)
+       else:
+        agendadaydata[k]['data']=re.sub(r'XXX',str(CHG+(self.PH-self.hc)/hf),agendadaydata[k]['data'])
+        self.hc=self.hc+(self.PH-self.hc)/hf
+      agendadaydata[k]['data']=re.sub(r'YYY',str(HCG),agendadaydata[k]['data'])
+      hf=hf-1
      else:
-      agendadaydata[k]['data']=re.sub(r'YYY',str(CCG),agendadaydata[k]['data'])
-    cf=cf-1
-   boundry=ii
-  htmlstr+=agendadaydata[k]['data']
-  if k+1==boundry: 
-   htmlstr+=""" <pre class="ftr">&copy www.MinhInc.com</pre><pre class="pn">%s</pre>
+      if re.search(r'height:\d+px">\n$',self.htmlstr,flags=re.DOTALL):
+       agendadaydata[k]['data']=re.sub(r'YYY',str(0),agendadaydata[k]['data'])
+       self.hc=self.hc-CCG
+      else:
+       if not hf:
+        agendadaydata[k]['data']=re.sub(r'YYY',str(CCG+(self.PH-self.hc)/(4*cf)),agendadaydata[k]['data'])
+        self.hc=self.hc+(self.PH-self.hc)/(4*cf)
+       else:
+        agendadaydata[k]['data']=re.sub(r'YYY',str(CCG),agendadaydata[k]['data'])
+      cf=cf-1
+     boundry=ii
+    self.htmlstr+=agendadaydata[k]['data']
+    if k+1==boundry: 
+     self.pagenumber=self.pagenumber+1
+     self.htmlstr+=""" <pre class="ftr">&copy www.MinhInc.com</pre><a class="pn"><img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>%s</a>
 </div>
 %s
-""" % (pagenumber,'<div class="pg" style="margin-top:'+str(TM)+'px;height:'+str(PH)+'px">' if (k+1)!=len(agendadaydata) else '')
-   pagenumber=pagenumber+1
-   hc=BTMOFST
+""" % ("p"+str(self.pagenumber),'<div class="pg" style="margin-top:'+str(self.TM)+'px;height:'+str(self.PH)+'px">' if (k+1)!=len(agendadaydata) else '')
+     self.hc=self.BTMOFST
+  self.htmlstr+='''</div>
+<div style="clear:both;"></div>
+'''
 
-def preparedisclaimer():
- global htmlstr,pagenumber
- htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
- <pre class="slidetitle" style="margin-top:%spx">%s</pre>
- <pre class="slidesubtitle style="margin-top:%spx">%s</pre>
- <pre class="ftr">&copy www.MinhInc.com</pre><pre class="pn">%s</pre>
-</div>
-<div class="pg" style="margin-top:%spx;height:%spx">
- <pre class="slidedisclaimer" style="margin-top:%spx">%s</pre>
- <pre class="ftr">&copy www.MinhInc.com</pre><pre class="pn">%s</pre>
-</div>
-""" % (TM,PH-TM,TM*2,string.capwords(sys.argv[1])+' Essentials',TM,string.capwords(sys.argv[1])+' Essenstials- Training Course',pagenumber+1,TM,PH-TM,2*TM,'''DISCLAIMER
-
-This document is edited on Cent OS 5 using Open Office 3.1.1 Draw Package.
-
-CentOS is freely download from centos.org/download
-Open Office 3.1.1 can be obtained through yum or through openoffice.org
-
-Text of this document is written in Bembo Std Otf(13 pt) font.
-
-Code parts are written in Consolas (10 pts) font.
-
-This training material is provided through Minh, Inc, B'lore, India
-Document is available at minhinc.com/training/advance-c-slides.pdf
-For suggestion(s) or complaint(s) write to us at training@minhinc.com
-
-Document modified on 05/2018
-
-Document contains xx pages.''',pagenumber+2)
- pagenumber+=2
-
-def preparecontent():
- global htmlstr,pagenumber
- global PH,TM,OFST,BTMOFST
- LH=20;HBH=21;CH=15;HLH=10;CNTTHR=3*LH
- hc=contentlength=headerheight=lineheight=0
- cnt=fixheader=header=""
- dayhalf=''
- tech=sys.argv[1]
- tstr=''
- code=codes=False
- smax=0
- smin=10*LH
- hcs=0
- CP=5
- CC=2#columncount
- columns=columnb=1
- CHS=9#codeheightshort
- NEWLINEWIDTH=LINEWIDTH=86
- cscount=linecount=0
- for k in range(0,len(day)):
-  dayhalf='Morning'
-  for i in range(0,len(day[k])):
-   if not re.search(r'^(\d+|:|l|L)$',day[k][i],flags=re.I):
-    tech=day[k][i]
-    continue
-   if re.search(r'^(:|l|L)$',day[k][i],flags=re.I):
-    if day[k][i]==':':
-     dayhalf='Afternoon'
-    continue
-   htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
-""" % (TM,PH)
-   for ii in re.split(r'\n',db.get(tech,'content','id',day[k][i])[0][0]):
-    NEWLINEWIDTH=LINEWIDTH+len(re.findall(r'<b>',ii[0:LINEWIDTH]))*3+len(re.findall(r'</b>',ii[0:LINEWIDTH]))*4
-    if len(ii)<=NEWLINEWIDTH:
-     cnt+=ii+'\n'
-    else:
-     while len(ii)>NEWLINEWIDTH and re.search(r'\s',ii[0:NEWLINEWIDTH+1]):
-      tstr1,tstr2=re.split(r'<><>',re.sub(r'^(.*)\s+(.*)$','\\1<><>\\2',ii[0:NEWLINEWIDTH+1],flags=re.DOTALL))
-      cnt+=tstr1+'\n'
-      ii=tstr2+ii[NEWLINEWIDTH+1:]
-      NEWLINEWIDTH=LINEWIDTH+len(re.findall(r'<b>',ii[0:LINEWIDTH]))*3+len(re.findall(r'</b>',ii[0:LINEWIDTH]))*4
-     else:
-      cnt+=ii+'\n'
-   if re.search(r'^[\s\n]*$',cnt,flags=re.DOTALL): continue
-   header=''
-   fixheader=re.sub(r'^\n(.*)\n$','\\1',re.sub(r'\n+','\n',''.join([re.sub(r'</?h>','\n',e) for e in re.findall(r'<h>.*?</h>',cnt,flags=re.DOTALL)])),flags=re.DOTALL)
-   print("fixheader><%s<>" % fixheader)
-   while cnt:
-    if re.search(r'^\s*<h>.*',cnt):
-     header,cnt=re.split(r'<><>',re.sub(r'^\s*<h>\n(.*?)\n</h>\n(.*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
-     headerheight=(len(re.findall(r'\n',fixheader))-len(re.findall(r'\n',header)))*HLH+(len(re.findall(r'\n',header))+1)*HBH+42+32 #42+32 is for header day and topic
-     print("headerheight %s" % headerheight)
-     tstr=""" <div class="slideheader" style="height:%spx">
+#
+# def preparedisclaimer():
+#  self.htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
+# <pre class="slidetitle" style="margin-top:%s">%s</pre>
+# <pre class="slidesubtitle">%s</pre>
+# <pre class="ftr">&copy www.MinhInc.com</pre><pre class="pn">%s</pre>
+#</div>
+#<div class="pg" style="margin-top:%spx;height:%spx">
+# <pre class="slidedisclaimer" style="margin-top:%s">%s</pre>
+# <pre class="ftr">&copy www.MinhInc.com</pre><pre class="pn">%s</pre>
+#</div>
+#""" % (TM,PH,'30%',string.capwords(sys.argv[1])+' Essentials',string.capwords(sys.argv[1])+' Essenstials- Training Course',"p"+str(pagenumber),TM,PH,'30%',"""DISCLAIMER
+#
+#This document is edited on Cent OS 5 using Open Office 3.1.1 Draw Package.
+#
+#CentOS is freely download from centos.org/download
+#Open Office 3.1.1 can be obtained through yum or through openoffice.org
+#
+#Text of this document is written in Bembo Std Otf(13 pt) font.
+#
+#Code parts are written in Consolas (10 pts) font.
+#
+#This training material is provided through <a style="font-family:mytwcenmt,Tw Cen MT;font-size:14pt;color:#004000;font-weight:bold" href="http://www.minhinc.com">Minh, Inc.</a>, B'lore, India
+#Pdf version of this document is available at <a href="http://www.minhinc.com/training/advance-%s-slides.pdf">http://www.minhinc.com/training/advance-%s-slides.pdf</a>
+#For suggestion(s) or complaint(s) write to us at <a href="mailto:training@minhinc.com">training@minhinc.com</a>
+#
+#Document modified on 07/2018
+#
+#Document contains xxxx pages.""" % (sys.argv[1],sys.argv[1]),"p"+str(pagenumber+1))
+#  self.pagenumber+=2
+#
+ def preparecontent(self):
+  LH=20;HBH=21;CH=15;HLH=10;CNTTHR=3*LH
+  contentlength=headerheight=lineheight=0
+  cnt=fixheader=header=code=dayhalf=""
+  CCH=CSH=9.5
+  LINEWIDTH=84
+  CODELINEWIDTH=104
+  cscount=linecount=subtopiccount=0
+  self.placetopbreak()
+  self.hc=self.BTMOFST
+  for k in range(0,len(self.day)):
+   dayhalf='Morning'
+   for i in range(0,len(self.day[k])):
+    if not re.search(r'^(\d+|:|l|L)$',self.day[k][i],flags=re.I):
+     self.tech=self.day[k][i]
+     continue
+    if re.search(r'^(:|l|L)$',self.day[k][i],flags=re.I):
+     if self.day[k][i]==':':
+      dayhalf='Afternoon'
+     continue
+    cnt=self.db.get(self.tech,'content','id',self.day[k][i])[0][0]
+    fixheader=re.sub(r'^\n(.*)\n$','\\1',re.sub(r'\n+','\n',''.join([re.sub(r'</?h>','\n',e) for e in re.findall(r'<h>.*?</h>',cnt,flags=re.DOTALL)])),flags=re.DOTALL)
+    print("fixheader><%s<>" % fixheader)
+    subtopiccount=0
+    while cnt:
+     #if re.search(r'^[\n\s]*<h>.*',cnt,flags=re.DOTALL):
+     if self.searchtag('h',cnt):
+      print("<h>")
+      code,cnt=self.getcodecnt('h',cnt)
+      headerheight=(len(re.findall(r'\n',fixheader))-len(re.findall(r'\n',code)))*HLH+(len(re.findall(r'\n',code))+1)*HBH+42+32 #42+32 is for header day and topic
+      print("headerheight %s" % headerheight)
+      header=""" %s<div class="slideheader" style="%s">
   <pre class="day">%s</pre>
   <pre class="topic">%s</pre>
   <ul class="slidecontent">
-""" % (headerheight,'Day '+str(k+1)+' '+dayhalf,'  '+str(day[k][i])+'. '+db.get(tech,'name','id',day[k][i])[0][0])
-     for line in [line for line in re.split(r'('+re.escape(header)+r')',fixheader) if line]:
-      line=re.sub(r'^\n*(.*)\n*$','\\1',line,flags=re.DOTALL)
-      for ii in [ii for ii in re.split(r'^[*]',line,flags=re.M) if ii]:
-       tstr+="""   <li class="%s"><pre>%s</pre></li>""" % ("big" if line==header else "sml",re.sub(r'\n*(.*)\n*$','\\1',ii,flags=re.DOTALL))
-     tstr+='''  
+""" % ("<a name=\"chap"+self.day[k][i]+"\">&nbsp;" if subtopiccount==0 else "",'height:'+str(headerheight)+'px' if self.backend!='m' else '','Day '+str(k+1)+' '+dayhalf,'  '+str(self.day[k][i])+'. '+self.db.get(self.tech,'name','id',self.day[k][i])[0][0])
+      for line in [line for line in re.split(r'('+re.escape(code)+r'\s*$)',fixheader,flags=re.M) if line]:
+       line=re.sub(r'^\n*(.*)\n*$','\\1',line,flags=re.DOTALL)
+       for ii in [re.sub(r'^\n*(.*)\n*$','\\1',ii,flags=re.DOTALL) for ii in re.split(r'^[*]',line,flags=re.M) if ii]:
+ #       header+="""   <li class="%s"><pre>%s</pre></li>""" % ("big" if line==code else "sml",re.sub(r'\n*(.*)\n*$','\\1',ii,flags=re.DOTALL))
+        header+="""   <li class="%s">%s%s%s</li>""" % ("big" if line==code else "sml",("<a name=\"chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">") if line==code else '<pre>',re.sub(r'\n','<br>',ii,flags=re.DOTALL) if line==code else ii,"</a>" if line==code else '</pre>')
+      header+="""
   </ul>
- </div>
+ </div>%s
+""" % ('</a>' if subtopiccount==0 else '')
+      subtopiccount+=1
+      if (self.hc+headerheight+LH*2)>self.PH:
+       self.placepagebreak(k,i);
+      if self.backend=='m':
+       self.placepagebreak(k,i,'header')
+      self.htmlstr+=header
+      self.hc+=headerheight
+      if not re.search(r'^\s*<a>.*',cnt,flags=re.DOTALL):
+       self.htmlstr+='''<div class="clr"></div>
 '''
-     header=tstr
-    code=False
-    prog,cnt=re.split(r'<><>',re.sub(r'(.*?)\n?(<h>.*)','\\1<><>\\2',cnt,flags=re.DOTALL)) if re.search(r'<h>',cnt) else (cnt,'')
-    if re.search(r'<a>.*?</a>',prog,flags=re.DOTALL):
-     header+='<pre class="slideabstract">\n'+re.sub(r'<((?!(b>|/b>)).*?)>',r'&lt;\1&gt;',re.sub(r'&',r'&amp;',re.sub(r'^.*<a>\n*(.*?)\n*</a>.*$','\\1',prog,flags=re.DOTALL)),flags=re.DOTALL)+'\n</pre>'
-     prog=re.sub(r'^.*</a>\n?(.*)$','\\1',prog,flags=re.DOTALL)
-    lineheight=LH
-    if header:
-     header+='<pre class="slidecontent">\n'
-    else:
-     htmlstr+='<pre class="slidecontent">\n'
-    linecount=0
-    for line in prog.split('\n'):
-     linecount+=1
-     lineheight=CH if code else CHS if codes else LH
-     if re.search(r'<i>.*</i>',line):
-      with Image.open(urllib2.urlopen(re.sub(r'<i>(.*?)</i>','\\1',line))) as img:
-       lineheight=img.height
-      line="""%s<img class="img" src="%s" style="height:%spx"/>%s
-""" % ('<a href="'+re.sub(r'<i>(.*)_s[.](.*)</i>','\\1.\\2',line)+'">' if re.search(r'_s[.]',line) else '' ,re.sub(r'<i>(.*?)</i>','\\1',line),lineheight,'</a>' if re.search(r'_s[.]',line) else '')
-     elif re.search(r'<c>',line):
-      lineheight=CH
-      if re.search(r'<c>.*</c>',line):
-       line=r'<pre class="code">'+(re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'&',r'&amp;',re.sub(r'<c>(.*)</c>','\\1',line)))) if not re.search(r'.*<\s*(pre|b).*$',re.sub(r'<c>(.*)</c>','\\1',line)) else re.sub(r'<c>(.*)</c>','\\1',line))+'</pre>'
-       smax+=lineheight/3
-      else:
-       if header:
-        header+='<pre class="code">'
+     elif re.search(r'^\s*<a>.*</a>',cnt):
+      print("<a>")
+      code,cnt=self.getcodecnt('a',cnt)
+      self.htmlstr+='<pre class="slideabstract">'+re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',code))))))))+'</pre>\n<div class="clr"></div>\n'
+     elif re.search(r'^.*<i>.*</i>',cnt):
+      print("<i>")
+      line,cnt=self.getcodecnt('i',cnt)
+      #print("<----------line--------%s>>" % line[0:40])
+      try:
+       with Image.open(urllib2.urlopen(line)) as img:
+        if (self.hc+img.height)>self.PH:
+         self.placepagebreak(k,i);
+        self.hc+=img.height
+       self.htmlstr+="""%s<img class="img" src="%s" />%s
+""" % ('<div><a href="'+re.sub(r'(.*)_s[.](.*)','\\1.\\2',line)+'">' if re.search(r'_s[.]',line) else '<div>' ,line,'</a></div>' if re.search(r'_s[.]',line) else '</div>')
+       #except urllib3.HTTPError:
+      except:
+       print("HTTPError exception,line:%s" % line)
+       self.htmlstr+="""<a href="%s">%s</a>""" % (line,line)
+     elif self.searchtag('c',cnt):
+      print("<c>")
+      self.htmlstr+='<pre class="code">\n'
+      code,cnt=self.getcodecnt('c',cnt)
+      for line in code.split('\n'):
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*CH)>self.PH:
+        if self.backend!='m':
+         self.htmlstr+='</pre>\n'
+        self.placepagebreak(k,i) 
+        if self.backend!='m':
+         self.htmlstr+='<pre class="code">'
+       self.hc+=(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*CH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<cc>',r'<pre class="codeci">',re.sub(r'</cc>',r'</pre>',line)))))+'\n'
+      self.htmlstr+='</pre>\n' 
+     elif self.searchtag('cc',cnt):
+      print("<cc>")
+      self.htmlstr+='<pre class="codec">\n'
+      code,cnt=self.getcodecnt('cc',cnt)
+      for line in code.split('\n'):
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CCH)>self.PH:
+        if self.backend!='m':
+         self.htmlstr+='</pre>\n'
+        self.placepagebreak(k,i) 
+        if self.backend!='m':
+         self.htmlstr+='<pre class="codec">'
+       self.hc+=(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CCH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</c>',r'</pre>',line)))))+'\n'
+      self.htmlstr+='</pre>\n' 
+     elif self.searchtag('cs',cnt):
+      print("<cs>")
+      code,cnt=self.getcodecnt('cs',cnt)
+      csheight=len(re.split(r'\n',code))+1
+      if (self.hc+CNTTHR)>self.PH:
+       self.placepagebreak(k,i) 
+      colcount=1;tcount=0;thc=self.hc
+      self.htmlstr+='<pre class="codes" style="clear:both;float:left;">'
+      for line in code.split('\n'):
+       tcount=tcount+1
+       if self.backend!='m':
+        if (self.hc+(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CSH)>self.PH or (tcount>csheight/2 and colcount==1 and csheight>30):
+   #      print("line,self.hc,tcount,csheight %s,%s,%s,%s" % (line,hc,tcount,csheight))
+         self.htmlstr+='</pre>\n'
+         if colcount==1:
+          colcount+=1
+          self.htmlstr+='<pre class="codes" style="float:left;">'
+          self.hc=thc
+         # if tcount>csheight/2:
+         #  tcount=0
+         else: # elif tcount<csheight/2:
+          self.placepagebreak(k,i) 
+          thc=self.hc
+          self.htmlstr+='<pre class="codes" style="clear:both;float:left;">'
+          colcount=1
+          csheight=csheight-tcount
+          tcount=0
+        self.hc+=(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CSH
        else:
-        htmlstr+='<pre class="code">'
-       code=True
-       continue
-     elif re.search(r'</c>',line):
-      if header:
-       header+='</pre>'
-      else:
-       htmlstr+='</pre>'
-      code=False
-      continue
-     elif re.search(r'<cs>',line):
-      codes=True
-      lineheight=CHS
-      if header:
-       htmlstr+=header
-       hc+=headerheight+contentlength
-       header=''
-       headerheight=contentlength=0
-      hcs=hc
-      hc+=CP
-      htmlstr+='<pre class="codes">'
-      for cc,ii in enumerate(prog.split('\n')[linecount:]):
-       if re.search(r'</cs>',ii):
-        cscount=cc
-        smax=smin+2*CHS if smin > (cscount*CHS)/CC else int((cscount*CHS)/CC)+2*CHS
-        break
-      continue
-     elif re.search(r'</cs>',line):
-      if header:
-       header+='</pre><pre style="clear:both"></pre>'
-      else:
-       htmlstr+='</pre><pre style="clear:both"></pre>'
-      codes=False
-      if columns>1:
-       hc=PH-BTMOFST
-       columns=1
-      elif columnb>1:
-       hc=hcs+smax
-       columnb=1
-      continue
+        if tcount>csheight/2:
+         tcount=0
+         self.htmlstr+='</pre>\n'
+         self.htmlstr+='<pre class="codes" style="float:left;">'
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</c>',r'</pre>',line)))))+'\n'
+      self.htmlstr+='</pre><div style="clear:both;"></div>\n' 
      else:
-      line=re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'&',r'&amp;',line)))+'\n' if not re.search(r'.*<\s*(pre|b).*$',line) else line+'\n'
-#      print("hc,lineheight,headerheight,contentlength,line,%s,%s,%s,%s><%s<>" % (hc,lineheight,headerheight,contentlength,line))
-     if (PH-hc-headerheight-contentlength-lineheight-BTMOFST)<0:
-      if header:
-       htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><pre class="pn">%s</pre>
-</div> <div class="pg" style="margin-top:%spx;height:%spx">
-%s%s""" % (pagenumber,TM,PH,header,line)
-       hc=headerheight+contentlength+lineheight
-       header=''
-       headerheight=contentlength=0
-       pagenumber+=1
-      elif not codes:  
-       htmlstr+="""%s
-<pre class="ftr">&copy www.minhinc.com</pre><pre class="pn">%s</pre>
-</div>
-<div class="pg" style="margin-top:%spx;height:%spx">
-%s""" % ('</pre></pre>' if code else '</pre>',pagenumber,TM,PH,'<pre class="slidecontent">\n<pre class="code">'+line if code else '<pre class="slidecontent">\n'+line)
-       hc=lineheight
-       pagenumber+=1
+      print("<>")
+      self.htmlstr+='<pre class="slidecontent">\n'
+      #print("<----------cnt--------%s>>" % cnt[0:40])
+      #if re.search(r'[\n\s]*.+(<h>|<a>|<i>|<c>|<cc>|<cs>).*',cnt,flags=re.DOTALL):
+      if re.search(r'^.*\n\s*(<h>|<a>.*</a>|<i>.*</i>|<c>|<cc>|<cs>)\s*(\n|$)',cnt,flags=re.DOTALL):
+       #code,cnt=re.split(r'<><>',re.sub(r'(.+?\n*)\n\s*((<h>|<a>|<i>|<c>|<cc>|<cs>).*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
+       code,cnt=re.split(r'<><>',re.sub(r'^(.*?)\n[ \t]*((<h>|<a>.*</a>|<i>.*</i>|<c>|<cc>|<cs>)\s*\n?.*$)','\\1<><>\\2',cnt,flags=re.DOTALL))
       else:
-       cscount-=1
-       if (hc-hcs)<smin and columns==1:
-        htmlstr,tstr=re.split(r'<><>',re.sub(r'(.*)(<pre class="codes">.*)','\\1<><>\\2',htmlstr,flags=re.DOTALL))
-        htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><pre class="pn">%s</pre>
-</div>
-<div class="pg" style="margin-top:%spx;height:%spx">
-%s""" % (pagenumber,TM,PH,'<pre class="slidecontent">\n'+tstr+line)
-        pagenumber+=1
-        hc=hc-hcs+lineheight
-        hcs=0
-       else:
-        columns+=1
-        if columns<=CC:
-         htmlstr+='</pre><pre class=codes>'+line
-         hc=hcs+lineheight+CP#codepadding
-        else:
-         smax=smin+2*CHS if smin > (cscount*CHS)/CC else int((cscount*CHS)/CC)+2*CHS
-         htmlstr+="""%s
-<pre class="ftr">&copy www.minhincone.com</pre><pre class="pn">%s</pre>
-</div>
-<div class="pg" style="margin-top:%spx;height:%spx">
-%s""" % ('</pre>',pagenumber,TM,PH,'<pre class="slidecontent">\n<pre class="codes">'+line)
-         pagenumber+=1
-         columns=1
-         hcs=0
-         hc=lineheight+CP
-     else:
-      if not codes:
-       if header:
-        if (contentlength+lineheight)>CNTTHR:
-         htmlstr+=header+line
-         hc+=headerheight+contentlength+lineheight
-         header=''
-         headerheight=contentlength=0
-        else:
-         header+=line
-         contentlength+=lineheight
-       else:
-        htmlstr+=line
-        hc+=lineheight
-      else:
-       cscount-=1
-       if (hc-hcs+lineheight)>smax and columns == 1:
-        columnb+=1
-        if columnb<=CC:
-         htmlstr+="""%s%s""" % ('</pre>','<pre class=codes>'+line)
-         hc=hcs+lineheight+CP
-        else:
-         htmlstr+='</pre><pre style="clear:both" class="codes">'+line
-         hcs=hc
-         hc+=lineheight+CP
-         columnb=1
-       else:
-        htmlstr+=line
-        hc+=lineheight
+       code=cnt;cnt=''
+      #print("<---------code---------%s>>" % code)
+      for line in re.split('\n',re.sub(r'^\s*$','',code,flags=re.DOTALL)):
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH)>self.PH:
+        if self.backend!='m':
+         self.htmlstr+='</pre>\n'
+        self.placepagebreak(k,i) 
+        if self.backend!='m':
+         self.htmlstr+='<pre class="slidecontent">'
+  #     print("(self.hc,line)%s%s" % (line,hc))
+       self.hc+=(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',line))))))+'\n'
+      self.htmlstr+='</pre>\n' 
     else:
-     if header:
-      htmlstr+=header
-      hc+=headerheight+contentlength#LH is for </pre> one empty newline
-      header=''
-      headerheight=contentlength=0
-     htmlstr+='</pre>'
-   htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><pre class="pn">%s</pre>
+     self.placepagebreak(k,i)
+  self.htmlstr+='</div>\n'
+ def searchtag(self,tag,cnt):
+  return re.search(r'^.*<'+tag+r'>.*',cnt) and not re.search(r'^.*</'+tag+r'>.*',cnt)
+ def getcodecnt(self,tag,cnt):
+  return re.split(r'<><>',re.sub(r'^\s*<'+tag+r'>\s*(.*?)\s*</'+tag+r'>.*?\n?(.*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
+ def preparepdf(self):
+  import pdfkit
+  import os
+  os.environ['NO_AT_BRIDGE']=str(1)
+  print("--writing to %s" % 'advance-'+sys.argv[3]+'-slides.txt')
+  self.file.write(self.htmlstr);
+  self.file.close()
+  print("--writing to %s" % sys.argv[3]+'_pdf.html')
+  with open(sys.argv[3]+"_pdf.html",'w') as file:
+   file.write(re.sub(r'.*?(<div\s+class="pg".*)',r'<html>\n<head>\n<title>Minh, Inc. Software development and Outsourcing| '+sys.argv[1]+' training Bangalore India</title>\n<META http-equiv="Content-Type" content="text/html; charset=UTF-8">\n<link rel="stylesheet" type="text/css" href="../css/main.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="../css/agenda.css" media="all"/>\n'+r'\1'+'</body>\n</html>',self.htmlstr,flags=re.DOTALL))
+  if self.mode=='agenda':
+   print("preparing local pdf...\n---please mute @font-face in ../css/main.css---")
+   pdfkit.from_file(sys.argv[3]+'_pdf.html','advance-'+sys.argv[3]+'-agenda.pdf')
+ def placepagebreak(self,k=0,i=0,header=''):
+  if self.backend!='m':
+   self.pagenumber=self.pagenumber+1
+   self.htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><a href="#main%s" class="pn"><img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>%s</a>
 </div>
-""" % pagenumber
-   pagenumber+=1
-   hc=0
-  if not pagenumber%2:
-   htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
-%s
-<pre class="ftr">&copy www.minhinc.com</pre><pre class="pn">%s</pre>
+<div class="pg" style="margin-top:%spx;height:%spx">
+""" % (self.day[k][i],"p"+str(self.pagenumber),self.TM,self.PH)
+   self.hc=self.BTMOFST
+  elif header=='header':
+   self.htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><a class="pn" href="#main%s"><img src="http://minhinc.com/image/arrow.png" style="width:20px"/></a>
 </div>
-""" % (TM,PH,'<pre style="text-align:center;line-height:'+str(PH)+'px;font-size:24pt">Left Blank</pre>',pagenumber)
-   pagenumber+=1
+<div class="pg" style="margin-top:%spx;">
+""" % (self.day[k][i],self.TM)
+ def placetopbreak(self,top=False):
+  if self.backend[0]=='m':
+   if top:
+    self.htmlstr+="""<div class="pg" style="margin-top:%spx">
+""" % (2*self.TM)
+   else:
+    self.htmlstr+='''<div class="pg">
+'''
+  else:
+   if top:
+    self.htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
+""" % (2*self.TM,self.PH-self.TM)
+   else:
+    self.htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
+""" % (self.TM,self.PH)
 
-def preparetailer():
- f.write(htmlstr+"""%s
-%s
-""" % (open('footer.txt').read(),'</body></html>'))
- f.close()
-def preparepdf():
- import pdfkit
- import os
- os.environ['NO_AT_BRIDGE']=str(1)
- print("preparing pdf...")
- with open('tmp.html','w') as file:
-  file.write(re.sub(r'.*?(<META.*agenda.css"\s+media="all"/>).*?(<div\s+class="pg".*)',r'<html>\n<head>\n\1\n</head>\n<body>\n\2\n</body>\n</html>',htmlstr,flags=re.DOTALL))
- pdfkit.from_file('tmp.html','advance-'+sys.argv[1]+'-agenda.pdf')
-   
-  
-prepareheader()
-preparedisclaimer()
-preparecontent()
-preparetailer()
-preparepdf()
+#   
+#  
+#prepareheader()
+#if not agenda:
+# preparedisclaimer()
+# preparecontent()
+#preparetailer()
+#if agenda or pdf:
+# preparepdf()
+
+agenda()

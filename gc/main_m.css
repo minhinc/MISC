@@ -1,0 +1,147 @@
+/*---- CROSS BROWSER DROPDOWN MENU ----*/
+@font-face { font-family: mytwcenmt; src: url("./../misc/ufonts.com_tw-cen-mt.ttf") }
+@font-face { font-family: mybembo; src: url("./../misc/ufonts.com_bembo-opentype.otf") } 
+@font-face { font-family: myconsolas; src: url("./../misc/Consolas.ttf") }
+* {margin:0px;padding:0px;color:#000;font-family:Verdana, Arial, Geneva, sans-serif; outline:none;border:none;}
+html{overflow:auto;}
+body{width:100%;}
+pre{white-space:pre-wrap;font-size:6pt;}
+a{text-decoration:none;}
+li{list-style:none}
+.f8{font-size:8pt;}
+.f10{font-size:10pt;}
+.f12{font-size:12pt;}
+.f14{font-size:14pt;}
+.red{color:#ff0000;}
+.gold{color:#888800;}
+.bold{font-weight:bold;}
+.inline{display:inline-block;}
+.italic{font-style:italic;}
+.center{text-align:center;}
+.fltleft{clear:both;float:left;}
+.fltrgt{float:right;}
+.clr{clear:both;}
+
+
+.menubar { position:relative; height:39px;}
+.menubar img.homelogo { border:none; width:99px; height:39px; outline:none;}
+.menubar img.linelogo { border:none; width:35px; height:25px; outline:none;margin-top:6px;float:right;margin-right:5%;}
+
+.dropdown-content { display: none; position:absolute;background-color: rgba(0,0,0,0.6); width: 70%; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; }
+.dropdown-content div.line {height:35px;border-width:2px;border-width:2px;border-color:#fff transparent transparent transparent;border-style:solid;}
+.dropdown-content div.line a { color: #fff; display: block; font-size:10pt; font-weight:bold;line-height:35px;text-align:center;}
+.dropdown-content div.linew {height:30px;background-color:rgba(255,255,255,0.7);border-width:2px;border-color:#000 transparent transparent transparent;border-style:solid;}
+.dropdown-content div.linew a { color: #000; display: block; font-size:10pt; font-weight:bold;line-height:30px;text-align:center;}
+.dropdown-content a:hover,.dropdown-content a:focus {background-color: #f38502}
+.dropdown-content div.submenu{display:none; overflow: hidden;}
+
+div.footer {background:#212052;margin-top:20px;padding:20px 0;}
+div.footer pre {font-size:9pt;}
+div.footer a, div.footer pre{color:#888}
+div.footer div.th {width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:10px solid #888}
+div.footer div.tv {width:0;height:0;border-top:10px solid #884400;border-left:5px solid transparent;border-right:5px solid transparent}
+div.footer div.ths {width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:10px solid #002244}
+div.footer div.fsubmenu {margin-left:10px;display:none;overflow:hidden;} 
+div.footer div.flinew a{font-size:7pt;color:#aa8822;}
+.show {display:block;}
+
+.dark {background-color:#dcdddf;}
+.light {background-color:#f1f1f1;}
+.l {clear:both;float:left;width:49%;}
+.ll {clear:both;float:left;width:24.5%;}
+.r {float:right;width:49%;}
+.rr {float:right;width:74.5%;}
+a.space {float:left;margin-top:4px;border:1px solid #444;width:14px;height:10px;}
+a.btnBlueGloss {color:#FFF; font-size:11px; text-align:center; text-decoration:none; line-height:19px; background:url(./../image/glossButtons.png); display:block; background-position:0px 0px; width:95px; height:20px;;margin-top:5px;}
+pre.space {float:left;margin-top:4px;margin-left:4px;}
+.tr {margin:14px 0 0 50%;width:0;height:0;border-width:6px;border-color:#fff transparent transparent transparent;border-style:solid;}
+
+form.common {clear:both; float:left; margin-top:40px; padding:10px 5px; background-color:#Fff; }
+form.common select {width:20%; padding: 2px; border: 1px solid #878787; color: #000;}
+form.common input {border: 1px solid #878787; color: #000;height:30px;}
+form.common textarea {padding:2px; border:1px solid #878787; display:block; height:80px; color:#000;}
+form.common input[type="submit"] {width:100%; background-color:#004000; float:left; margin:20px 0 0 0px;}
+form.common input[type="file"] {clear:both; margin-top:-4px; width:65%;}
+form.common iframe {margin-left:40px; padding-top:10px; height:30px; width:80%;}
+form.common h1 {font-size:18px; color:#595959; margin:40px 0px;}
+form.common p {width:100%; text-align:left; margin-top:20px; font-size:14px; color:#000; font-weight:bold}
+form.common p.txtar {width:100%;}
+
+form.online {clear:both; position:relative;margin:10px 5%; background-color:#Fff; color: #000;width:90%:}
+form.online iframe {width:60%;}
+form.online input,form.online select {border: 1px solid #878787;height:27px;}
+textarea {border: 1px solid #878787;}
+form online .f14{font-size:14pt;}
+form.online .lc{float:left;width:27%;}
+form.online .l{clear:none;width:60%;}
+form.online .l2{float:left;width:70%;}
+form.online .ls{float:left;}
+form.online .star{color:#ff0000;}
+form.online .clr{clear:both}
+form.online .center{text-align:center}
+form.online pre{font-size:8pt}
+form.online a.block{background-color:#aaffaa;color:#444444;height:60%;font-size:7pt;text-decoration:underline;text-align:center;}
+pre.register{font-size:12pt;font-weight:bold;color:#4488dd}
+form.online .submit{width:40%;margin-top:10px;height:30px;}
+form.online .enable{background-color:#004000;color:#fff}
+form.online .disable{background-color:#ffaa88;color:#fff}
+form.online div.row{height:30px;clear:both;}
+form.online div.rowtextarea{height:90px;clear:both;}
+
+li.header {background-color:#808285;height:26px;margin-bottom:8px}
+li.header pre {padding-left:12px;color:#fff;font-size:9pt;line-height:26px;}
+pre.header {padding-left:12px;color:#fff;font-size:9pt;line-height:26px}
+
+ul.one {width:90%;margin:20px 5%;}
+img.traininglogo {width:90%;margin:20px 5%}
+ul.one li {height:50px;margin-top:2px;}
+ul.one img{width:100%;height:46px}
+ul.one li img{width:100%;}
+ul.one li.header {background-color:#808285;height:26px;margin-bottom:8px}
+
+ul.two {margin:20px 0 0 5%;width:90%}
+ul.two li {height:120px;margin-top:5x;}
+ul.two li.header {background-color:#444;height:26px}
+ul.two img{width:100%;height:50%}
+
+ul.three {margin:20px 0 0 5%;width:90%}
+ul.three li{height:100%;}
+ul.three li.header {background-color:#444;height:26px}
+ul.three li.table{margin-left:10px}
+ul.three li.ht{background-color:#004000;height:26px;}
+ul.three li.ht pre{padding-left:5px;font-size:9pt;color:#fff;margin-top:24px;line-height:26px}
+ul.three li.htl a{text-decoration:underline;color:#004000;font-size:6pt;}
+
+ul.four {margin:20px 0 0 5%;width:90%;}
+ul.four li {height:120px}
+ul.four img{width:100%;height:120px}
+ul.four li.header {background-color:#444;height:26px}
+ul.four li.dnld {background-color:#004000;height:26px;margin-top:24px;width:70%}
+ul.four li.bit {background-color:#ff8040;height:26px;margin-left:25%;width:70%;}
+ul.four li.bit pre{line-height:26px;font-weight:bold;text-align:center;}
+ul.four li.zip {background-color:#408080;height:26px;margin-left:25%;width:70%;}
+ul.four li.zip pre{border:1px solid #ff8040;line-height:24px;font-weight:bold;text-align:center;}
+ul.four li.os {height:26px;margin-top:6px;}
+ul.four li.os div{width:25%;float:left;}
+ul.four li.os pre {font-weight:bold;text-align:center;line-height:26px;font-size:9pt}
+ul.four li.os div.zip{width:70%;float:left;height:26px;}
+
+ul.five {margin:20px 5%;width:90%}
+ul.five img{width:24%;height:24%;}
+ul.five pre{font-size:9pt;}
+
+ul.seven li{width:90%;}
+
+ul.eight {margin:20px 2px;}
+ul.eight li pre{padding-left:5%;font-size:11pt;}
+ul.eight a.btnBlueGloss {color:#FFF; font-size:11px; text-align:center; text-decoration:none; line-height:19px; background:url(./../image/glossButtons.png); display:block; background-position:0px 0px; width:95px; height:20px;;margin-top:5px;}
+ul.eight a.btnBlueGloss:hover {background-position:95px 0px;}
+
+ul.ten li{width:90%;}
+ul.ten li.main, ul.ten li.form{width:100%;}
+ul.ten pre.name{font-family:mytwcenmt;font-size:16pt;color:#004000;}
+ul.ten pre.phone {margin-top:40px;}
+ul.ten img{display:inline;margin-top:-4px;}
+
+/* FORM ELEMENTS ONLINE TRAINING */
+ul.eleven {width:90%;margin:20px 5%}

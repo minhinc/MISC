@@ -42,7 +42,8 @@ class getcontactc(fetchc):
     break
    self.addtag(re.sub(r'(^\s*|\s*$)','',line))
    try:
-    data=repr(urllib2.urlopen(urllib2.Request('https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search',headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
+#    data=repr(urllib2.urlopen(urllib2.Request('https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search',headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
+    data=repr(urllib2.urlopen(urllib2.Request(r'http://www.google.com/search?source=hp&ei=zR1UW_zFCpv8rQGCkYiwAw&q='+re.sub('\s+','+',line)+r'&oq='+re.sub('\s+','+',line),headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read().decode('utf-8'))
     self.db.fill('linkvisited',((re.sub(r'[^a-zA-Z0-9._%-]','_','https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search'),),))
     self.db.update('linkvisited','date',int(re.sub('-','',datetime.date.today().isoformat())),'name',re.sub(r'[^a-zA-Z0-9._%-]','_','https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search'))
     for x in [ x for x in re.findall(r'url\?q=(http[^&]+)',data) if not self.db.search('linkvisited',re.sub(r'[^a-zA-Z0-9._%-]','_',x,flags=re.I)) and not re.search(junkextn,x,flags=re.I)]:

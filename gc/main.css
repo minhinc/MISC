@@ -14,19 +14,21 @@
 * {margin:0px;padding:0px;font-family:Verdana, Arial, Geneva, sans-serif; color:#000;text-decoration:none;list-style:none;}
 p,a {font-size:11px;}
 p.inline,a.inline {display:inline-block;}
-p.bold,a.bold {font-weight:bold;}
+p.bold,pre.bold,a.bold {font-weight:bold;}
 .red {color:#ff0000;}
 .green {color:#004000;}
 p.tw {font-family:twcenmt;}
 p.italic,a.italic {font-style:italic;}
+a.block{display:block}
 
 li.header {background-color:#808285;height:26px;width:290px;}
 li.header p {padding:5px 0 0 12px;color:#fff;font-size:12px;font-family:Verdana, Arial, Geneva, sans-serif;}
+li.header pre {padding-left:12px;color:#fff;font-size:12px;line-height:26px;font-family:Verdana, Arial, Geneva, sans-serif;}
 .dark {background-color:#dcdddf;}
 .light {background-color:#f1f1f1;}
 .codehere {color:#444444;font-size:13px;}
 
-a.btnBlueGloss {color:#FFF; font-size:11px; text-align:center; text-decoration:none; line-height:19px; background:url(./image/glossButtons.png); display:block; background-position:0px 0px; width:95px; height:20px;;margin-top:5px;}
+a.btnBlueGloss {color:#FFF; font-size:11px; text-align:center; text-decoration:none; line-height:19px; background:url(./../image/glossButtons.png); display:block; background-position:0px 0px; width:95px; height:20px;;margin-top:5px;}
 
 /*create ul libraries that need to be put under div with width and margin-top*/
 ul.description {background-color:#f1f1f1;}
@@ -71,7 +73,7 @@ ul.publication li {width:660px;}
 ul.publication li.header {background-color:#808285;}
 ul.publication li a {text-decoration:underline;color:#004000;font-size:12px;display:inline-block;margin-top:6px;}
 ul.publication p.r {font-size:9px;display:inline-block;font-style:italic;}
-ul.publication p.i {font-style:italic;margin-left:12px;font-size:9px;}
+ul.publication p.i {font-style:italic;margin-left:12px;font-size:9px;width:350px}
 
 ul.download li {width:660px;}
 ul.download li.header {background-color:808285;}
@@ -85,7 +87,8 @@ ul.download li.top p.short {background-color:#408080;border:1px solid #ff8844}
 ul.research li {width:315px;}
 ul.research li.dark, ul.research li.light {position:relative;height:80px;}
 ul.research li.dark p.t,ul.research li.light p.t {position:absolute;font-size:12px;font-weight:bold; width:180px;left:12px;top:4px;}
-ul.research li.dark p.b,ul.research li.light p.b {position:absolute;top:55px;left:40px;font-style:italic;font-size:11px;}
+ul.research li.dark p.b,ul.research li.light p.b {position:absolute;top:55px;left:65px;font-style:italic;font-size:11px;}
+ul.research li.dark p.bp,ul.research li.light p.bp {position:absolute;top:55px;left:135px;font-style:italic;font-size:11px;}
 ul.research li.dark img,ul.research li.light img {position:absolute;width:96px;height:80px;right:12px;}
 
 ul.events li {width:315px;}
@@ -97,9 +100,10 @@ ul.next {margin-top:12px}
 ul.next li {width:315px;}
 ul.next li.dark,ul.next li.light {position:relative;height:94px;}
 ul.next li a.l {position:absolute;left:8px;width:100px;font-weight:bold;}
-ul.next li a.ls {position:absolute;left:111px;top:40px;font-weight:bold;font-size:12pt;color:#400000;}
+ul.next li a.ls {position:absolute;left:111px;top:40px;font-weight:bold;font-size:11pt;color:#400000;}
 ul.next li a.lr {position:absolute;left:78px;width:50px;font-weight:bold;font-style:normal;color:#603000;}
 ul.next li a.r {position:absolute;left:168px;width:50px;top:0px;font-weight:bold;font-style:normal}
+ul.next li a.rs {position:absolute;right:0px;top:45px;font-weight:bold;font-size:11pt;color:#400000;}
 ul.next li a.rr {position:absolute;right:20px;width:50px;font-weight:bold;font-style:normal;color:#603000;}
 ul.next li img {position:absolute;width:100px;height:70;}
 ul.next li img.l {left:8px;top:22px;}
@@ -144,12 +148,12 @@ body {width:960;margin:0 auto;background-color:#fff;}
 .ddm ul.drop > li div {float:left;margin:10px 2px 0 0;width:0;height:0;border-width:3px;border-color:#000 transparent transparent transparent;border-style:solid;}
 .ddm ul.drop ul div {float:left;margin:10px 4px 0 0;width:0;height:0;border-width:3px;border-color:#fff transparent transparent transparent;border-style:solid;}
 
-ul.domain {margin-top:10px;font-weight:bold;height:35;background:url("./image/bar.jpg") center no-repeat;}
+ul.domain {margin-top:10px;font-weight:bold;height:35;background:url("./../image/bar.jpg") center no-repeat;}
 .domain li {float:left;padding-left:10px;padding-top:4px;}
 
 div.leftpan {float:left;width:640px;}
 div.rightpan {float:right;width:310px;}
-.leftpan img {margin-left:100px;}
+.leftpan img {width:90%;margin:0px 5%;}
 div.leftpan div.research {float:left;margin-top:12px;}
 div.leftpan div.product {float:right;margin-top:12px;}
 div.rightpan ul.next {margin-top:12px;}
@@ -170,7 +174,7 @@ ul.common .entry div.dr {float:left;margin-left:8px;}
 ul.common .entry img {width:120px;height:120px;float:left;}
 ul.common .entry div div {float:left;width:250px;margin-left:8px;}
 ul.common .entry div div p.b {color:#f38502;margin:-3px 0 8px 0 ;font-size:13px;font-weight:bold;}
-ul.common .entry div a.yellow {clear:both;float:left;padding-left:10px;padding-top:4px;margin-top:10px;border-width:1px;border-style:solid;border-color:#f38502;width:90px;height:24px;color:#666;font-family:calibri;font-size:12pt;font-weight:normal;}
+ul.common .entry div a.yellow {clear:both;float:left;padding-left:10px;padding-top:4px;margin-top:10px;border-width:1px;border-style:solid;border-color:#f38502;width:95px;height:24px;color:#666;font-family:calibri;font-size:12pt;font-weight:normal;}
 ul.common .entry div a.red {float:left;padding-left:10px;padding-top:4px;margin-top:10px;border-width:2px;border-style:solid;border-color:#ff4444;width:110px;height:24px;color:#666;font-family:calibri;font-size:12pt;font-weight:normal;}
 ul.common .entry div a.space {float:left;margin-top:4px;border:1px solid #444;width:14px;height:10px;}
 ul.common .entry div p.space {float:left;margin-top:4px;margin-left:4px;}
@@ -197,6 +201,27 @@ form.common h1 {font-size:18px; color:#595959; margin:40px 0px;}
 form.common p {width:300px; text-align:left; margin-top:20px; font-size:14px; color:#000; font-weight:bold}
 form.common p.txtar {width:600;}
 
+/* FORM ELEMENTS ONLINE TRAINING */
+form.online {clear:both; margin-top:10px; padding:10px 5px; background-color:#Fff; width:600px; color: #000;}
+form.online iframe {margin-left:10px; height:30px;}
+form.online input,form.online select {border: 1px solid #878787;height:30px;}
+form.online textarea {border: 1px solid #878787;}
+form online .f18{font-size:18pt;}
+form.online .lc{clear:both;float:left;width:21%}
+form.online .l{float:left;width:45%}
+form.online .l2{float:left;width:60%}
+form.online .ls{float:left;width:5%}
+form.online .star{color:#ff0000;}
+form.online .clr{clear:both}
+form.online pre{font-size:11pt}
+form.online a.block{background-color:#aaffaa;color:#444444;height:60%;font-size:12pt;text-decoration:underline;text-align:center;}
+pre.register{font-size:18pt;margin:10px 0 0 10%;font-weight:bold;color:#4488dd}
+form.online .submit{width:150px;height:30px;}
+form.online .enable{background-color:#004000;color:#fff}
+form.online .disable{background-color:#ffaa88;color:#fff}
+form.online div.row{height:35px;clear:both}
+form.online div.rowtextarea{height:100px;clear:both;}
+
 
 
 
@@ -206,14 +231,19 @@ div.footer {float:left;margin-top:18px;width:960px;}
 .footer ul.fl {margin-left:4px;float:left;list-style:none;}
 .footer ul.fl .bold {margin-bottom:8px;}
 .footer ul.menu {float:left;margin-left:30px;background-color:#dcdddf;}
-.footer .menu li.top {float:left;width:115px;}
+/*.footer .menu li.top {float:left;width:115px;}*/
+.footer .menu li.top {float:left;width:100px;}
 .footer .menu li.top a {text-decoration:none;color:#000;}
 .footer .menu li.top a:hover {text-decoration:underline;color:#004000;}
 .footer .menu ul {list-style:none;font-size:9px;}
 .footer .menu li.top hr {float:left;height:4px;margin-bottom:4px;background-color:#000040;}
+.footer .menu li.top li a{display:block;font-family:mybembo;font-size:9pt;}
+.footer .menu li.top li a:hover{background-color:#ffaa00;text-decoration:none}
 .footer .menu li.top hr.product {width:38px;}
 .footer .menu li.top hr.training {width:40px;}
 .footer .menu li.top hr.services {width:40px;}
+.footer .menu li.top hr.research {width:48px;}
+.footer .menu li.top hr.career {width:32px;}
 .footer .menu li.top hr.career {width:32px;}
 .footer .menu li.top hr.help {width:25px;}
 .footer .menu li.top li {clear:both;}

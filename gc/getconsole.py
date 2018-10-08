@@ -7,12 +7,13 @@ from testdir import *
 import testdir
 
 
-if len(sys.argv)!=5:
+if len(sys.argv)<=5:
  print(''' ---usage---
- python3 getcontactm_c.py "South Africa" za Qt 5
+ python3 getcontactm_c.py "South Africa" za Qt 5 [<file>]
  python3 getcontactm_c.py "South Africa" za all 5''') # 5->pages
 
-file=open('test.txt','w')
+filename='test.txt' if len(sys.argv)<=5 else sys.argv[5]
+file=open(filename,'w')
 db=databasec(False)
 for fetcher in [eval(fetcher)() for fetcher in testdir.__all__]:
  file.write("#################\n")

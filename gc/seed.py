@@ -67,7 +67,7 @@ else:
     dbi.fill('country',((sys.argv[i],),))
     dbi.update('country','id',int(sys.argv[3])+i-4,'id',0)
     print("inserted into country %s" % sys.argv[i])
-  elif re.search('^(qt|qml|gl|c|cpp|py|ldd|li)$',sys.argv[2],flags=re.I):
+  elif re.search('^(qt|qml|gl|c|cpp|py|ldd|li|headername)$',sys.argv[2],flags=re.I):
    dbi.fill(sys.argv[2],((sys.argv[4],),))
    dbi.update(sys.argv[2],'id',int(sys.argv[3]),'id',0)
    if len(sys.argv)>=6:
@@ -83,7 +83,10 @@ else:
   print("updated table %s field %s value %s" % (sys.argv[2],sys.argv[3],sys.argv[4]))
  elif re.search('print',sys.argv[1],flags=re.I):
   for i in dbi.get(sys.argv[2]):
-   print(i)
+   if len(sys.argv)>3:
+    print([i[int(x)] for x in sys.argv[3:]])
+   else:
+    print(i)
  elif re.search('search',sys.argv[1],flags=re.I):
   if re.search(r'reg',sys.argv[3],flags=re.I):
    if dbi.search(sys.argv[2],sys.argv[5],sys.argv[4],regex=True):

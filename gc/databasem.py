@@ -19,7 +19,7 @@ class databasec:
   crsr.execute("CREATE TABLE IF NOT EXISTS track (email VARCHAR(80) NOT NULL PRIMARY KEY, uuid VARCHAR(80), company_id INT, tech_id INT, city_id INT, country_id INT, expire INT, status INT DEFAULT 0, message INT DEFAULT 0)") #status 0 normal, 1-registered, 2-unregistered, 3-senderror message-unregistration reason
   crsr.execute("CREATE TABLE IF NOT EXISTS company (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(240), phone VARCHAR(80), UNIQUE(name))")
   crsr.execute("CREATE TABLE IF NOT EXISTS city (id INT  DEFAULT 0, name VARCHAR(80), country INT, PRIMARY KEY(name,country),FOREIGN KEY(country) REFERENCES country(id))")
-  crsr.execute("CREATE TABLE IF NOT EXISTS tech (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(80), training VARCHAR(1024), research VARCHAR(4096), product VARCHAR(4096), service VARCHAR(1024), UNIQUE(name))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS tech (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(80), content VARCHAR(40900), UNIQUE(name))")
   crsr.execute("CREATE TABLE IF NOT EXISTS country (id INT DEFAULT 0 PRIMARY KEY, name VARCHAR(80),UNIQUE(name))")
 
   crsr.execute("CREATE TABLE IF NOT EXISTS message (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(80))")
@@ -38,11 +38,15 @@ class databasec:
   crsr.execute("CREATE TABLE IF NOT EXISTS li (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
   crsr.execute("CREATE TABLE IF NOT EXISTS ldd (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
 
+#data in html
+  crsr.execute("CREATE TABLE IF NOT EXISTS headername (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(160), content VARCHAR(40960), UNIQUE(name))")
+
   print('table created')
   self.conn.commit()
  def reconnect(self):
   try:
-   self.conn=MySQLdb.connect(host='166.62.28.143',user='minhinc',passwd='pinku76minh',db='trackweb')
+#   self.conn=MySQLdb.connect(host='166.62.28.143',user='minhinc',passwd='pinku76minh',db='trackweb')
+   self.conn=MySQLdb.connect(host=re.split('\n',open(os.path.expanduser('~/passwd')).read())[0],user=re.split('\n',open(os.path.expanduser('~/passwd')).read())[1],passwd=re.split('\n',open(os.path.expanduser('~/passwd')).read())[2],db=re.split('\n',open(os.path.expanduser('~/passwd')).read())[3])
    print('database re-connected')
   except:
    print('database could not be connected')
@@ -62,8 +66,9 @@ class databasec:
    else:
     for rowprimary in primary:
      if(table=='track'):
-       [self.delete('track','email',rowprimary[0]) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s' and tech_id!='%d' and status<2" % (rowprimary[0],int(rowprimary[3]) )) and crsr.fetchone()[0] != 0]
-       [crsr.execute("INSERT INTO track(email,uuid,company_id,tech_id,city_id,country_id,expire) VALUES('%s','%s','%d','%d','%d','%d','%d')" % rowprimary) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s'" % (rowprimary[0], )) and crsr.fetchone()[0] == 0]
+      [self.update('track','tech_id',int(rowprimary[3]),'email',rowprimary[0]) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s' and tech_id!='%d' and status<2" % (rowprimary[0],int(rowprimary[3]) )) and crsr.fetchone()[0] != 0]
+#       [self.delete('track','email',rowprimary[0]) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s' and tech_id!='%d' and status<2" % (rowprimary[0],int(rowprimary[3]) )) and crsr.fetchone()[0] != 0]
+      [crsr.execute("INSERT INTO track(email,uuid,company_id,tech_id,city_id,country_id,expire) VALUES('%s','%s','%d','%d','%d','%d','%d')" % rowprimary) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s'" % (rowprimary[0], )) and crsr.fetchone()[0] == 0]
      elif(table=='city'):
        [crsr.execute("INSERT INTO city(name,country) VALUES('%s','%d')" % rowprimary) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM city WHERE name='%s' and country='%d'" % (rowprimary[0],rowprimary[1] )) and crsr.fetchone()[0] == 0]
      elif re.search(r'^(qt|qml|py|gl|c|cpp|ldd|li)$',table,flags=re.I):
