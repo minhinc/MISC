@@ -4,9 +4,9 @@ $util->drawmenuleft();
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$util->subitem))[0],true);
 echo '<div class="downloadright">
 <ul class="agenda"">
-<li class="header"><p>'.ucfirst($util->subitem).' Essentials</p></li>
-<li><h1>'.ucfirst($util->subitem).' Essentials</h1>
-<p class="m">Get familiar with '.ucfirst($util->subitem).' Concepts</p>
+<li class="header"><p>'.ucfirst(str_ireplace('training','',$json['title'])).' Essentials</p></li>
+<li><h1>'.ucfirst(str_ireplace('training','',$json['title'])).' Essentials</h1>
+<p class="m">Get familiar with '.ucfirst(str_ireplace('training','',$json['title'])).' Concepts</p>
 <h3>Course details</h3></li>
 <li><p class="l">Duration:</p> <p class="r">'.$json['duration'].' days</p></li>
 <li><p class="l">Agenda</p>:<a class="r" href="./advance-'.$util->subitem.'-slides.php"><pre style="font-size:15pt;font-weight:bold;color:#400000;display:inline;padding:0">Slides</pre></a></li>

@@ -66,7 +66,7 @@ class agenda:
    else:
     self.htmlstr+=''' <hr>
 '''
-  self.placepagebreak()
+  self.placepagebreak(header='noarrow')
   self.hc=0
   for data in self.db.get(self.tech,'*','name','[[:<:]]h2_',orderby='id',regex=True):
    self.htmlstr+=""" <div class="header2" style="margin-top:%spx;">
@@ -163,7 +163,8 @@ class agenda:
     self.htmlstr+=agendadaydata[k]['data']
     if k+1==boundry: 
      self.pagenumber=self.pagenumber+1
-     self.htmlstr+=""" <pre class="ftr">&copy www.MinhInc.com</pre><a class="pn"><img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>%s</a>
+     #self.htmlstr+=""" <pre class="ftr">&copy www.MinhInc.com</pre><a class="pn"><img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>%s</a>
+     self.htmlstr+=""" <pre class="ftr">&copy www.MinhInc.com</pre><a class="pn">%s</a>
 </div>
 %s
 """ % ("p"+str(self.pagenumber),'<div class="pg" style="margin-top:'+str(self.TM)+'px;height:'+str(self.PH)+'px">' if (k+1)!=len(agendadaydata) else '')
@@ -204,7 +205,7 @@ class agenda:
 #  self.pagenumber+=2
 #
  def preparecontent(self):
-  LH=20;HBH=21;CH=15;HLH=10;CNTTHR=3*LH
+  LH=21;HBH=21;CH=15;HLH=10;CNTTHR=3*LH
   contentlength=headerheight=lineheight=0
   cnt=fixheader=header=code=dayhalf=""
   CCH=CSH=9.5
@@ -243,7 +244,8 @@ class agenda:
        line=re.sub(r'^\n*(.*)\n*$','\\1',line,flags=re.DOTALL)
        for ii in [re.sub(r'^\n*(.*)\n*$','\\1',ii,flags=re.DOTALL) for ii in re.split(r'^[*]',line,flags=re.M) if ii]:
  #       header+="""   <li class="%s"><pre>%s</pre></li>""" % ("big" if line==code else "sml",re.sub(r'\n*(.*)\n*$','\\1',ii,flags=re.DOTALL))
-        header+="""   <li class="%s">%s%s%s</li>""" % ("big" if line==code else "sml",("<a name=\"chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">") if line==code else '<pre>',re.sub(r'\n','<br>',ii,flags=re.DOTALL) if line==code else ii,"</a>" if line==code else '</pre>')
+ #       header+="""   <li class="%s">%s%s%s</li>""" % ("big" if line==code else "sml",("<a name=\"chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">") if line==code else '<pre>',re.sub(r'\n','<br>',ii,flags=re.DOTALL) if line==code else ii,"</a>" if line==code else '</pre>')
+        header+="""   <li class="%s">%s%s%s</li>""" % ("big" if line==code else "sml",("<a name=\"chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">") if line==code else '<pre>',"<br>".join([re.sub(r'^[ ]?([ ]*)(.*)',re.sub(r'[ ]',r'&nbsp;',re.sub(r'^[ ]?([ ]*).*',r'\1',iii))+r'\2',iii) for iii in re.split(r'\n',ii)]) if line==code else ii,"</a>" if line==code else '</pre>')
       header+="""
   </ul>
  </div>%s
@@ -359,7 +361,7 @@ class agenda:
         if self.backend!='m':
          self.htmlstr+='<pre class="slidecontent">'
   #     print("(self.hc,line)%s%s" % (line,hc))
-       self.hc+=(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH
+       self.hc+=(int)(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH
        self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',line))))))+'\n'
       self.htmlstr+='</pre>\n' 
     else:
@@ -368,7 +370,7 @@ class agenda:
  def searchtag(self,tag,cnt):
   return re.search(r'^.*<'+tag+r'>.*',cnt) and not re.search(r'^.*</'+tag+r'>.*',cnt)
  def getcodecnt(self,tag,cnt):
-  return re.split(r'<><>',re.sub(r'^\s*<'+tag+r'>\s*(.*?)\s*</'+tag+r'>.*?\n?(.*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
+  return re.split(r'<><>',re.sub(r'^\s*<'+tag+r'>\s*?\n?(.*?)\s*</'+tag+r'>.*?\n?(.*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
  def preparepdf(self):
   import pdfkit
   import os
@@ -385,16 +387,16 @@ class agenda:
  def placepagebreak(self,k=0,i=0,header=''):
   if self.backend!='m':
    self.pagenumber=self.pagenumber+1
-   self.htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><a href="#main%s" class="pn"><img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>%s</a>
+   self.htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><a href="#main%s" class="pn">%s%s</a>
 </div>
 <div class="pg" style="margin-top:%spx;height:%spx">
-""" % (self.day[k][i],"p"+str(self.pagenumber),self.TM,self.PH)
+""" % (self.day[k][i],'<img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>' if header!='noarrow' else '',"p"+str(self.pagenumber),self.TM,self.PH)
    self.hc=self.BTMOFST
-  elif header=='header':
-   self.htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><a class="pn" href="#main%s"><img src="http://minhinc.com/image/arrow.png" style="width:20px"/></a>
+  elif header:
+    self.htmlstr+="""<br><pre class="ftr">&copy www.minhinc.com</pre><a class="pn" href="#main%s">%s</a>
 </div>
 <div class="pg" style="margin-top:%spx;">
-""" % (self.day[k][i],self.TM)
+""" % (self.day[k][i],'<img src="http://minhinc.com/image/arrow.png" style="width:20px"/>' if header!='noarrow' else '',self.TM)
  def placetopbreak(self,top=False):
   if self.backend[0]=='m':
    if top:

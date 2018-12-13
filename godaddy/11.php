@@ -2,7 +2,8 @@
 function draw($util){
 echo '<ul class="common">
 <li class="header"><pre>'.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$util->subitem))[0],true)['title'].'</pre></li>
-<li><pre class="register">Register For Online Training</pre></li>
+<li><pre class="register">Register For Online Training
+<span style="color:#ff8844;font-size:14pt">Upcoming training : Qml <a href="http://www.minhinc.com/training/advance-qml-agenda.php" style="text-decoration:underline;font-size:14pt;color:#004000">See Agenda</a></span></pre></li>
 </ul>
 <form class="online" action="'.$util->level.'/php/send_form_online.php" method="post" target="myIframe"">
 <div class="row"><pre class="lc bold">Technology</pre>

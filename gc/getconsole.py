@@ -35,6 +35,7 @@ for fetcher in [eval(fetcher)() for fetcher in testdir.__all__]:
   i=re.sub(r'ş','s',i)
   i=re.sub(r'(ý|ÿ)','y',i)
   i=re.sub(r'ź','z',i)
+  i=re.sub(r'a©','e',i)
   i=re.sub(r'(Ø|ø)','0',i)
   if not db.search('linkvisited',re.sub(r'[^a-zA-Z0-9._%-]','_','https://www.google.co.in/search?q='+re.sub('\s+','+',i)+r'&btnG=Search'),'name'):
    file.write(i+'\n')

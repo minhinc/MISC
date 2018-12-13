@@ -1,10 +1,11 @@
 <?php
 function draw($util){
 $first=TRUE;$code="";$link="";
+$json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$util->subitem))[0],true);
 echo ' <ul class="three"">
-<li class="header"><pre class="header">'.ucfirst($util->subitem).' Essentials</pre></li>
-<li class="table"><h3>'.ucfirst($util->subitem).' Essentials</h3>
-<pre class="f10">Get familiar with '.ucfirst($util->subitem).' Concepts</pre>
+<li class="header"><pre class="header">'.ucfirst(str_ireplace('training','',$json['title'])).' Essentials</pre></li>
+<li class="table"><h3>'.ucfirst(str_ireplace('training','',$json['title'])).' Essentials</h3>
+<pre class="f10">Get familiar with '.ucfirst(str_ireplace('training','',$json['title'])).' Concepts</pre>
 <h4>Course details</h4>
 <pre class="f10"><span class="bold">Duration: </span>'.$util->json['duration'].' days</pre>
 <pre class="f10"><span class="bold">Agenda: </span><a href="./advance-'.$util->subitem.'-slides.php"><span class="bold gold f14">Slides</span></pre></a>

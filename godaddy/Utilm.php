@@ -10,10 +10,19 @@ public function draw(){
 }
 
 public function drawheader(){
+$json['title']='';
+if (!empty($this->subitem)) $json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$this->subitem))[0],true);
+elseif(!empty($this->headername)) $json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$this->headername))[0],true);
 ?>
 <html>
 <head>
-<title>Minh, Inc. Software development and Outsourcing <? echo "| ".$this->subitem." ".$this->headername." Bangalore India"; ?></title>
+<?
+if (empty($this->headername)){
+echo '<title>Minh, Inc. Software development and Outsourcing Bangalore India</title>';
+}else{
+echo '<title>'.$json['title'].' | Minh, Inc. Bangalore India</title>';
+}
+?>
 <link rel="stylesheet" type="text/css" href="<? echo $this->level ?>/css/main.css" media="all"/>
 <link rel="stylesheet" type="text/css" href="<? echo $this->level ?>/css/agenda.css" media="all"/>
 </head>
@@ -23,7 +32,7 @@ public function drawheader(){
 <br>
 <div class="ddm">
  <ul class="drop">
-  <li><a href="<? echo $this->level ?>/about/" style="<?php echo ($this->headername=='about'?'color:#f38502':'') ?>">About Minh</li>
+  <li><a href="<? echo $this->level ?>/about/" style="<?php echo ($this->headername=='about' && empty($this->subitem)?'color:#f38502':'') ?>">About Minh</li>
   <li><div></div><a href="<? echo $this->level ?>/product/" style="<?php echo ($this->headername=='product'?'color:#f38502':'') ?>">Products</a>
    <ul>
     <li class="blank">" "</li>
@@ -118,6 +127,16 @@ public function drawheader(){
       </li>
      </ul>
     </li>
+    <li><div></div><a href="<? echo $this->level ?>/training/dp">GOF Design Patterns</a>
+     <ul>
+      <li><a class="leaf" href="<? echo $this->level ?>/training/dp/advance-dp-slides.php">Slides</a></li>
+      <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
+       <ul>
+        <li><a href="http://www.minhinc.com/research/SDJ_Open_2014.pdf">Design Patterns in Perl</a></li>
+       </ul>
+      </li>
+     </ul>
+    </li>
    </ul>
   </li>
   <li><div></div><a href="<? echo $this->level ?>/research/" style="<?php echo ($this->headername=='research'?'color:#f38502':'') ?>">Research</a>
@@ -157,11 +176,11 @@ public function drawheader(){
     <li><a href="<? echo $this->level ?>/career/">Upload CV</a></li>
    </ul>
   </li>
-  <li><div></div><a href="<? echo $this->level ?>/about/" style="<?php echo ($this->headername=='help'?'color:#f38502':'') ?>">Help</a>
+  <li><div></div><a href="<? echo $this->level ?>/about/" style="<?php echo ($this->headername=='about'?'color:#f38502':'') ?>">Help</a>
    <ul>
     <li class="blank">" "</li>
     <li><a href="<? echo $this->level ?>/about/">About Minh, Inc.</a></li>
-    <li><a href="<? echo $this->level ?>/about/online">Online Training</a></li>
+    <li><a href="<? echo $this->level ?>/about/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
     <li><a href="<? echo $this->level ?>/about/question">Ask a Programming Question</a></li>
     <li><a href="<? echo $this->level ?>/about/contact">Contact Us</a></li>
    </ul>
@@ -170,14 +189,24 @@ public function drawheader(){
 </div>
 <br>
  <ul class="domain">
-  <li><a href="<? echo $this->level ?>/service/network">Networking</a></li>
+  <li><a href="<? echo $this->level ?>/service/network" <? echo ($this->subitem=='networking'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Networking</a></li>
   <li>|</li>
-  <li><a href="<? echo $this->level ?>/service/multimedia">MultiMedia</a></li>
+  <li><a href="<? echo $this->level ?>/service/multimedia" <? echo ($this->subitem=='multimedia'?'style="font-weight:bold;color:#aa4400;"':'') ?>>MultiMedia</a></li>
   <li>|</li>
-  <li><a href="<? echo $this->level ?>/service/medicalsystem">Medical Systems</a></li>
+  <li><a href="<? echo $this->level ?>/service/medicalsystem" <? echo ($this->subitem=='medicalsystem'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Medical Systems</a></li>
+  <li>|</li>
+  <li><a href="<? echo $this->level ?>/about/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
  </ul>
 <br>
 <?
+/* Top Advertisement */
+$json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name','main'))[0],true);
+if (!empty($json['comingtraining']) && $this->headername != "about" && $this->subitem != "online"){
+echo '<div style="width:70%;height:60px;margin:10px auto;background-color:#0707a2"><pre style="float:left;padding-left:5%;line-height:60px;color:#ffffff;font-family:mytwcenmt;font-size:22px;">';
+echo $json['comingtraining'];
+echo '</pre><a href="http://www.minhinc.com/about/online" style="float:right;margin:10px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:40px;font-size:20px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
+}
+
 }
 public function drawfooter(){
 /*$this->headername="";
@@ -197,7 +226,7 @@ if(empty($this->headername)){
   <li><p>#85, 5th Main, P&T<br>
    SanjayNagar, Bangalore<br>
    Karnataka, India 560094<br>
-   <b>+91 9483160610</b> <img src="<? echo $this->level.'/image/whatsapp.png' ?>" width="20px" height="20px"></p>
+   <b>+91 9483160610</b> <img src="<? echo $this->level.'/image/whatsapp_s.png' ?>" width="20px" height="20px"></p>
   </li>
  </ul>
  <ul class="menu">
@@ -222,6 +251,7 @@ if(empty($this->headername)){
     <li><a href="<? echo $this->level ?>/training/gl" <? echo ($this->subitem=='gl'?'style="font-weight:bold;color:#aa4400;"':'') ?>>OpenGL</a></li>
     <li><a href="<? echo $this->level ?>/training/ldd" <? echo ($this->subitem=='ldd'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Linux Device Driver</a></li>
     <li><a href="<? echo $this->level ?>/training/li" <? echo ($this->subitem=='li'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Linux Internals</a></li>
+    <li><a href="<? echo $this->level ?>/training/dp" <? echo ($this->subitem=='dp'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Design Patterns</a></li>
    </ul>
   </li>
   <li class="top"><a href="<? echo $this->level ?>/research/">Research</a>
@@ -229,7 +259,7 @@ if(empty($this->headername)){
     <li><hr class="research" style="<?php echo ($this->headername=='research'?'background-color:#f38502':'') ?>"></li>
    </ul>
   </li>
-  <li class="top"><a href="<? echo $this->level ?>/services/">Services</a>
+  <li class="top"><a href="<? echo $this->level ?>/service/">Services</a>
    <ul>
     <li><hr class="services" style="<?php echo ($this->headername=='service'?'background-color:#f38502':'') ?>"></li>
     <li><a href="<? echo $this->level ?>/service/network" <? echo ($this->subitem=='network'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Networking</a><li>

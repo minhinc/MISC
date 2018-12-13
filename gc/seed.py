@@ -67,7 +67,7 @@ else:
     dbi.fill('country',((sys.argv[i],),))
     dbi.update('country','id',int(sys.argv[3])+i-4,'id',0)
     print("inserted into country %s" % sys.argv[i])
-  elif re.search('^(qt|qml|gl|c|cpp|py|ldd|li|headername)$',sys.argv[2],flags=re.I):
+  elif re.search('^(qt|qml|gl|c|cpp|py|ldd|li|dp|headername)$',sys.argv[2],flags=re.I):
    dbi.fill(sys.argv[2],((sys.argv[4],),))
    dbi.update(sys.argv[2],'id',int(sys.argv[3]),'id',0)
    if len(sys.argv)>=6:

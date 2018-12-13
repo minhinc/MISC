@@ -37,6 +37,7 @@ class databasec:
   crsr.execute("CREATE TABLE IF NOT EXISTS py (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
   crsr.execute("CREATE TABLE IF NOT EXISTS li (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
   crsr.execute("CREATE TABLE IF NOT EXISTS ldd (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS dp (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
 
 #data in html
   crsr.execute("CREATE TABLE IF NOT EXISTS headername (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(160), content VARCHAR(40960), UNIQUE(name))")
@@ -71,7 +72,7 @@ class databasec:
       [crsr.execute("INSERT INTO track(email,uuid,company_id,tech_id,city_id,country_id,expire) VALUES('%s','%s','%d','%d','%d','%d','%d')" % rowprimary) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s'" % (rowprimary[0], )) and crsr.fetchone()[0] == 0]
      elif(table=='city'):
        [crsr.execute("INSERT INTO city(name,country) VALUES('%s','%d')" % rowprimary) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM city WHERE name='%s' and country='%d'" % (rowprimary[0],rowprimary[1] )) and crsr.fetchone()[0] == 0]
-     elif re.search(r'^(qt|qml|py|gl|c|cpp|ldd|li)$',table,flags=re.I):
+     elif re.search(r'^(qt|qml|py|gl|c|cpp|ldd|li|dp)$',table,flags=re.I):
        [crsr.execute("INSERT INTO %s (name) VALUES('%s')" % (table, rowprimary[0])) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM %s WHERE id='%d'" % (table, 0 )) and crsr.fetchone()[0] == 0]
      else:
        [crsr.execute("INSERT INTO %s (name) VALUES('%s')" % (table, rowprimary[0])) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM %s WHERE name='%s'" % (table,rowprimary[0] )) and crsr.fetchone()[0] == 0]

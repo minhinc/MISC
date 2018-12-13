@@ -1,6 +1,6 @@
 if [[ $# -eq 0 ]]; then
 echo "--usage--"
-echo "./arg.sh <[m|d]> <[agenda|php|pdf]> <[qt|c|cpp|gl|li|[Aa]ll>"
+echo "./arg.sh <[m|d]> <[agenda|php|pdf]> <[qt|c|cpp|gl|li|ldd|dp|[Aa]ll>"
 exit
 fi
 
@@ -21,6 +21,8 @@ py=("1 2 3:L" "4 5 6:7 L" "8 9:L" "10 11:L" "12 13:L")
 alltech[py]=py[@]
 ldd=("1 2:L" "3 4:L" "5 6:L" "7 8:L" "9 10:L")
 alltech[ldd]=ldd[@]
+dp=("1 2 3 4:L" "5:L" "6:L" "7:L")
+alltech[dp]=dp[@]
 
 backend=''
 under=''

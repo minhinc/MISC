@@ -9,23 +9,35 @@ import urllib.request as urllib2
 #import urllib2#for python 2.7
 import shutil
 import json
+import mimetypes
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+from email import encoders
+import smtplib
 from fetchm import fetchc
 class sendmailc(fetchc):
  def __init__(self,next,wgt,db):
   fetchc.__init__(self,next,wgt,db)
   self.mailsent=[]
   self.vc=threading.Condition()
+#  self.downloadimage=dict()
+  self.jsonemailcontent=dict()
  def handle(self):
   fetchc.handle(self)
   self.wdgt.state="password"
   self.wdgt.entry.delete(0,'end')
   self.wdgt.entry.insert(0,"Enter password")
  def message(self,strFrom,strTo):
+  tech=self.db.get('tech','name','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0]
+#  if tech in self.downloadimage:
+  if not tech in self.jsonemailcontent:
+#   self.downloadimage[tech]=True
+#   self.downloadimage[tech]=False
+   self.jsonemailcontent[tech]=json.loads(self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0])
   msgRoot=MIMEMultipart('related')
-  msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0],flags=re.DOTALL)
+#  msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0],flags=re.DOTALL)
+  msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.jsonemailcontent[tech]["1"],flags=re.DOTALL)
   msgRoot['From']=strFrom
   msgRoot['To']=strTo
   msgRoot['reply-to']='Minh Inc <sales@minhinc.com>'
@@ -34,16 +46,21 @@ class sendmailc(fetchc):
   msgAlternative = MIMEMultipart('alternative')
   msgRoot.attach(msgAlternative)
 
-  msgHTML=MIMEText(re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],re.sub(r'(image\d+)\(.*?\)',r'\1',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0],flags=re.DOTALL))),'html')
+#  msgHTML=MIMEText(re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],re.sub(r'(image\d+)\(.*?\)',r'\1',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0],flags=re.DOTALL))),'html')
+  msgHTML=MIMEText(re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.I),'html')
   msgHTML.replace_header('Content-Type','text/html')
   msgAlternative.attach(msgHTML)
 
-  for i in set(re.findall(r'image\d+',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0])):
-   imageurl=re.sub(r'.*'+i+r'\((.*?)\).*',r'\1',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0],flags=re.DOTALL)
-   msgImage=MIMEImage(urllib2.urlopen(urllib2.Request(imageurl,headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
-   msgImage.add_header('Content-ID','<'+i+'>')
-   msgImage.add_header('Content-Disposition','inline', filename=imageurl)
-   msgRoot.attach(msgImage)
+#  for i in set(re.findall(r'image\d+',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0])):
+#   imageurl=re.sub(r'.*'+i+r'\((.*?)\).*',r'\1',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0],flags=re.DOTALL)
+#   if self.downloadimage[tech]==False:
+#    print("downloading images ...")
+#    with open(re.sub(r'.*/(.*)$','\\1',imageurl,flags=re.I),'wb') as file:
+#     file.write(urllib2.urlopen(urllib2.Request(imageurl,headers={'User-Agent': 'Mozilla/44.0.2'}),timeout=90).read())
+#   msgImage=MIMEImage(open(re.sub(r'.*/(.*)$','\\1',imageurl,flags=re.I),'rb').read())
+#   msgImage.add_header('Content-ID','<'+i+'>')
+#   msgImage.add_header('Content-Disposition','inline', filename=re.sub(r'.*/(.*)$','\\1',imageurl,flags=re.I))
+#   msgRoot.attach(msgImage)
   return msgRoot
  def get(self):
   if not self.wdgt.password:
@@ -69,10 +86,9 @@ class sendmailc(fetchc):
   self.vc.notify()
   self.vc.release()
  def producer(self,arg):
-  import smtplib
-  smtp=smtplib.SMTP("smtp.gmail.com",587)
+  smtp=smtplib.SMTP_SSL("smtp.gmail.com",465)
   smtp.ehlo()
-  smtp.starttls()
+#  smtp.starttls()
   try:
    smtp.login('tominhinc1@gmail.com',self.wdgt.password)
    self.push(self.wdgt.text2,'logged in to smtp.gmail.com:587 through tominhinc1@gmail.com\n')
