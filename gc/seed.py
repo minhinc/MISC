@@ -80,7 +80,7 @@ else:
     print("inserted into table %s value %s" % (sys.argv[2],sys.argv[i]))
  elif re.search('update',sys.argv[1],flags=re.I):
   dbi.update(sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6])
-  print("updated table %s field %s value %s" % (sys.argv[2],sys.argv[3],sys.argv[4]))
+  print("updated table %s field %s value %s for %s = %s" % (sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6]))
  elif re.search('print',sys.argv[1],flags=re.I):
   for i in dbi.get(sys.argv[2]):
    if len(sys.argv)>3:

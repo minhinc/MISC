@@ -9,15 +9,14 @@ import testdir
 
 if len(sys.argv)<=5:
  print(''' ---usage---
- python3 getcontactm_c.py "South Africa" za Qt 5 [<file>]
- python3 getcontactm_c.py "South Africa" za all 5''') # 5->pages
+ python3 getconsole.py "South Africa" za Qt 5 [<file>]''') # 5->pages
 
 filename='test.txt' if len(sys.argv)<=5 else sys.argv[5]
 file=open(filename,'w')
 db=databasec(False)
 for fetcher in [eval(fetcher)() for fetcher in testdir.__all__]:
  file.write("#################\n")
- file.write("## "+fetcher.name+"\n")
+ file.write("## "+fetcher.name+" : "+sys.argv[3]+"\n")
  file.write("#################\n")
  print("## "+fetcher.name)
  for i in fetcher.process():

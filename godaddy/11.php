@@ -3,7 +3,7 @@ function draw($util){
 echo '<ul class="common">
 <li class="header"><pre>'.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$util->subitem))[0],true)['title'].'</pre></li>
 <li><pre class="register">Register For Online Training
-<span style="color:#ff8844;font-size:14pt">Upcoming training : Qml <a href="http://www.minhinc.com/training/advance-qml-agenda.php" style="text-decoration:underline;font-size:14pt;color:#004000">See Agenda</a></span></pre></li>
+<!--<span style="color:#ff8844;font-size:14pt">Upcoming training : Qml <a href="http://www.minhinc.com/training/advance-qml-agenda.php" style="text-decoration:underline;font-size:14pt;color:#004000">See Agenda</a></span></pre>--></li>
 </ul>
 <form class="online" action="'.$util->level.'/php/send_form_online.php" method="post" target="myIframe"">
 <div class="row"><pre class="lc bold">Technology</pre>
@@ -16,6 +16,7 @@ $json1=json_decode(mysqli_fetch_row($util->db->get('headername','content','name'
 }
 echo '</select></div>
 <div class="row"><pre class="lc bold">Fee:</pre><pre class="l bold" id="charge"></pre></div>
+<div class="row"><pre class="lc bold">Duration:</pre><pre class="l bold" id="onlineduration"></pre></div>
 <div class="row"><pre class="lc bold">Course Content:</pre><a class="l bold block" href="" id="a_course" target="_blank"></a></div>
 <div class="row"><pre class="lc bold">Name:</pre><input type="text" name="name" placeholder="Your Name" class="l"></div>
 <div class="row"><pre class="lc bold">Email:</pre><input type="text" name="email" placeholder="Email Address" class="l"><pre class="ls bold star">*</pre></div>
@@ -30,6 +31,15 @@ $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',
 $first='';
 foreach($json['child'] as $key){
 echo $first.' '.$key.':"USD $'.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true)['charge']['us'].', INR '.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true)['charge']['in'].'/-"';
+if(empty($first))
+$first=',';
+}
+echo '}';
+echo ';var onlinedurationarr={"":"",';
+$json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name','training'))[0],true);
+$first='';
+foreach($json['child'] as $key){
+echo $first.' '.$key.':"'.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true)['onlineduration']['day'].' Days. 5-6 hours every week. Total duration '.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true)['onlineduration']['month'].' month(s)"';
 if(empty($first))
 $first=',';
 }
@@ -51,6 +61,7 @@ document.getElementById("selecttech").onchange=function(){
 var e = document.getElementById("selecttech");
 var strUser = e.options[e.selectedIndex].value;
 document.getElementById("charge").innerHTML=chargearr[strUser];
+document.getElementById("onlineduration").innerHTML=onlinedurationarr[strUser];
 if (strUser !== ""){
 document.getElementById("s_submit").classList.remove("disable");
 document.getElementById("s_submit").classList.add("enable");

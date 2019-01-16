@@ -1,11 +1,11 @@
 <?php
 if(isset($_POST['submit'])){
     $to = "sales@minhinc.com"; // this is your Email address
-    $message2 = "Here is a copy of your message:\n\n" . $_POST['message'] . "\n\nThanks,\nWe will contact you soon.\nSales Team\n+91 9483160610 \nwww.minhinc.com";
+    $message2 = "Here is a copy of your message:\n\n" . $_POST['message'] . "\n\nThanks,\nWe will contact you within 24 hrs.\nSales Team\n+91 9483160610 (whatsapp) \nwww.minhinc.com";
     $from = $_POST['email']; // this is the sender's Email address
     $subject = "Form submission";
     $subject2 = "Copy of your form submission";
-    $message = $_POST['name'] . "\nwrote the following:" . "\n\n" . $_POST['message'];
+    $message = $_POST['name'] . "\nwrote the following : " . "\n\n" . $_POST['message'];
 
     $headers = "From:" . $from;
     $headers2 = "From:" . $to;

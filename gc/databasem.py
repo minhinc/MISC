@@ -141,7 +141,8 @@ class databasec:
  def getemailcompany(self):#called only from dbpushpull.py
   try:
    crsr=self.conn.cursor()
-   crsr.execute("SELECT track.email,company.name FROM track JOIN company ON track.company_id=company.id WHERE %s>=track.expire ORDER BY track.company_id" % (int(re.sub('-','',datetime.date.today().isoformat())),))
+#   crsr.execute("SELECT track.email,company.name FROM track JOIN company ON track.company_id=company.id WHERE %s>=track.expire ORDER BY track.company_id" % (int(re.sub('-','',datetime.date.today().isoformat())),))
+   crsr.execute("SELECT track.email,company.name FROM track JOIN company ON track.company_id=company.id WHERE %s>=track.expire and track.status<2 ORDER BY track.company_id" % (int(re.sub('-','',datetime.date.today().isoformat())),))
   except:
    if self.reconnect():
     return self.getemailcompany()
@@ -161,12 +162,17 @@ class databasec:
    self.conn.commit()
    return True
  def delete(self,table,where,wherevalue):
-  crsr=self.conn.cursor()
-  if table=='linkvisited':
-   crsr.execute("DELETE FROM {} WHERE {} < {}".format(table,where,wherevalue))
+  try:
+   crsr=self.conn.cursor()
+   if table=='linkvisited':
+    crsr.execute("DELETE FROM {} WHERE {} < {}".format(table,where,wherevalue))
+   else:
+    crsr.execute("DELETE FROM {} WHERE {}='{}'".format(table,where,wherevalue))
+  except:
+   if self.reconnect():
+    return self.delete(table,where,wherevalue)
   else:
-   crsr.execute("DELETE FROM {} WHERE {}='{}'".format(table,where,wherevalue))
-  self.conn.commit()
+   self.conn.commit()
  def close(self):
   try:
    self.conn.commit()

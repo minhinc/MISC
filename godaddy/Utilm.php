@@ -142,6 +142,7 @@ echo '<title>'.$json['title'].' | Minh, Inc. Bangalore India</title>';
   <li><div></div><a href="<? echo $this->level ?>/research/" style="<?php echo ($this->headername=='research'?'color:#f38502':'') ?>">Research</a>
    <ul>
     <li class="blank">" "</li>
+    <li><a href="https://www.codeproject.com/Articles/1271791/GUI-Modeling-in-Perl-Tk-Using-Composite-Design-Pat">GUI Modeling in Perl/Tk Using Composite Design Pattern</a></li>
     <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
     <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
     <li><a href="http://www.codeguru.com/IoT/raspberry-pi-3-hardware-and-system-software-reference.html">Raspberry Pi 3 Hardware And System Software Reference</a></li>

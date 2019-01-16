@@ -14,9 +14,13 @@ class linkedinc(basefetchc):
   fetchstr_l=[]
   html_parser = html.parser.HTMLParser()
   utili=utilc('linkedin')
+  tech=sys.argv[3]
+  if re.search(r'^C\+\+$',sys.argv[3],flags=re.I):
+   tech='c%2B%2B'
   while pc_l<int(sys.argv[4]) and trycount_l<21:
    try:
-    for i in [re.sub(r'"name":"([^"]*)"','\\1 '+sys.argv[1],name,flags=re.I) for name in re.findall(r'"name":"[^"]*"',html_parser.unescape(utili.getlinkedin_1('https://www.linkedin.com/jobs/search/?keywords='+sys.argv[3]+'&location='+re.sub(r'\s','%20',sys.argv[1])+'&locationId='+sys.argv[2]+'%3A0&start='+str(pc_l*25))),flags=re.I) if not re.search(r'"name":"string"',name,flags=re.I)]:
+   # for i in [re.sub(r'"name":"([^"]*)"','\\1 '+sys.argv[1],name,flags=re.I) for name in re.findall(r'"name":"[^"]*"',html_parser.unescape(utili.getlinkedin_1('https://www.linkedin.com/jobs/search/?keywords='+sys.argv[3]+'&location='+re.sub(r'\s','%20',sys.argv[1])+'&locationId='+sys.argv[2]+'%3A0&start='+str(pc_l*25))),flags=re.I) if not re.search(r'"name":"string"',name,flags=re.I)]:
+    for i in [re.sub(r'"name":"([^"]*)"','\\1 '+sys.argv[1],name,flags=re.I) for name in re.findall(r'"name":"[^"]*"',html_parser.unescape(utili.getlinkedin_1('https://www.linkedin.com/jobs/search/?keywords='+tech+'&location='+re.sub(r'\s','%20',sys.argv[1])+'&locationId='+sys.argv[2]+'%3A0&start='+str(pc_l*25))),flags=re.I) if not re.search(r'"name":"string"',name,flags=re.I)]:
      fetchstr_l.append(i)
    except:
     time.sleep(1)
