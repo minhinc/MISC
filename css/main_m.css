@@ -25,13 +25,14 @@ li{list-style:none}
 
 .menubar { position:relative; height:39px;}
 .menubar img.homelogo { border:none; width:99px; height:39px; outline:none;}
-.menubar img.linelogo { border:none; width:35px; height:25px; outline:none;margin-top:6px;float:right;margin-right:5%;}
+.menubar span.linelogo { font-size:30px;cursor:pointer;float:right;margin-right:5%; }
 
-.dropdown-content { display: none; position:absolute;background-color: rgba(0,0,0,0.6); width: 70%; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; }
+/*.dropdown-content { position:fixed;overflow-x:hidden;overflow-y:scroll;height:50vh;max-height:100vh;-webkit-overflow-scrolling:touch;background-color: rgba(0,0,0,0.9); width:0;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);transition:0.5s; z-index: 1; }*/
+.dropdown-content { position:fixed;overflow-x:hidden;overflow-y:scroll;-webkit-overflow-scrolling:touch;background-color: rgba(15,15,15,0.8); width:0;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);transition:0.5s; z-index: 1; }
 .dropdown-content div.line {height:35px;border-width:2px;border-width:2px;border-color:#fff transparent transparent transparent;border-style:solid;}
-.dropdown-content div.line a { color: #fff; display: block; font-size:10pt; font-weight:bold;line-height:35px;text-align:center;}
+.dropdown-content div.line a { color: #fff; display: block; font-size:10pt;line-height:35px;font-weight:bold;text-align:center;}
 .dropdown-content div.linew {height:30px;background-color:rgba(255,255,255,0.7);border-width:2px;border-color:#000 transparent transparent transparent;border-style:solid;}
-.dropdown-content div.linew a { color: #000; display: block; font-size:10pt; font-weight:bold;line-height:30px;text-align:center;}
+.dropdown-content div.linew a { color: #000; display: block; font-size:10pt;line-height:30px;font-weight:bold;text-align:center;}
 .dropdown-content a:hover,.dropdown-content a:focus {background-color: #f38502}
 .dropdown-content div.submenu{display:none; overflow: hidden;}
 
@@ -62,13 +63,13 @@ form.common input {border: 1px solid #878787; color: #000;height:30px;}
 form.common textarea {padding:2px; border:1px solid #878787; display:block; height:80px; color:#000;}
 form.common input[type="submit"] {width:100%; background-color:#004000; float:left; margin:20px 0 0 0px;}
 form.common input[type="file"] {clear:both; margin-top:-4px; width:65%;}
-form.common iframe {margin-left:40px; padding-top:10px; height:30px; width:80%;}
+form.common iframe {margin-left:40px; height:50px; width:80%}
 form.common h1 {font-size:18px; color:#595959; margin:40px 0px;}
 form.common p {width:100%; text-align:left; margin-top:20px; font-size:14px; color:#000; font-weight:bold}
 form.common p.txtar {width:100%;}
 
 form.online {clear:both; position:relative;margin:10px 5%; background-color:#Fff; color: #000;width:90%:}
-form.online iframe {width:60%;}
+form.online iframe {height:50px;width:60%;}
 form.online input,form.online select {border: 1px solid #878787;height:27px;}
 textarea {border: 1px solid #878787;}
 form online .f14{font-size:14pt;}
@@ -85,7 +86,7 @@ pre.register{font-size:12pt;font-weight:bold;color:#4488dd}
 form.online .submit{width:40%;margin-top:10px;height:30px;}
 form.online .enable{background-color:#004000;color:#fff}
 form.online .disable{background-color:#ffaa88;color:#fff}
-form.online div.row{height:30px;clear:both;}
+form.online div.row{height:30px;clear:both;margin:2px 0}
 form.online div.rowtextarea{height:90px;clear:both;}
 
 li.header {background-color:#808285;height:26px;margin-bottom:8px}

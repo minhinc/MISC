@@ -10,6 +10,7 @@ import testdir
 if len(sys.argv)<=5:
  print(''' ---usage---
  python3 getconsole.py "South Africa" za Qt 5 [<file>]''') # 5->pages
+print("{}".format(sys.argv))
 
 filename='test.txt' if len(sys.argv)<=5 else sys.argv[5]
 file=open(filename,'w')

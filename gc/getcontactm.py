@@ -67,7 +67,7 @@ class getcontactc(fetchc):
     if len(set(mail))<40:
      self.push(self.wdgt.text2,'#'+re.sub(r'(^\s*|\s*$)','',line)+'\n'+' '.join(set(mail))+'\n')
      with open(re.sub(r'^(.*)[.]txt$','\\1',self.wdgt.filename)+'_people.txt','a') as file:
-      file.write("%s%s" % ('\n' if os.stat(re.sub(r'^(.*)[.]txt$','\\1',self.wdgt.filename)+'_people.txt').st_size else '',re.sub(r'(^\s*|\s*$)','',line)+' '+' '.join(sorted(set([x.lower() for x in mail]),key=lambda x:0 if re.sub(r'.*?@(.).*',r'\1',x).lower()==line[0].lower() else 1))))
+      file.write("%s%s" % ('\n' if os.stat(re.sub(r'^(.*)[.]txt$','\\1',self.wdgt.filename)+'_people.txt').st_size else '',re.sub(r'(^\s*|\s*$)','',line).capitalize()+' '+' '.join(sorted(set([x.lower() for x in mail]),key=lambda x:0 if re.sub(r'.*?@(.).*',r'\1',x).lower()==line[0].lower() else 1))))
     else:
      print('--not included--#'+re.sub(r'(^\s*|\s*$)','',line)+'\n'+' '.join(set(mail)))
    mail=[]

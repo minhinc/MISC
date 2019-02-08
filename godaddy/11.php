@@ -22,7 +22,8 @@ echo '</select></div>
 <div class="row"><pre class="lc bold">Email:</pre><input type="text" name="email" placeholder="Email Address" class="l"><pre class="ls bold star">*</pre></div>
 <div class="rowtextarea" ><pre class="lc bold">Comment:</pre><textarea rows="5" name="message" cols="40" class="l2"></textarea><pre class="ls bold star">*</pre></div>
 <div class="row"><pre class="lc bold">Date:</pre><input type="date" name="tdate"></div>
-<div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold disable" id="s_submit"><iframe name="myIframe" frameborder="0" scrolling="no" class="l"></iframe></div>
+<div class="row"><img id="imgcaptchaid" src="'.$util->level.'/php/captcha.php" style="float:left" /><input name="captcha_entered" type="text" id="captcha_entered" size="5" maxlength="2" placeholder = "Answer" class="l" style="margin-left:8%"/></div>
+<div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold disable" id="s_submit"><iframe name="myIframe" frameborder="0" scrolling="no" class="l" id="iframeid" style="width:400px"></iframe></div>
 </form>
 <div style="clear:both"></div>
 <script>
@@ -75,6 +76,9 @@ document.getElementById("s_submit").disabled=true;
 document.getElementById("a_course").innerHTML="";
 document.getElementById("a_course").setAttribute("href","");
 }
+}
+document.getElementById("iframeid").onload=function(){
+document.getElementById("imgcaptchaid").src="'.$util->level.'/php/captcha.php?time="+new Date();
 }
 </script>';
 }

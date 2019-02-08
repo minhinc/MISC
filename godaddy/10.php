@@ -24,15 +24,21 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCypT5QJIhCg6kqW808Rsn-mXl
 <div class="r"><p class="b" style="font-family:mytwcenmt;font-size:24pt;color:#004000">Minh, Inc.</p><div class="dl"><p class="n">Tel: +91 9483160610<img src="'.$util->level.'/image/whatsapp.png" width="20px" height="20px"> <br>Email: <a href="mailto:sales@minhinc.com"><span class="green">sales@minhinc.com</span></a></p></div><div class="dr"><p>#85<br>5th Main<br>P&T Colony<br>SanjayNagar<br>Bangalore-94</p></div></div>
 </li>
 </ul>
-<form class="common" action="'.$level.'/php/send_form_email.php" method="post" target="myIframe"">
+<form class="common" action="'.$util->level.'/php/send_form_email.php" method="post" target="myIframe">
 <h1>Reach Out To Us</h1>
 <p>Name:<input type="text" name="name" placeholder="Your Name"></p>
 <p>Email:<input type="text" name="email" placeholder="Email Address"></p>
 <p class="txtar">Message:<textarea rows="5" name="message" cols="40"></textarea></p>
+<p><img id="imgcaptchaid" src="'.$util->level.'/php/captcha.php" /><input name="captcha_entered" type="text" id="captcha_entered" size="5" maxlength="2" placeholder = "Answer"/></p>
 <input type="submit" name="submit" value="Submit">
 <!--<iframe name="myIframe" frameborder="0" height="35px" width="200px" scrolling="no">-->
-<iframe name="myIframe" frameborder="0" scrolling="no">
+<iframe name="myIframe" frameborder="0" scrolling="no" id="iframeid">
 </iframe>
-</form>';
+</form>
+<script>
+document.getElementById("iframeid").onload=function(){
+document.getElementById("imgcaptchaid").src="'.$util->level.'/php/captcha.php?time="+new Date();
+}
+</script>';
 }
 ?>

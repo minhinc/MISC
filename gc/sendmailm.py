@@ -33,7 +33,7 @@ class sendmailc(fetchc):
   if not tech in self.jsonemailcontent:
    self.jsonemailcontent[tech]=json.loads(re.sub(r'\\\n',r'\\n',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0]))
   msgRoot=MIMEMultipart('related')
-  msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.jsonemailcontent[tech]["1"],flags=re.DOTALL)
+  msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.jsonemailcontent[tech]["1"],flags=re.DOTALL) if "s" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["s"]
   msgRoot['From']=strFrom
   msgRoot['To']=strTo
   msgRoot['reply-to']='Minh Inc <sales@minhinc.com>'
@@ -43,7 +43,7 @@ class sendmailc(fetchc):
   msgRoot.attach(msgAlternative)
 
   msgHTML=MIMEText(re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.I),'html')
-  msgHTML.replace_header('Content-Type','text/html')
+  msgHTML.replace_header('Content-Type','text/html' if "t" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["t"])
   msgAlternative.attach(msgHTML)
 
   return msgRoot

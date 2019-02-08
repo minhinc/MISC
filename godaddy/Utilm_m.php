@@ -27,31 +27,12 @@ echo '<link rel="stylesheet" type="text/css" href="'.$this->level.'/css/main_m.c
 </head>
 <body>';
 include_once('analyticstracking.php');
-$json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name','main'))[0],true);
-$fontsize="10";$link="";$fontmargin=30;
+//$json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name','main'))[0],true);
 echo '<div class="menubar">
  <a href="'.$this->level.'"><img class="homelogo" src="'.$this->level.'/image/topconLogo.png"/></a>
-  <img onclick="myFunction()" class="linelogo" src="'.$this->level.'/image/menulogo.png"></img>
+  <span class="linelogo" onclick="myFunction()">&#9776;</span>
   <div id="myDropdown" class="dropdown-content">';
-foreach($json['child'] as $key){
-$color='';
-if($key==$this->headername) {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
-echo '<div class="line"><div class="l"><a '.$color.' href='.$this->level.'/'.$key.'>'.ucfirst($key).'</a></div><div class="r linesubmenu" onclick="myFunction1(\'linesubmenu\')"><div class="tr"></div></div></div>
-<div class="submenu">';
-$json1=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key))[0],true);
-foreach($json1['child'] as $key1){
-$fontsize="10";
-if($key1==$this->subitem) {$color=';color:#f38502;font-weight:bold;';}else{$color='';}
-if(empty(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['link']))
- $link=$this->level.'/'.$key.'/'.$key1;
-else
- $link=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['link'];
-if(strlen(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title'])>$fontmargin)
- $fontsize=($fontsize*$fontmargin)/strlen(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title']);
-echo '<div class="linew"><a href="'.$link.'" style="font-size:'.$fontsize.'pt;'.$color.'">'.ucfirst(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title']).'</a></div>';
-}
-echo '</div>';
-}
+echo $this->drawmenu();
 echo ' </div>
 </div>';
 
@@ -61,8 +42,33 @@ echo '<div style="width:90%;height:40px;margin:10px auto;background-color:#0707a
 echo $json['comingtraining'];
 echo '</pre><a href="http://www.minhinc.com/about/online" style="float:right;margin:5px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:30px;font-size:10px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
 }
-
 }
+
+public function drawmenu($returnstring=''){
+$fontsize="10";$link="";$fontmargin=30;
+$json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name','main'))[0],true);
+foreach($json['child'] as $key){
+ $color='';
+ if($key==$this->headername) {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
+ $returnstring .= '<div class="line"><div class="l"><a '.$color.' href='.$this->level.'/'.$key.'>'.ucfirst($key).'</a></div><div class="r linesubmenu" onclick="myFunction1(\'linesubmenu\')"><div class="tr"></div></div></div>
+ <div class="submenu">';
+ $json1=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key))[0],true);
+ foreach($json1['child'] as $key1){
+  $fontsize="10";
+  if($key1==$this->subitem) {$color=';color:#f38502;font-weight:bold;';}else{$color='';}
+  if(empty(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['link']))
+   $link=$this->level.'/'.$key.'/'.$key1;
+  else
+   $link=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['link'];
+  if(strlen(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title'])>$fontmargin)
+   $fontsize=($fontsize*$fontmargin)/strlen(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title']);
+   $returnstring .= '<div class="linew"><a href="'.$link.'" style="font-size:'.$fontsize.'pt;'.$color.'">'.ucfirst(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title']).'</a></div>';
+  }
+ $returnstring .= '</div>';
+}
+return $returnstring;
+}
+
 
 public function drawfooter(){
 $json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name','main'))[0],true);
@@ -101,8 +107,19 @@ echo '</div>
 </div>
 
 <script>
+document.getElementById("myDropdown").style.height=window.screen.height*0.7+"px";
+var linearray=document.querySelectorAll(".dropdown-content > .line");
+for(var i=0;i<linearray.length;i++) {
+ linearray[i].style.height=(window.screen.height*0.7)/8+"px";
+ linearray[i].querySelector("a").style.lineHeight=(window.screen.height*0.7)/8+"px";
+}
 function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
+/*    document.getElementById("myDropdown").classList.toggle("show"); */
+ if(document.getElementById("myDropdown").style.width==="70%"){
+  document.getElementById("myDropdown").style.width="0";
+ }else{
+  document.getElementById("myDropdown").style.width="70%";
+ }
 }
 
 function myFunction1(id){
