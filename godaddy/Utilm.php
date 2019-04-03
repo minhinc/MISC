@@ -226,7 +226,8 @@ if(empty($this->headername)){
   <li><p class="bold" style="margin:0px;padding:0px;">Minh, Inc.</p></li>
   <li><p>#85, 5th Main, P&T<br>
    SanjayNagar, Bangalore<br>
-   Karnataka, India 560094<br>
+   Karnataka, India 560094<br><br>
+   <b>sales@minhinc.com</b><br>
    <b>+91 9483160610</b> <img src="<? echo $this->level.'/image/whatsapp_s.png' ?>" width="20px" height="20px"></p>
   </li>
  </ul>

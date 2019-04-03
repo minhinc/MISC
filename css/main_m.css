@@ -27,7 +27,6 @@ li{list-style:none}
 .menubar img.homelogo { border:none; width:99px; height:39px; outline:none;}
 .menubar span.linelogo { font-size:30px;cursor:pointer;float:right;margin-right:5%; }
 
-/*.dropdown-content { position:fixed;overflow-x:hidden;overflow-y:scroll;height:50vh;max-height:100vh;-webkit-overflow-scrolling:touch;background-color: rgba(0,0,0,0.9); width:0;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);transition:0.5s; z-index: 1; }*/
 .dropdown-content { position:fixed;overflow-x:hidden;overflow-y:scroll;-webkit-overflow-scrolling:touch;background-color: rgba(15,15,15,0.8); width:0;box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);transition:0.5s; z-index: 1; }
 .dropdown-content div.line {height:35px;border-width:2px;border-width:2px;border-color:#fff transparent transparent transparent;border-style:solid;}
 .dropdown-content div.line a { color: #fff; display: block; font-size:10pt;line-height:35px;font-weight:bold;text-align:center;}
@@ -93,12 +92,24 @@ li.header {background-color:#808285;height:26px;margin-bottom:8px}
 li.header pre {padding-left:12px;color:#fff;font-size:9pt;line-height:26px;}
 pre.header {padding-left:12px;color:#fff;font-size:9pt;line-height:26px}
 
+img.traininglogo {width:90%;margin-top:20px;margin-left:5%}
+ul.one .dark {background-color:#f1f1f1;}
+ul.one .light {background-color:#f8f8f8;}
 ul.one {width:90%;margin:20px 5%;}
-img.traininglogo {width:90%;margin:20px 5%}
 ul.one li {height:50px;margin-top:2px;}
 ul.one img{width:100%;height:46px}
-ul.one li img{width:100%;}
+ul.one li img{width:24%;float:left;}
+ul.one li pre{float:left;width:65%;margin-left:5%;margin-top:2px;font-size:10pt;font-weight:bold}
 ul.one li.header {background-color:#808285;height:26px;margin-bottom:8px}
+hr.one {height:4px;margin-top:10px;background-color:#0000ff;}
+div.one {width:90%;margin-top:10px;margin-left:5%;}
+div.one ul.events li {width:90%;}
+div.one pre.title {font-family:mytwcenmt;font-size:28pt;color:#444;font-weight:bold}
+div.one pre.subtitle {font-family:mytwcenmt;font-size:14pt;color:#000}
+div.one ul.events li.dark,ul.events li.light {position:relative;height:32px;}
+div.one ul.events li.dark p.t,ul.events li.light p.t {position:absolute;width:73%;font-size:11px;top:3px;left:12px;}
+div.one ul.events li.dark p.b,ul.events li.light p.b {position:absolute;top:14px;left:74%;font-style:italic;font-size:11px;}
+
 
 ul.two {margin:20px 0 0 5%;width:90%}
 ul.two li {height:120px;margin-top:5x;}

@@ -68,6 +68,7 @@ class databasec:
     for rowprimary in primary:
      if(table=='track'):
       [self.update('track','tech_id',int(rowprimary[3]),'email',rowprimary[0]) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s' and tech_id!='%d' and status<2" % (rowprimary[0],int(rowprimary[3]) )) and crsr.fetchone()[0] != 0]
+      [self.update('track','country_id',int(rowprimary[5]),'email',rowprimary[0]) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s' and country_id!='%d' and status<2" % (rowprimary[0],int(rowprimary[5]) )) and crsr.fetchone()[0] != 0]
 #       [self.delete('track','email',rowprimary[0]) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s' and tech_id!='%d' and status<2" % (rowprimary[0],int(rowprimary[3]) )) and crsr.fetchone()[0] != 0]
       [crsr.execute("INSERT INTO track(email,uuid,company_id,tech_id,city_id,country_id,expire) VALUES('%s','%s','%d','%d','%d','%d','%d')" % rowprimary) for rowprimary in primary if crsr.execute("SELECT COUNT(*) FROM track WHERE email='%s'" % (rowprimary[0], )) and crsr.fetchone()[0] == 0]
      elif(table=='city'):

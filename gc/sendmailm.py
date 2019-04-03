@@ -76,8 +76,8 @@ class sendmailc(fetchc):
   smtp.ehlo()
 #  smtp.starttls()
   try:
-   smtp.login('tominhinc2@gmail.com',self.wdgt.password)
-   self.push(self.wdgt.text2,'logged in to smtp.gmail.com:587 through tominhinc2@gmail.com\n')
+   smtp.login('tominhinc1@gmail.com',self.wdgt.password)
+   self.push(self.wdgt.text2,'logged in to smtp.gmail.com:587 through tominhinc1@gmail.com\n')
    self.wdgt.text1.mark_set('insert','1.0')
    for line in [x for x in open(self.wdgt.filename) if not re.search(r'^\s*(#|$)',x)]:
     where=self.wdgt.text1.search(line,'insert','end')
@@ -85,7 +85,7 @@ class sendmailc(fetchc):
      where=self.wdgt.text1.search(line,re.sub(r'[.].*$',r'.end',where),'end')
     for mail in [x for x in line.split() if re.match(r'(\b[A-Za-z0-9._%-]+\@[\w-]+[.](?:\w+[.]?)*\b)',x) and self.db.get('track','status','email',x)[0][0]<2]:
      self.push(self.wdgt.text2,"%s" % (mail+' '))
-     smtp.sendmail('tominhinc2@gmail.com',mail,self.message('Minh Inc <tominhinc2@gmail.com>',mail).as_string())
+     smtp.sendmail('tominhinc1@gmail.com',mail,self.message('Minh Inc <tominhinc1@gmail.com>',mail).as_string())
      print("message sent : %s" % count)
      count=count+1
      if count>250:

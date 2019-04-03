@@ -11,7 +11,8 @@ echo ' <ul class="three"">
 <pre class="f10"><span class="bold">Agenda: </span><a href="./advance-'.$util->subitem.'-slides.php"><span class="bold gold f14">Slides</span></pre></a>
 <pre class="f10"><span class="bold">Training materials: </span><a href="./advance-'.$util->subitem.'-slides.php"><span class="bold gold f14">Slides</span></a> <span class="f8">Labs/Results</span></pre>
 <pre class="f10"><span class="bold">Written language: </span><span class="f8">English</span></pre>
-<pre class="f10"><span class="bold">Available oral languages: </span><span class="f8">English</span></pre></li>';
+<pre class="f10"><span class="bold">Available oral languages: </span><span class="f8">English</span></pre>
+<pre class="f10" style="margin-top:5px"><span class="bold">Online Training: </span><a href="'.$util->level.'/about/online" class="bold" style="font-size:16pt;color:#ff4444;">Click here</a></pre></li>';
 foreach (array('research','product') as $research){
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$research))[0],true);
 $first=TRUE;

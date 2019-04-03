@@ -2,7 +2,7 @@
 if(isset($_POST['submit'])){
  session_start();
  $to = "sales@minhinc.com"; // this is your Email address
- $message2 = "Here is a copy of your message:\n\n" . $_POST['message'] . "\n\nThanks,\nWe will contact you within 24 hrs.\nSales Team\n+91 9483160610 (whatsapp) \nwww.minhinc.com";
+ $message2 = "Hi!\nHere is a copy of your message:\n    -------\n" . $_POST['message'] . "\n    -------\nThanks for writing in! We've noted your concern/enquiry and will respond to your email within 1 business day. We hope to help you out with any query or issue you might have. In case you want to talk to us on the phone/whatsapp about this, we are at +91 9483160610 (Monday - Saturday, 7AM - 6PM).\nRegards,\nTeam Minh\nweb : http://www.minhinc.com";
  $from = $_POST['email']; // this is the sender's Email address
  $subject = "Form submission";
  $subject2 = "Copy of your form submission";

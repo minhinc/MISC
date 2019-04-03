@@ -38,6 +38,8 @@ div.pg div.dayheader hr{margin-top:20px}
 div.pg div.dayheaderleft {clear:both;float:left;width:50%;}
 div.pg div.dayheaderright {float:right;width:50%;}
 div.pg div.dayheaderheader {background-color:#c9c6ff;width:100%;}
+div.pg div.dayheaderheaderlab {background-color:#719476;width:100%;}
+div.pg div.dayheaderheader pre,div.pg div.dayheaderheaderlab pre{font-weight:bold;font-size:11pt;}
 div.pg div.dayheaderheader pre{font-weight:bold;font-size:11pt;}
 div.pg div.dayheaderheader a{display:block;font-weight:bold;color:#000;padding:8px 0 0 5px;width:99%;font-size:11pt;font-family:Verdana, Arial, Geneva, sans-serif;}
 div.pg ul.daycontent {background-color:#eaebff;padding-top:10px;width:99.7%;}

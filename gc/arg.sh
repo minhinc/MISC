@@ -1,6 +1,6 @@
 if [[ $# -eq 0 ]]; then
 echo "--usage--"
-echo "./arg.sh <[m|d]> <[agenda|php|pdf]> <[qt|c|cpp|gl|li|ldd|dp|[Aa]ll>"
+echo "./arg.sh <[m|d]> <[agenda|php|pdf]> <[qt|c|cpp|gl|li|ldd|dp|[Aa]ll> <[comment]>"
 exit
 fi
 
@@ -25,7 +25,11 @@ dp=("1 2 3 4:L" "5:L" "6:L" "7:L")
 alltech[dp]=dp[@]
 
 backend=''
+if [ -z "$4" ]; then
 under=''
+else
+under=$4
+fi
 
 if [ $1 == 'm' ]; then
  echo $'---- Mobile backend ----'
@@ -38,10 +42,13 @@ for i in "${!alltech[@]}"; do
  if [ $3 == ${i} ] || echo ${3}|egrep '^[Aa]ll'; then
   value=${alltech[$i]}
   python3 agenda.py $1 $2 $i "$under" "${!value}"
-  if [ $2 == "php" ]; then
-   ~/tmp/ftp.sh put training/${i} advance-${i}-slides${backend}.txt
-  elif [ $2 == "pdf" ]; then
-   ~/tmp/ftp.sh put training ${i}_pdf.html
+  read -p "Press (y/n) to send advance-${i}-slides${backend}.txt to the server ... " yorno
+  if [ $yorno == "y" ]; then
+   if [ $2 == "php" ]; then
+    ~/tmp/ftp.sh put training/${i} advance-${i}-slides${backend}.txt
+   elif [ $2 == "pdf" ]; then
+    ~/tmp/ftp.sh put training ${i}_pdf.html
+   fi
   fi
  fi
 done

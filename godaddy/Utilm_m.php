@@ -51,21 +51,26 @@ foreach($json['child'] as $key){
  $color='';
  if($key==$this->headername) {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
  $returnstring .= '<div class="line"><div class="l"><a '.$color.' href='.$this->level.'/'.$key.'>'.ucfirst($key).'</a></div><div class="r linesubmenu" onclick="myFunction1(\'linesubmenu\')"><div class="tr"></div></div></div>
- <div class="submenu">';
- $json1=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key))[0],true);
- foreach($json1['child'] as $key1){
-  $fontsize="10";
-  if($key1==$this->subitem) {$color=';color:#f38502;font-weight:bold;';}else{$color='';}
-  if(empty(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['link']))
-   $link=$this->level.'/'.$key.'/'.$key1;
-  else
-   $link=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['link'];
-  if(strlen(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title'])>$fontmargin)
-   $fontsize=($fontsize*$fontmargin)/strlen(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title']);
-   $returnstring .= '<div class="linew"><a href="'.$link.'" style="font-size:'.$fontsize.'pt;'.$color.'">'.ucfirst(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title']).'</a></div>';
+  <div class="submenu">';
+  $json1=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key))[0],true);
+  foreach($json1['child'] as $key1){
+   $fontsize="10";
+   if($key1==$this->subitem) {$color=';color:#f38502;font-weight:bold;';}else{$color='';}
+   if(empty(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['link']))
+    $link=$this->level.'/'.$key.'/'.$key1;
+   else
+    $link=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['link'];
+   if(strlen(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title'])>$fontmargin)
+    $fontsize=($fontsize*$fontmargin)/strlen(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title']);
+    $returnstring .= '<div class="linew"><a href="'.$link.'" style="font-size:'.$fontsize.'pt;'.$color.'">'.ucfirst(json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key1))[0],true)['title']).'</a></div>';
   }
  $returnstring .= '</div>';
 }
+$returnstring .= '<hr class="one">';
+if($this->subitem=='online') {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
+$returnstring .= '<div class="line" style="border-color:transparent"><div class="l"><a '.$color.' href="'.$this->level.'/about/online">Online Training</a></div></div>';
+if($this->headername=='training' && $this->subitem=='qt') {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
+$returnstring .= '<div class="line"><div class="l"><a '.$color.' href="'.$this->level.'/training/qt">Qt Training</a></div></div>';
 return $returnstring;
 }
 
@@ -107,11 +112,14 @@ echo '</div>
 </div>
 
 <script>
-document.getElementById("myDropdown").style.height=window.screen.height*0.7+"px";
-var linearray=document.querySelectorAll(".dropdown-content > .line");
-for(var i=0;i<linearray.length;i++) {
- linearray[i].style.height=(window.screen.height*0.7)/8+"px";
- linearray[i].querySelector("a").style.lineHeight=(window.screen.height*0.7)/8+"px";
+document.getElementById("myDropdown").style.height=document.documentElement.clientHeight-document.getElementById("myDropdown").getBoundingClientRect().top-20+"px";
+window.onscroll=function(e){
+if(this.oldScroll > this.scrollY){
+ document.getElementById("myDropdown").style.height=document.documentElement.clientHeight-document.getElementById("myDropdown").getBoundingClientRect().top-20+"px";
+}else{
+ document.getElementById("myDropdown").style.height=document.documentElement.clientHeight+"px";
+}
+this.oldScroll = this.scrollY;
 }
 function myFunction() {
 /*    document.getElementById("myDropdown").classList.toggle("show"); */
@@ -149,7 +157,8 @@ var acc=document.getElementsByClassName(id);
 }*/
 window.onclick=function(event) {
  if(!document.getElementById("myDropdown").contains(event.target) && !document.getElementsByClassName("linelogo")[0].contains(event.target)){
-  document.getElementById("myDropdown").classList.remove("show");
+  document.getElementById("myDropdown").style.width="0";
+  /*document.getElementById("myDropdown").classList.remove("show");*/
  }
 }
 </script>
