@@ -16,5 +16,6 @@ def getlinklist(searchstring,pagecount):
 def getcompanylist(searchstring,pagecount):
  linklist=[]
  for i in range(0,pagecount):
-  linklist.extend(re.findall(r'url\?q=https?://(?:www[.])?((?:\w+[.]?)+)[.]\w+[&/]',download(searchstring,i),flags=re.I))
+#  linklist.extend(re.findall(r'url\?q=https?://(?:www[.])?((?:\w+[.]?)+)[.]\w+[&/]',download(searchstring,i),flags=re.I))
+  linklist.extend(re.findall(r'url\?q=https?://(?:www[.])?((?:[a-zA-Z0-9._%-]+[.]?)+)+?[&/]?',download(searchstring,i),flags=re.I))
  return linklist

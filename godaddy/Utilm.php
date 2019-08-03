@@ -284,7 +284,7 @@ if(empty($this->headername)){
   </li>
  </ul>
  <ul class="fr">
-  <li><p>&copy Minh Inc 2015-2018</p></li>
+  <li><p>&copy Minh Inc 2015-2019</p></li>
   <li class="img"><a href="https://github.com/minhinc/"><img src="<? echo $this->level ?>/image/githubs.png"/></a><a href="https://linkedin.com/in/pravinkumarsinha/"><img src="<? echo $this->level ?>/image/linkedins.png"/></a><a href="https://facebook.com/minhinc/"><img src="<? echo $this->level ?>/image/fbs.png"/></a></li>
  </ul>
 </div>

@@ -260,6 +260,8 @@ if egrep -i -q "^#\b$i\b"$'\t' tld.sh; then
  if [ `cat test.txt|wc -l` -gt 10 ]; then
   if [ $1 == "C++" -o $1 == "c++" ]; then
    filename="cpp"
+  elif echo $1|grep ' '; then
+   filename=$(echo "${1}"|sed 's/[ ]*//g')
   fi
   mv test.txt test_${webcode}_${filename}.txt
   echo "------------------------------- "

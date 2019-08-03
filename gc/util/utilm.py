@@ -18,13 +18,16 @@ class utilc:
 #   html = self.client.get(HOMEPAGE_URL).content
    html = self.client.get(HOMEPAGE_URL,headers=self.useragent).content
    soup = BeautifulSoup(html, "html.parser")
-   csrf = soup.find(id="loginCsrfParam-login")['value']
-   login_information = {
-    'session_key':re.split('\n',open(os.path.expanduser('~/passwd')).read())[5],
-    'session_password':re.split('\n',open(os.path.expanduser('~/passwd')).read())[6],
-    'loginCsrfParam': csrf,
-   }
-   self.client.post(LOGIN_URL, data=login_information)
+   try:
+    csrf = soup.find(id="loginCsrfParam-login")['value']
+    login_information = {
+     'session_key':re.split('\n',open(os.path.expanduser('~/passwd')).read())[5],
+     'session_password':re.split('\n',open(os.path.expanduser('~/passwd')).read())[6],
+     'loginCsrfParam': csrf,
+    }
+    self.client.post(LOGIN_URL, data=login_information)
+   except:
+    print('linkedin login failed')
  def download(self,link):
   print("link {}".format(link))
   return self.client.get(link,headers=self.useragent).text
@@ -44,3 +47,5 @@ class utilc:
 #   elif type(er)==subprocess.CalledProcessError:
 #    print("no email found")
    return ''
+ def close(self):
+  self.client.close()

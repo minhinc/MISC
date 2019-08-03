@@ -72,4 +72,5 @@ class getcontactc(fetchc):
      print('--not included--#'+re.sub(r'(^\s*|\s*$)','',line)+'\n'+' '.join(set(mail)))
    mail=[]
   self.wdgt.filename=re.sub(r'^(.*)[.]txt$','\\1',self.wdgt.filename)+'_people.txt'
+  utili.close()
   self.wdgt.after(3000,self.clean)

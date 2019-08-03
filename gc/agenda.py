@@ -10,7 +10,7 @@ if len(sys.argv)<6 or not re.search(r'^(m|d).*',sys.argv[1],flags=re.I) or not r
  print(''' ---usage---
  agenda.py <backend> <mode> <tech> <company> <iddaywise>
  agenda.py mobile php qt '' "1 2 3:4 L" "4 5 6:L"
- agenda.py [desktop|mobile] [agenda|pdf|php] [c|cpp|gl|li|ldd|py|qt|qml] '' "1 2 3:4 L" "4 5 6:L"''')
+ agenda.py [desktop|mobile] [agenda|pdf|php] [c|cpp|gl|li|ldd|py|qt|qml] '' "1 2 3:4 L" "4 5 6:L qml" "1 2:3 L"''')
  exit(-1)
 class agenda:
  def __init__(self):
@@ -69,7 +69,7 @@ class agenda:
    else:
     self.htmlstr+=''' <hr>
 '''
-  self.placepagebreak(header=False)
+  self.placepagebreak(header='noarrow')
   self.hc=0
   for data in self.db.get(self.tech,'*','name','[[:<:]]h2_',orderby='id',regex=True):
    self.htmlstr+=""" <div class="header2" style="margin-top:%spx;">
@@ -98,14 +98,14 @@ class agenda:
       data=l;l=""
      else:
       if self.day[k][i].isdecimal():
-       l=self.db.get(self.tech,'lab','id',self.day[k][i])[0][0] if l=='' else l+('\n'+self.db.get(self.tech,'lab','id',self.day[k][i])[0][0] if self.db.get(self.tech,'lab','id',self.day[k][i])[0][0] else '')
+       l=self.db.get(tech,'lab','id',self.day[k][i])[0][0] if l=='' else l+('\n'+self.db.get(tech,'lab','id',self.day[k][i])[0][0] if self.db.get(tech,'lab','id',self.day[k][i])[0][0] else '')
       self.day[k][i]=re.sub(r'^(\d+)[Tt]$',r'\1',self.day[k][i],flags=re.I)
       data=self.db.get(tech,'value','id',self.day[k][i])[0][0]
      tmpstr+=""" <div class=%s style="margin-top:%spx;height:%spx">
   <div class="%s" style="height:%spx">%s class="%s" style="padding-top:%spx;%spx">%s%s
   </div>
   <ul class="daycontent" style="padding-top:10px;">
-""" % ('dayheaderright' if re.search(r'dayheaderleft',tmpstr,re.I) else 'dayheaderleft',HCG if re.search(r'YYY',tmpstr,re.I) else str(CCG)+'XXX',(len(re.findall(r'\n',data))+1)*LH+CHH if self.backend[0]!='m' else '','dayheaderheaderlab' if re.search(r'[Ll]',self.day[k][i]) else 'dayheaderheader',CHH,'<pre' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "<a name=\"main"+self.day[k][i]+"\" href=\"#chap"+str(self.day[k][i])+"\"",'dayheader',CHH/4 if not re.search(r'^[Ll]$',self.day[k][i]) else 0,'height:'+str(CHH) if not re.search(r'^[Ll]$',self.day[k][i]) else 'line-height:'+str(CHH),'     Lab' if re.search(r'[Ll]',self.day[k][i]) else '  Lecture - '+self.db.get(self.tech,'name','id',self.day[k][i])[0][0],'</pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else '</a>')
+""" % ('dayheaderright' if re.search(r'dayheaderleft',tmpstr,re.I) else 'dayheaderleft',HCG if re.search(r'YYY',tmpstr,re.I) else str(CCG)+'XXX',(len(re.findall(r'\n',data))+1)*LH+CHH if self.backend[0]!='m' else '','dayheaderheaderlab' if re.search(r'[Ll]',self.day[k][i]) else 'dayheaderheader',CHH,'<pre' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "<a name=\"main"+self.day[k][i]+"\" href=\"#chap"+str(self.day[k][i])+"\"",'dayheader',CHH/4 if not re.search(r'^[Ll]$',self.day[k][i]) else 0,'height:'+str(CHH) if not re.search(r'^[Ll]$',self.day[k][i]) else 'line-height:'+str(CHH),'     Lab' if re.search(r'[Ll]',self.day[k][i]) else '  Lecture - '+self.db.get(tech,'name','id',self.day[k][i])[0][0],'</pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else '</a>')
      subtopiccount=0
      for le in [re.sub(r'^\n*(.*?)\n*$',r'\1',e,flags=re.DOTALL) for e in re.split(r'[*]',data) if e]:
       tmpstr+="""   <li>%s%s%s</li>
@@ -251,10 +251,10 @@ class agenda:
       print("<a>")
       code,cnt=self.getcodecnt('a',cnt)
       self.htmlstr+='<pre class="slideabstract">'+re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',code))))))))+'</pre>\n<div class="clr"></div>\n'
-     elif re.search(r'^.*<i>.*</i>',cnt):
-      print("<i>")
-      line,cnt=self.getcodecnt('i',cnt)
-      #print("<----------line--------%s>>" % line[0:40])
+     elif re.search(r'^.*<m>.*</m>',cnt):
+      print("<m>")
+      line,cnt=self.getcodecnt('m',cnt)
+      #print("----------line-------- <%s>" % line)
       try:
        with Image.open(urllib2.urlopen(line)) as img:
         if (self.hc+img.height)>self.PH:
@@ -266,33 +266,36 @@ class agenda:
       except:
        print("HTTPError exception,line:%s" % line)
        self.htmlstr+="""<a href="%s">%s</a>""" % (line,line)
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*LH)>self.PH:
+        self.placepagebreak(k,i)
+       self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*LH
      elif self.searchtag('c',cnt):
       print("<c>")
       self.htmlstr+='<pre class="code">\n'
       code,cnt=self.getcodecnt('c',cnt)
       for line in code.split('\n'):
-       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*CH)>self.PH:
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*CH)>self.PH:
         if self.backend[0]!='m':
          self.htmlstr+='</pre>\n'
         self.placepagebreak(k,i) 
         if self.backend[0]!='m':
          self.htmlstr+='<pre class="code">'
-       self.hc+=(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*CH
-       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<cc>',r'<pre class="codeci">',re.sub(r'</cc>',r'</pre>',line)))))+'\n'
+       self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*CH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|span.*?|/span|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<r>',r'<span style="color:#ff0000;font-weight:bold">',re.sub(r'<g>',r'<span style="color:#004000;font-weight:bold">',re.sub(r'<l>',r'<span style="color:#0000ff;font-weight:bold">',re.sub(r'</[rgl]>',r'</span></b>',re.sub(r'<cc>',r'<pre class="codeci">',re.sub(r'</cc>',r'</pre>',line)))))))))+'\n'
       self.htmlstr+='</pre>\n' 
      elif self.searchtag('cc',cnt):
       print("<cc>")
       self.htmlstr+='<pre class="codec">\n'
       code,cnt=self.getcodecnt('cc',cnt)
       for line in code.split('\n'):
-       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CCH)>self.PH:
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CCH)>self.PH:
         if self.backend[0]!='m':
          self.htmlstr+='</pre>\n'
         self.placepagebreak(k,i) 
         if self.backend[0]!='m':
          self.htmlstr+='<pre class="codec">'
-       self.hc+=(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CCH
-       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</c>',r'</pre>',line)))))+'\n'
+       self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CCH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|c|/c)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</c>',r'</pre>',line)))))+'\n'
       self.htmlstr+='</pre>\n' 
      elif self.searchtag('cs',cnt):
       print("<cs>")
@@ -305,7 +308,7 @@ class agenda:
       for line in code.split('\n'):
        tcount=tcount+1
        if self.backend[0]!='m':
-        if (self.hc+(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CSH)>self.PH or (tcount>csheight/2 and colcount==1 and csheight>30):
+        if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CSH)>self.PH or (tcount>csheight/2 and colcount==1 and csheight>30):
    #      print("line,self.hc,tcount,csheight %s,%s,%s,%s" % (line,hc,tcount,csheight))
          self.htmlstr+='</pre>\n'
          if colcount==1:
@@ -321,35 +324,35 @@ class agenda:
           colcount=1
           csheight=csheight-tcount
           tcount=0
-        self.hc+=(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CSH
+        self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CSH
        else:
         if tcount>csheight/2:
          tcount=0
          self.htmlstr+='</pre>\n'
          self.htmlstr+='<pre class="codes" style="float:left;">'
-       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</c>',r'</pre>',line)))))+'\n'
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|c|/c)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</c>',r'</pre>',line)))))+'\n'
       self.htmlstr+='</pre><div style="clear:both;"></div>\n' 
      else:
       print("<>")
       self.htmlstr+='<pre class="slidecontent">\n'
       #print("<----------cnt--------%s>>" % cnt[0:40])
-      #if re.search(r'[\n\s]*.+(<h>|<a>|<i>|<c>|<cc>|<cs>).*',cnt,flags=re.DOTALL):
-      if re.search(r'^.*\n\s*(<h>|<a>.*</a>|<i>.*</i>|<c>|<cc>|<cs>)\s*(\n|$)',cnt,flags=re.DOTALL):
-       #code,cnt=re.split(r'<><>',re.sub(r'(.+?\n*)\n\s*((<h>|<a>|<i>|<c>|<cc>|<cs>).*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
-       code,cnt=re.split(r'<><>',re.sub(r'^(.*?)\n[ \t]*((<h>|<a>.*</a>|<i>.*</i>|<c>|<cc>|<cs>)\s*\n?.*$)','\\1<><>\\2',cnt,flags=re.DOTALL))
+      #if re.search(r'[\n\s]*.+(<h>|<a>|<m>|<c>|<cc>|<cs>).*',cnt,flags=re.DOTALL):
+      if re.search(r'^.*\n\s*(<h>|<a>.*</a>|<m>.*</m>|<c>|<cc>|<cs>)\s*(\n|$)',cnt,flags=re.DOTALL):
+       #code,cnt=re.split(r'<><>',re.sub(r'(.+?\n*)\n\s*((<h>|<a>|<m>|<c>|<cc>|<cs>).*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
+       code,cnt=re.split(r'<><>',re.sub(r'^(.*?)\n[ \t]*((<h>|<a>.*</a>|<m>.*</m>|<c>|<cc>|<cs>)\s*\n?.*$)','\\1<><>\\2',cnt,flags=re.DOTALL))
       else:
        code=cnt;cnt=''
       #print("<---------code---------%s>>" % code)
       for line in re.split('\n',re.sub(r'^\s*$','',code,flags=re.DOTALL)):
-       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH)>self.PH:
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|<n>|</n></pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH)>self.PH:
         if self.backend[0]!='m':
          self.htmlstr+='</pre>\n'
         self.placepagebreak(k,i) 
         if self.backend[0]!='m':
          self.htmlstr+='<pre class="slidecontent">'
   #     print("(self.hc,line)%s%s" % (line,hc))
-       self.hc+=(int)(int(len(re.sub(r'(<pre.*?>|<b>|</b>|</pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH
-       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',line))))))+'\n'
+       self.hc+=(int)(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|<n>|</n>|</pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|c|/c|span.*?|/span|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<r>',r'<span style="color:#ff0000">',re.sub(r'<g>',r'<span style="color:#004000">',re.sub(r'<l>',r'<span style="color:#0000ff">',re.sub(r'</[rgl]>',r'</span>',re.sub(r'<n>',r'<pre class="note">',re.sub(r'</n>',r'</pre>',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',line))))))))))))+'\n'
       self.htmlstr+='</pre>\n' 
     else:
      self.placepagebreak(k,i)

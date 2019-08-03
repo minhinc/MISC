@@ -108,7 +108,7 @@ echo '</div>';
 }
 echo '</div>
 <div style="clear:both"></div>
-<pre style="text-align:center;margin-top:20px">&copy Minh, Inc 2015-2018</pre>
+<pre style="text-align:center;margin-top:20px">&copy Minh, Inc 2015-2019</pre>
 </div>
 
 <script>
