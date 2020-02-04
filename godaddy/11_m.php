@@ -40,7 +40,7 @@ echo ';var onlinedurationarr={"":"",';
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name','training'))[0],true);
 $first='';
 foreach($json['child'] as $key){
-echo $first.' '.$key.':"'.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true)['onlineduration']['day'].' Days. 5-6 hours every week. Total duration '.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true)['onlineduration']['month'].' month(s)"';
+echo $first.' '.$key.':"'.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true)['onlineduration']['day'].' Days. 4-5 hours every week. Total duration '.json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true)['onlineduration']['month'].' month(s)"';
 if(empty($first))
 $first=',';
 }

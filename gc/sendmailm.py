@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import threading
 import sys
@@ -42,7 +43,7 @@ class sendmailc(fetchc):
   msgAlternative = MIMEMultipart('alternative')
   msgRoot.attach(msgAlternative)
 
-  msgHTML=MIMEText(re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.I),'html')
+  msgHTML=MIMEText(re.sub(r'MMYY',calendar.month_name[(datetime.date.today()+datetime.timedelta(days=16)).month]+' '+str((datetime.date.today()+datetime.timedelta(days=16)).year),re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.I)),'html')
   msgHTML.replace_header('Content-Type','text/html' if "t" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["t"])
   msgAlternative.attach(msgHTML)
 

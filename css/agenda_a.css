@@ -2,7 +2,9 @@
 html{overflow:scroll;}
 body {width:860;margin:0 auto;background-color:#fff;}*/
 /*pg, every page*/
-div.pg {position:relative;}
+div.pg {position:relative;page-break-after:always;page-break-inside:avoid;}
+/*div.pg {position:relative;}*/
+div.pg h2{display:inline;}
 div.pg hr{float:left;width:100%;color:#888888}
 div.pg pre {white-space:pre-wrap;}
 div.pg a{color:#0000aa;font-size:13pt;font-family:'Tw Cen MT';text-decoration:none}
@@ -11,10 +13,10 @@ div.pg pre.pn{position:absolute;bottom:0px;right:0px;color:#040;font-family:'Tw 
 div.pg a.pn{position:absolute;bottom:0px;right:0px;color:#040;font-family:'Tw Cen MT';font-size:8pt}
 div.pg div.clr {clear:both;}
 
-div.pg a.logo{position:absolute;top:44%;left:36.5%;}
-div.pg a.logo pre.copy {position:absolute;top:10%;left:5%;}
-div.pg a.logo pre.logot{font-family:''Tw Cen MT'';color:#040;font-size:82pt}
-div.pg a.logo pre.logob{ont-family:''Tw Cen MT'';color:#888;font-size:16pt}
+div.pg a.logo{position:absolute;top:44%;left:22.5%}
+div.pg a.logo pre.copy {position:absolute;top:22%;left:-3%;}
+div.pg a.logo pre.logot{font-family:'Tw Cen MT';color:#040;font-size:56pt}
+div.pg a.logo pre.logob{font-family:'Tw Cen MT';color:#888;font-size:16pt}
 div.pg img.logo{position:absolute;top:44%;left:64%;}
 /*div.pg pre.logot{position:absolute;top:46%;left:44%;font-family:'Tw Cen MT';color:#040;font-size:48pt}
 div.pg pre.logob{position:absolute;top:51%;left:40.4%;font-family:'Tw Cen MT';color:#888;font-size:9pt}
@@ -40,6 +42,7 @@ div.pg div.dayheaderright {float:right;width:50%;}
 div.pg div.dayheaderheader {background-color:#c9c6ff;width:100%;}
 div.pg div.dayheaderheaderlab {background-color:#719476;width:100%;}
 div.pg div.dayheaderheader pre,div.pg div.dayheaderheaderlab pre{font-weight:bold;font-size:11pt;}
+div.pg div.dayheaderheader pre{font-weight:bold;font-size:11pt;}
 div.pg div.dayheaderheader a{display:block;font-weight:bold;color:#000;padding:8px 0 0 5px;width:99%;font-size:11pt;font-family:Verdana, Arial, Geneva, sans-serif;}
 div.pg ul.daycontent {background-color:#eaebff;padding-top:10px;width:99.7%;}
 div.pg ul.daycontent li{margin-left:45px;font-size:11pt;list-style:disc}
@@ -50,7 +53,7 @@ div.pg ul.daycontent li a:hover {background-color:#ffaa00}
 div.pg pre.slidetitle {text-align:center;font-family:'Tw Cen MT';font-size:72pt;color:#004000}
 div.pg pre.slidesubtitle {text-align:center;font-family:'Tw Cen MT';font-size:24pt;color:#004000}
 div.pg pre.slidedisclaimer {margin-left:10px;font-family:'Bembo';font-size:12pt;}
-div.pg div.slideheader {float:left;width:45%}
+div.pg div.slideheader {float:left;width:45%;margin-bottom:5px}
 div.pg div.slideheader pre.day {width:100%;background-color:#c9c6ff;line-height:42px;font-weight:bold;font-size:14pt;text-align:center;}
 div.pg div.slideheader pre.topic {width:99.99%;background-color:#eaebff;line-height:32px;font-weight:bold;font-size:14pt;color:#004000}
 div.pg div.slideheader ul.slidecontent {background-color:#eaebff;width:99.99%;}
@@ -61,11 +64,13 @@ div.pg div.slideheader ul.slidecontent li.big a{color:#000000;font-size:13pt;fon
 div.pg div.slideheader ul.slidecontent li.sml pre{font-size:6pt;font-family:'Bembo'}
 div.pg pre.slideabstract{ float:right;width:53%;padding-top:40px;font-size:10pt;font-style:Italic;font-family:'Bembo';}
 div.pg pre.slidecontent,div.pg pre.slidecontent span {font-size:13pt;font-family:'Tw Cen MT';width:60%}
-div.pg pre.code,div.pg pre.code span{font-size:10pt;font-family:'Consolas'}
-div.pg pre.codei{font-size:10pt;font-family:'Consolas';display:inline}
-div.pg pre.codec{font-size:6pt;font-family:'Consolas'}
-div.pg pre.codeci{font-size:6pt;font-family:'Consolas';display:inline}
-div.pg pre.codes{font-size:6pt;float:left;font-family:'Consolas'; -webkit-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); -moz-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); padding: 5px 0 0 2px; background: #eee; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;}
+div.pg pre.slidecontent pre.note {font-size:13pt;padding:2px 0px 8px 8px;border-radius:5px;font-family:'Tw Cen MT';background-color:#bcd4ff;color:#000000;display:inline-block}
+div.pg pre.code, div.pg pre.code span {font-size:10pt;font-family:'Consolas';}
+div.pg pre.codeb {font-size:9pt;font-family:'Consolas';background-color:#eeeeee;display:inline-block}
+div.pg pre.codei,div.pg pre.codei span {font-size:10pt;font-family:'Consolas';display:inline}
+div.pg pre.codec, div.pg pre.codec span{font-size:6pt;font-family:'Consolas'}
+div.pg pre.codeci, div.pg pre.codeci span{font-size:6pt;font-family:'Consolas';display:inline}
+div.pg pre.codes{font-size:6pt;float:left;font-family:'Consolas'; -webkit-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); -moz-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); padding: 5px 0 0 2px; background: #eee; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;max-width:49.9%;}
 div.pg pre.slidecontent b{font-family:'Tw Cen MT'}
 div.pg pre.slidecontent pre.blue{color:#447777;font-weight:bold;display:inline;}
 div.pg pre.slidecontent pre.black{color:#000;font-weight:bold;display:inline;}

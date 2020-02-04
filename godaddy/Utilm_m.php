@@ -16,7 +16,11 @@ elseif(!empty($this->headername)) $json=json_decode(mysqli_fetch_row($this->db->
 echo '<!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">';
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script data-ad-client="ca-pub-8488699542117607" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<link rel="icon" type="image/png" href="'.$this->level.'/image/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="'.$this->level.'/image/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="'.$this->level.'/image/favicon-48x48.png" sizes="48x48">';
 if (empty($this->headername)){
 echo '<title>Minh, Inc. Software development and Outsourcing Bangalore India</title>';
 }else{
@@ -71,6 +75,11 @@ if($this->subitem=='online') {$color='style="color:#f38502;font-weight:bold;"';}
 $returnstring .= '<div class="line" style="border-color:transparent"><div class="l"><a '.$color.' href="'.$this->level.'/about/online">Online Training</a></div></div>';
 if($this->headername=='training' && $this->subitem=='qt') {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
 $returnstring .= '<div class="line"><div class="l"><a '.$color.' href="'.$this->level.'/training/qt">Qt Training</a></div></div>';
+$returnstring .= '<div style="width:60%;margin:20px auto;">';
+foreach(Array(Array('https://github.com/minhinc',$this->level.'/image/githubs.png',$this->level.'/image/githubscolor.png'),Array('https://linkedin.com/in/pravinkumarsinha',$this->level.'/image/linkedins.png',$this->level.'/image/linkedinscolor.png'),Array('https://facebook.com/minhinc',$this->level.'/image/fbs.png',$this->level.'/image/fbscolor.png'),Array('http://www.youtube.com/channel/UChmiKM2jr7e9iUOrVPKRTXQ',$this->level.'/image/youtube.png',$this->level.'/image/youtubecolor.png')) as $element){
+$returnstring .= '<a href="'.$element[0].'"><img width="25" height="25" style="float:left;margin-left:8px;" onmouseover=\'this.src="'.$element[2].'"\' onmouseout=\'this.src="'.$element[1].'"\' src="'.$element[1].'"/></a>';
+}
+$returnstring .= '</div>';
 return $returnstring;
 }
 
@@ -88,6 +97,11 @@ Karnataka, India 560094
 sales@minhinc.com
 +91 9483160610&nbsp&nbsp<img src="'.$this->level.'/image/whatsapp_s.png" width="15px" height="15px"/>
 </pre>
+<div style="margin:15px 0px 5px 0px">';
+foreach(Array(Array('https://github.com/minhinc',$this->level.'/image/githubs.png',$this->level.'/image/githubscolor.png'),Array('https://linkedin.com/in/pravinkumarsinha',$this->level.'/image/linkedins.png',$this->level.'/image/linkedinscolor.png'),Array('https://facebook.com/minhinc',$this->level.'/image/fbs.png',$this->level.'/image/fbscolor.png'),Array('http://www.youtube.com/channel/UChmiKM2jr7e9iUOrVPKRTXQ',$this->level.'/image/youtube.png',$this->level.'/image/youtubecolor.png')) as $element){
+echo '<a href="'.$element[0].'"><img width="25" height="25" style="float:left;margin-left:8px;" onmouseover=\'this.src="'.$element[2].'"\' onmouseout=\'this.src="'.$element[1].'"\' src="'.$element[1].'"/></a>';
+}
+echo '</div>
 </div>
 <div class="r">';
 foreach($json['child'] as $key){
@@ -108,16 +122,18 @@ echo '</div>';
 }
 echo '</div>
 <div style="clear:both"></div>
-<pre style="text-align:center;margin-top:20px">&copy Minh, Inc 2015-2019</pre>
+<pre style="text-align:center;margin-top:20px">&copy Minh, Inc 2015-'.date("Y").'</pre>
 </div>
 
 <script>
-document.getElementById("myDropdown").style.height=document.documentElement.clientHeight-document.getElementById("myDropdown").getBoundingClientRect().top-20+"px";
+var menuheight='.((count(json_decode(mysqli_fetch_row($this->db->get("headername","content","name","main"))[0],true)["child"])+4)*50).';
+var availableheight=document.documentElement.clientHeight-document.getElementById("myDropdown").getBoundingClientRect().top-20;
+document.getElementById("myDropdown").style.height=(menuheight>availableheight?availableheight:menuheight) + "px";
 window.onscroll=function(e){
 if(this.oldScroll > this.scrollY){
- document.getElementById("myDropdown").style.height=document.documentElement.clientHeight-document.getElementById("myDropdown").getBoundingClientRect().top-20+"px";
-}else{
- document.getElementById("myDropdown").style.height=document.documentElement.clientHeight+"px";
+ document.getElementById("myDropdown").style.height=(menuheight>availableheight?availableheight:menuheight) + "px";
+ }else{
+ document.getElementById("myDropdown").style.height=(menuheight>availableheight?availableheight:menuheight)+document.getElementById("myDropdown").getBoundingClientRect().top+20+"px";
 }
 this.oldScroll = this.scrollY;
 }

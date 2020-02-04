@@ -33,7 +33,7 @@ echo '  </ul>
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name','main'))[0],true);
 $light="light";
 foreach($json['event'] as $key){
-echo  '<a href="'.$key['link'].'"><li class="'.$light.'"><p class="t">'.$key['title'].'</p><p class="b">'.$key['date'].'</p></li></a>';
+echo  '<a href="'.$key['link'].'"><li class="'.$light.'"><p class="t">'.$key['title'].'</p><p class="b">'.((date("d") < 15)?date("M Y"):date("M Y",strtotime("+1 month"))).'</p></li></a>';
 if($light=='light'){$light='dark';}else{$light='light';}
 }
 echo ' </ul>

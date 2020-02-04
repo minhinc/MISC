@@ -28,8 +28,8 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCypT5QJIhCg6kqW808Rsn-mXl
 <div><pre class="bold f10 ll">Name:</pre><input class="rr" style="margin-top:-7px" type="text" name="name" placeholder="Your Name"></input></div>
 <div><pre class="bold f10 ll" style="margin-top:30px">Email:</pre><input class="rr" style="margin-top:23px" type="text" name="email" placeholder="Email Address"></input></div>
 <div><pre class="bold f10 ll" style="margin-top:30px">Message:</pre><textarea class="rr" style="margin-top:-20px;" name="message"></textarea></div>
-<div><img id="imgcaptchaid" src="'.$util->level.'/php/captcha.php" style="margin:10px 0;float:left"/><input name="captcha_entered" type="text" id="captcha_entered" size="5" maxlength="2" placeholder = "Answer" style="margin:10px 10px;float:left"/></div>
-<input type="submit" name="submit" value="Submit" style="width:40%;clear:both;float:left">
+<div><img id="imgcaptchaid" src="'.$util->level.'/php/captcha.php" style="clear:both;margin:10px 0;float:left"/><input name="captcha_entered" type="text" id="captcha_entered" size="5" maxlength="2" placeholder = "Answer" style="margin:10px 12px;float:left"/></div>
+<input type="submit" name="submit" value="Submit" style="width:40%;clear:both;float:left;color:#fff;">
 <iframe name="myIframe" frameborder="0" scrolling="no" id="iframeid">
 </iframe>
 </form>

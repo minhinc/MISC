@@ -16,7 +16,11 @@ elseif(!empty($this->headername)) $json=json_decode(mysqli_fetch_row($this->db->
 ?>
 <html>
 <head>
+<script data-ad-client="ca-pub-8488699542117607" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <?
+echo '<link rel="icon" type="image/png" href="'.$this->level.'/image/favicon-16x16.png" sizes="16x16">
+      <link rel="icon" type="image/png" href="'.$this->level.'/image/favicon-32x32.png" sizes="32x32">
+      <link rel="icon" type="image/png" href="'.$this->level.'/image/favicon-48x48.png" sizes="48x48">';
 if (empty($this->headername)){
 echo '<title>Minh, Inc. Software development and Outsourcing Bangalore India</title>';
 }else{
@@ -284,8 +288,14 @@ if(empty($this->headername)){
   </li>
  </ul>
  <ul class="fr">
-  <li><p>&copy Minh Inc 2015-2019</p></li>
-  <li class="img"><a href="https://github.com/minhinc/"><img src="<? echo $this->level ?>/image/githubs.png"/></a><a href="https://linkedin.com/in/pravinkumarsinha/"><img src="<? echo $this->level ?>/image/linkedins.png"/></a><a href="https://facebook.com/minhinc/"><img src="<? echo $this->level ?>/image/fbs.png"/></a></li>
+  <li><p>&copy Minh Inc 2015-<? echo date("Y"); ?></p></li>
+<?
+echo '<li class="img">';
+foreach(Array(Array('https://github.com/minhinc',$this->level.'/image/githubs.png',$this->level.'/image/githubscolor.png'),Array('https://linkedin.com/in/pravinkumarsinha',$this->level.'/image/linkedins.png',$this->level.'/image/linkedinscolor.png'),Array('https://facebook.com/minhinc',$this->level.'/image/fbs.png',$this->level.'/image/fbscolor.png'),Array('http://www.youtube.com/channel/UChmiKM2jr7e9iUOrVPKRTXQ',$this->level.'/image/youtube.png',$this->level.'/image/youtubecolor.png')) as $element){
+echo '<a href="'.$element[0].'"><img width="25" height="25" onmouseover=\'this.src="'.$element[2].'"\' onmouseout=\'this.src="'.$element[1].'"\' src="'.$element[1].'"/></a>';
+}
+echo '</li>';
+?>
  </ul>
 </div>
 </body>

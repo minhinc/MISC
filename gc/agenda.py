@@ -2,15 +2,18 @@ import sys
 import re
 from PIL import Image
 from databasem import databasec
+import json
 import urllib.request as urllib2
 import urllib.error as urllib3
 import string
+from datetime import date
 print(sys.argv)
 if len(sys.argv)<6 or not re.search(r'^(m|d).*',sys.argv[1],flags=re.I) or not re.search(r'^(agenda|pdf|php)$',sys.argv[2],flags=re.I):
  print(''' ---usage---
  agenda.py <backend> <mode> <tech> <company> <iddaywise>
  agenda.py mobile php qt '' "1 2 3:4 L" "4 5 6:L"
- agenda.py [desktop|mobile] [agenda|pdf|php] [c|cpp|gl|li|ldd|py|qt|qml] '' "1 2 3:4 L" "4 5 6:L qml" "1 2:3 L"''')
+ agenda.py [desktop|mobile] [agenda|pdf|php] [c|cpp|gl|li|ldd|py|qt|qml] '' "1 2 3:4 L" "4 5 6:L qml" "1 2:3 L"
+ <m>-image<c>code<cb>codebackground<cc>shortcode<cs>veryshortcode<a>abstract<n>note<rR>red<gG>green<lL>blue''')
  exit(-1)
 class agenda:
  def __init__(self):
@@ -26,7 +29,7 @@ class agenda:
     self.day.append(sys.argv[i].split())
   self.TM=20
 #  self.PH=(1375 if self.mode=="agenda" else 1415 if self.tech!='qt' else 1430)-self.TM
-  self.PH=(1375 if self.mode=="agenda" else 1415)-self.TM
+  self.PH=1415-self.TM
   self.BTMOFST=20
   self.hc=0
   self.htmlstr=''
@@ -38,6 +41,7 @@ class agenda:
   self.pagenumber=0
   self.prepareagenda()
   if self.mode!='agenda':
+   self.preparedisclaimer()
    self.preparecontent()
   self.preparepdf()
  def prepareagenda(self):
@@ -115,7 +119,7 @@ class agenda:
  </div>
 '''
      dayheight=max(dayheight,(len(re.findall(r'\n',data))+1)*LH+CHH + (HCG if re.search(r'YYY',tmpstr,flags=re.I) else CCG))
-     if re.search(r'dayheaderright',tmpstr,re.I) or i==(len(self.day[k])-1) or self.day[k][i+1]==':':
+     if re.search(r'dayheaderright',tmpstr,re.I) or i==(len(self.day[k])-1) or self.day[k][i+1]==':' or not re.search(r'^(\d+|[Ll]|:)',self.day[k][i+1],flags=re.I):
       tmphc+=dayheight
       dayheight=0
      if ((self.hc+tmphc)>self.PH and dayheight==0) or (k==len(self.day)-1 and i==len(self.day[k])-1):
@@ -161,38 +165,27 @@ class agenda:
 
   self.hc=0
 #
-# def preparedisclaimer():
-#  self.htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
-# <pre class="slidetitle" style="margin-top:%s">%s</pre>
-# <pre class="slidesubtitle">%s</pre>
-# <pre class="ftr">&copy www.MinhInc.com</pre><pre class="pn">%s</pre>
-#</div>
-#<div class="pg" style="margin-top:%spx;height:%spx">
-# <pre class="slidedisclaimer" style="margin-top:%s">%s</pre>
-# <pre class="ftr">&copy www.MinhInc.com</pre><pre class="pn">%s</pre>
-#</div>
-#""" % (TM,PH,'30%',string.capwords(sys.argv[1])+' Essentials',string.capwords(sys.argv[1])+' Essenstials- Training Course',"p"+str(pagenumber),TM,PH,'30%',"""DISCLAIMER
-#
-#This document is edited on Cent OS 5 using Open Office 3.1.1 Draw Package.
-#
-#CentOS is freely download from centos.org/download
-#Open Office 3.1.1 can be obtained through yum or through openoffice.org
-#
-#Text of this document is written in Bembo Std Otf(13 pt) font.
-#
-#Code parts are written in Consolas (10 pts) font.
-#
-#This training material is provided through <a style="font-family:mytwcenmt,Tw Cen MT;font-size:14pt;color:#004000;font-weight:bold" href="http://www.minhinc.com">Minh, Inc.</a>, B'lore, India
-#Pdf version of this document is available at <a href="http://www.minhinc.com/training/advance-%s-slides.pdf">http://www.minhinc.com/training/advance-%s-slides.pdf</a>
-#For suggestion(s) or complaint(s) write to us at <a href="mailto:training@minhinc.com">training@minhinc.com</a>
-#
-#Document modified on 07/2018
-#
-#Document contains xxxx pages.""" % (sys.argv[1],sys.argv[1]),"p"+str(pagenumber+1))
-#  self.pagenumber+=2
-#
+ def preparedisclaimer(self):
+  self.placetopbreak(border="2px solid #888")
+  self.htmlstr+="""<pre class="slidetitle">%s</pre><pre class="slidesubtitle">%s</pre><pre class="slidecompanytitle">%s</pre><pre class="slidedisclaimer">%s</pre>
+</div>
+""" % (re.sub(r'(.*) Training',r'\1',json.loads(self.db.get('headername','content','name',self.tech)[0][0])['title'])+' Essentials',re.sub(r'(.*) Training',r'\1',json.loads(self.db.get('headername','content','name',self.tech)[0][0])['title'])+' Essenstials- Training Course','Minh, Inc.',"""DISCLAIMER
+
+Text of this document is written in Bembo Std Otf(13 pt) font.
+
+Code parts are written in Consolas (10 pts) font.
+
+This training material is provided through <a style="font-family:mytwcenmt,Tw Cen MT;font-size:14pt;color:#004000;font-weight:bold" href="http://www.minhinc.com">Minh, Inc.</a>, B'lore, India
+Pdf version of this document is available at <a href="http://www.minhinc.com/training/advance-%s-slides.pdf">http://www.minhinc.com/training/advance-%s-slides.pdf</a>
+For suggestion(s) or complaint(s) write to us at <a href="mailto:sales@minhinc.com">sales@minhinc.com</a>
+
+Document modified on %s 
+
+Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftime("%b-%d-%Y")))
+#  self.pagenumber+=1
+
  def preparecontent(self):
-  LH=21;HBH=21;CH=15;HLH=10;CNTTHR=3*LH
+  LH=20;HBH=21;CH=15;CBH=9;HLH=10;CNTTHR=3*LH
   contentlength=headerheight=lineheight=0
   cnt=fixheader=header=code=dayhalf=""
   CCH=CSH=9.5
@@ -224,15 +217,15 @@ class agenda:
       print("headerheight %s" % headerheight)
       header=""" %s<div class="slideheader" style="%s">
   <pre class="day">%s</pre>
-  <pre class="topic">%s</pre>
+  %s<pre class="topic">%s</pre>%s
   <ul class="slidecontent">
-""" % ("<a name=\"chap"+self.day[k][i]+"\">&nbsp;" if subtopiccount==0 else "",'height:'+str(headerheight)+'px' if self.backend[0]!='m' else '','Day '+str(k+1)+' '+dayhalf,'  '+str(self.day[k][i])+'. '+self.db.get(self.tech,'name','id',self.day[k][i])[0][0])
+""" % ("<a name=\"chap"+self.day[k][i]+"\">&nbsp;" if subtopiccount==0 else "",'height:'+str(headerheight)+'px' if self.backend[0]!='m' else '','Day '+str(k+1)+' '+dayhalf,"<h1>" if subtopiccount==0 else '','  '+str(self.day[k][i])+'. '+self.db.get(self.tech,'name','id',self.day[k][i])[0][0],"</h1>" if subtopiccount==0 else '')
       for line in [line for line in re.split(r'('+re.escape(code)+r'\s*$)',fixheader,flags=re.M) if line]:
        line=re.sub(r'^\n*(.*)\n*$','\\1',line,flags=re.DOTALL)
        for ii in [re.sub(r'^\n*(.*)\n*$','\\1',ii,flags=re.DOTALL) for ii in re.split(r'^[*]',line,flags=re.M) if ii]:
  #       header+="""   <li class="%s"><pre>%s</pre></li>""" % ("big" if line==code else "sml",re.sub(r'\n*(.*)\n*$','\\1',ii,flags=re.DOTALL))
  #       header+="""   <li class="%s">%s%s%s</li>""" % ("big" if line==code else "sml",("<a name=\"chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">") if line==code else '<pre>',re.sub(r'\n','<br>',ii,flags=re.DOTALL) if line==code else ii,"</a>" if line==code else '</pre>')
-        header+="""   <li class="%s">%s%s%s</li>""" % ("big" if line==code else "sml",("<a name=\"chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">") if line==code else '<pre>',"<br>".join([re.sub(r'^[ ]?([ ]*)(.*)',re.sub(r'[ ]',r'&nbsp;',re.sub(r'^[ ]?([ ]*).*',r'\1',iii))+r'\2',iii) for iii in re.split(r'\n',ii)]) if line==code else ii,"</a>" if line==code else '</pre>')
+        header+="""   <li class="%s">%s%s%s</li>""" % ("big" if line==code else "sml",'<h2>'+("<a name=\"chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">") if line==code else '<pre>',"<br>".join([re.sub(r'^[ ]?([ ]*)(.*)',re.sub(r'[ ]',r'&nbsp;',re.sub(r'^[ ]?([ ]*).*',r'\1',iii))+r'\2',iii) for iii in re.split(r'\n',ii)]) if line==code else ii,"</a>"+'</h2>' if line==code else '</pre>')
       header+="""
   </ul>
  </div>%s
@@ -269,33 +262,34 @@ class agenda:
        if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*LH)>self.PH:
         self.placepagebreak(k,i)
        self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*LH
-     elif self.searchtag('c',cnt):
+     elif self.searchtag('cb?',cnt):
       print("<c>")
-      self.htmlstr+='<pre class="code">\n'
-      code,cnt=self.getcodecnt('c',cnt)
+      backgroundshade=True if self.searchtag('cb',cnt) else False
+      self.htmlstr+='<pre class="codeb">\n' if self.searchtag('cb',cnt) else '<pre class="code">\n'
+      code,cnt=self.getcodecnt('cb',cnt) if self.searchtag('cb',cnt) else self.getcodecnt('c',cnt)
       for line in code.split('\n'):
-       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*CH)>self.PH:
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|</pre>|<cc>|</cc>)','',line,flags=re.I))/CODELINEWIDTH)+1)*(CH if not backgroundshade else CBH))>self.PH:
         if self.backend[0]!='m':
          self.htmlstr+='</pre>\n'
         self.placepagebreak(k,i) 
         if self.backend[0]!='m':
-         self.htmlstr+='<pre class="code">'
-       self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|</pre>|<cc>|</cc>)','',line))/CODELINEWIDTH)+1)*CH
-       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|span.*?|/span|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<r>',r'<span style="color:#ff0000;font-weight:bold">',re.sub(r'<g>',r'<span style="color:#004000;font-weight:bold">',re.sub(r'<l>',r'<span style="color:#0000ff;font-weight:bold">',re.sub(r'</[rgl]>',r'</span></b>',re.sub(r'<cc>',r'<pre class="codeci">',re.sub(r'</cc>',r'</pre>',line)))))))))+'\n'
+         self.htmlstr+='<pre class="codeb">' if backgroundshade else '<pre class="code">'
+       self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|</pre>|<cc>|</cc>)','',line,flags=re.I))/CODELINEWIDTH)+1)*CH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|span.*?|/span|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<r>',r'<span style="color:#ff0000;">',re.sub(r'<g>',r'<span style="color:#004000;">',re.sub(r'<l>',r'<span style="color:#0055cf;">',re.sub(r'<R>',r'<span style="color:#ff0000;font-weight:bold">',re.sub(r'<G>',r'<span style="color:#004000;font-weight:bold">',re.sub(r'<L>',r'<span style="color:#0055cf;font-weight:bold">',re.sub(r'</[rglRGL]>',r'</span></b>',re.sub(r'<cc>',r'<pre class="codeci">',re.sub(r'</cc>',r'</pre>',line))))))))))))+'\n'
       self.htmlstr+='</pre>\n' 
      elif self.searchtag('cc',cnt):
       print("<cc>")
       self.htmlstr+='<pre class="codec">\n'
       code,cnt=self.getcodecnt('cc',cnt)
       for line in code.split('\n'):
-       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CCH)>self.PH:
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|</pre>|<c>|</c>)','',line,flags=re.I))/CODELINEWIDTH)+1)*CCH)>self.PH:
         if self.backend[0]!='m':
          self.htmlstr+='</pre>\n'
         self.placepagebreak(k,i) 
         if self.backend[0]!='m':
          self.htmlstr+='<pre class="codec">'
-       self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|</pre>|<c>|</c>)','',line))/CODELINEWIDTH)+1)*CCH
-       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|c|/c)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</c>',r'</pre>',line)))))+'\n'
+       self.hc+=(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|</pre>|<c>|</c>)','',line,flags=re.I))/CODELINEWIDTH)+1)*CCH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|span.*?|/span|c|/c)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<r>',r'<span style="color:#ff0000;">',re.sub(r'<g>',r'<span style="color:#004000;">',re.sub(r'<l>',r'<span style="color:#0055cf;">',re.sub(r'<R>',r'<span style="color:#ff0000;font-weight:bold">',re.sub(r'<G>',r'<span style="color:#004000;font-weight:bold">',re.sub(r'<L>',r'<span style="color:#0055cf;font-weight:bold">',re.sub(r'</[rglRGL]>',r'</span></b>',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</c>',r'</pre>',line))))))))))))+'\n'
       self.htmlstr+='</pre>\n' 
      elif self.searchtag('cs',cnt):
       print("<cs>")
@@ -337,26 +331,27 @@ class agenda:
       self.htmlstr+='<pre class="slidecontent">\n'
       #print("<----------cnt--------%s>>" % cnt[0:40])
       #if re.search(r'[\n\s]*.+(<h>|<a>|<m>|<c>|<cc>|<cs>).*',cnt,flags=re.DOTALL):
-      if re.search(r'^.*\n\s*(<h>|<a>.*</a>|<m>.*</m>|<c>|<cc>|<cs>)\s*(\n|$)',cnt,flags=re.DOTALL):
+      if re.search(r'^.*\n\s*(<h>|<a>.*</a>|<m>.*</m>|<cb?>|<cc>|<cs>)\s*(\n|$)',cnt,flags=re.DOTALL):
        #code,cnt=re.split(r'<><>',re.sub(r'(.+?\n*)\n\s*((<h>|<a>|<m>|<c>|<cc>|<cs>).*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
-       code,cnt=re.split(r'<><>',re.sub(r'^(.*?)\n[ \t]*((<h>|<a>.*</a>|<m>.*</m>|<c>|<cc>|<cs>)\s*\n?.*$)','\\1<><>\\2',cnt,flags=re.DOTALL))
+       code,cnt=re.split(r'<><>',re.sub(r'^(.*?)\n[ \t]*((<h>|<a>.*</a>|<m>.*</m>|<cb?>|<cc>|<cs>)\s*\n?.*$)','\\1<><>\\2',cnt,flags=re.DOTALL))
       else:
        code=cnt;cnt=''
       #print("<---------code---------%s>>" % code)
       for line in re.split('\n',re.sub(r'^\s*$','',code,flags=re.DOTALL)):
-       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|<n>|</n></pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH)>self.PH:
+       if (self.hc+(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|<n>|</n></pre>|<c>|</c>|<cc>|</cc>)','',line,flags=re.I))/LINEWIDTH)+1)*LH)>self.PH:
         if self.backend[0]!='m':
          self.htmlstr+='</pre>\n'
         self.placepagebreak(k,i) 
         if self.backend[0]!='m':
          self.htmlstr+='<pre class="slidecontent">'
   #     print("(self.hc,line)%s%s" % (line,hc))
-       self.hc+=(int)(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|<n>|</n>|</pre>|<c>|</c>|<cc>|</cc>)','',line))/LINEWIDTH)+1)*LH
-       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|c|/c|span.*?|/span|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<r>',r'<span style="color:#ff0000">',re.sub(r'<g>',r'<span style="color:#004000">',re.sub(r'<l>',r'<span style="color:#0000ff">',re.sub(r'</[rgl]>',r'</span>',re.sub(r'<n>',r'<pre class="note">',re.sub(r'</n>',r'</pre>',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',line))))))))))))+'\n'
+       self.hc+=(int)(int(len(re.sub(r'(<pre.*?>|<i>|</i>|<b>|</b>|<g>|</g>|<r>|</r>|<l>|</l>|<n>|</n>|</pre>|<c>|</c>|<cc>|</cc>)','',line,flags=re.I))/LINEWIDTH)+1)*LH
+       self.htmlstr+=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|c|/c|span.*?|/span|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<r>',r'<span style="color:#ff0000;">',re.sub(r'<g>',r'<span style="color:#004000;">',re.sub(r'<l>',r'<span style="color:#0055cf;">',re.sub(r'<R>',r'<span style="color:#ff0000;font-weight:bold">',re.sub(r'<G>',r'<span style="color:#004000;font-weight:bold">',re.sub(r'<L>',r'<span style="color:#0055cf;font-weight:bold">',re.sub(r'</[rglRGL]>',r'</span>',re.sub(r'<n>',r'<pre class="note">',re.sub(r'</n>',r'</pre>',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',line)))))))))))))))+'\n'
       self.htmlstr+='</pre>\n' 
     else:
      self.placepagebreak(k,i)
-  self.htmlstr+='</div>\n'
+  self.htmlstr+='''<a href="http://www.minhinc.com" target="_blank" class="logo"><pre class="copy logob">&copy</pre><pre class="logot">www.minhinc.com</pre></a>
+</div>\n'''
  def searchtag(self,tag,cnt):
   return re.search(r'^.*<'+tag+r'>.*',cnt) and not re.search(r'^.*</'+tag+r'>.*',cnt)
  def getcodecnt(self,tag,cnt):
@@ -366,28 +361,30 @@ class agenda:
   import os
   os.environ['NO_AT_BRIDGE']=str(1)
   print("--writing to %s" % 'advance-'+sys.argv[3]+'-slides'+('_m' if self.backend[0]=='m' else '')+'.txt')
+  self.htmlstr=re.sub('XXPAGEXX',str(self.pagenumber),self.htmlstr);
   self.file.write(self.htmlstr);
   self.file.close()
   print("--writing to %s" % sys.argv[3]+'_pdf.html')
   with open(sys.argv[3]+"_pdf.html",'w') as file:
-   file.write(re.sub(r'.*?(<div\s+class="pg".*)',r'<html>\n<head>\n<title>Minh, Inc. Software development and Outsourcing| '+sys.argv[1]+' training Bangalore India</title>\n<META http-equiv="Content-Type" content="text/html; charset=UTF-8">\n<link rel="stylesheet" type="text/css" href="../css/main.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="../css/agenda'+('_a' if self.mode=='agenda' else '')+'.css" media="all"/>\n'+r'\1'+'</body>\n</html>',self.htmlstr,flags=re.DOTALL))
+   file.write(re.sub(r'.*?(<div\s+class="pg".*)',r'<html>\n<head>\n<title>Minh, Inc. Software development and Outsourcing| '+sys.argv[3]+' training Bangalore India</title>\n<META http-equiv="Content-Type" content="text/html; charset=UTF-8">\n<link rel="stylesheet" type="text/css" href="../css/main.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="../css/agenda'+('_a' if self.mode=='agenda' else '')+'.css" media="all"/>\n'+r'\1'+'</body>\n</html>',self.htmlstr,flags=re.DOTALL))
   if self.mode=='agenda':
    print("preparing local pdf...\n---please mute @font-face in ../css/main.css--- and copy fonts in ~/.fonts ")
    pdfkit.from_file(sys.argv[3]+'_pdf.html','advance-'+sys.argv[3]+'-agenda.pdf')
- def placepagebreak(self,k=0,i=0,header=''):
+
+ def placepagebreak(self,k=0,i=0,header='',border=''):
   if self.backend[0]!='m':
    self.pagenumber=self.pagenumber+1
    self.htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><a href="#main%s" class="pn">%s%s</a>
 </div>
-<div class="pg" style="margin-top:%spx;height:%spx">
-""" % (self.day[k][i],'<img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>' if header!='noarrow' else '',"p"+str(self.pagenumber),self.TM,self.PH)
+<div class="pg" style="margin-top:%spx;height:%spx;%s">
+""" % (self.day[k][i],'<img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>' if header!='noarrow' else '',"p"+str(self.pagenumber),self.TM,self.PH,"border:"+border if border else '')
    self.hc=self.BTMOFST
   elif header:
     self.htmlstr+="""<br><pre class="ftr">&copy www.minhinc.com</pre><a class="pn" href="#main%s">%s</a>
 </div>
 <div class="pg" style="margin-top:%spx;">
 """ % (self.day[k][i],'<img src="http://minhinc.com/image/arrow.png" style="width:20px"/>' if header!='noarrow' else '',self.TM)
- def placetopbreak(self,top=False):
+ def placetopbreak(self,top=False,border=''):
   if self.backend[0]=='m':
    if top:
     self.htmlstr+="""<div class="pg" style="margin-top:%spx">
@@ -397,11 +394,11 @@ class agenda:
 '''
   else:
    if top:
-    self.htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
-""" % (2*self.TM,self.PH-self.TM)
+    self.htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx;%s">
+""" % (2*self.TM,self.PH-self.TM,"border:"+border if border else '')
    else:
-    self.htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx">
-""" % (self.TM,self.PH)
+    self.htmlstr+="""<div class="pg" style="margin-top:%spx;height:%spx;%s">
+""" % (self.TM,self.PH,"border:"+border if border else '')
 
 #   
 #  
