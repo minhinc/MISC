@@ -1,5 +1,6 @@
 import re
 import sys
+from selenium import webdriver
 from databasem import databasec
 
 sys.path.append('./testdir')
@@ -15,12 +16,13 @@ print("{}".format(sys.argv))
 filename='test.txt' if len(sys.argv)<=5 else sys.argv[5]
 file=open(filename,'w')
 db=databasec(False)
+driver=webdriver.Chrome()
 for fetcher in [eval(fetcher)() for fetcher in testdir.__all__]:
  file.write("#################\n")
  file.write("## "+fetcher.name+" : "+sys.argv[3]+"\n")
  file.write("#################\n")
  print("## "+fetcher.name)
- for i in fetcher.process():
+ for i in fetcher.process(driver):
   i=re.sub(r'(â|ā|á|ą|ã|à|å|à|ä|å|æ|Ā|Ã|Ä|À|Á|Â|Ã|Ä|Å|Æ)','a',i)
   i=re.sub(r'(ç|Ç)','c',i)
   i=re.sub(r'Ð','d',i)
@@ -37,8 +39,10 @@ for fetcher in [eval(fetcher)() for fetcher in testdir.__all__]:
   i=re.sub(r'ź','z',i)
   i=re.sub(r'a©','e',i)
   i=re.sub(r'(Ø|ø)','0',i)
+  i=re.sub(r'&?amp;','&',i)
   if not db.search('linkvisited',re.sub(r'[^a-zA-Z0-9._%-]','_','https://www.google.co.in/search?q='+re.sub('\s+','+',i)+r'&btnG=Search'),'name'):
    file.write(i+'\n')
    print(i)
+driver.close()
 db.close()
 file.close()

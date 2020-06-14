@@ -85,19 +85,24 @@ class agenda:
   
   tmpstr='';tmphc=0;dayheight=0
   tech=self.tech
+  techchange=False
   for k in range(0,len(self.day)):
    for i in range(0,len(self.day[k])):
     if re.search(r'^\d+[Ll]$',self.day[k][i],flags=re.I):
      l=self.db.get(tech,'lab','id',self.day[k][i][:-1])[0][0] if l=='' else l+('\n'+self.db.get(tech,'lab','id',self.day[k][i][:-1])[0][0] if self.db.get(tech,'lab','id',self.day[k][i][:-1])[0][0] else '')
-    elif not re.search(r'^(\d+|[Ll]|:)',self.day[k][i],flags=re.I):
-     tech=self.day[k][i]
-    elif re.search(r'^\d+[Tt]?$',self.day[k][i],flags=re.I) or re.search(r'^[Ll]$',self.day[k][i],flags=re.I) or self.day[k][i]==':':
+#    elif not re.search(r'^(\d+|[Ll]|:)',self.day[k][i],flags=re.I):
+#     tech=self.day[k][i]
+    elif re.search(r'^\d+[Tt]?$',self.day[k][i],flags=re.I) or re.search(r'^[Ll]$',self.day[k][i],flags=re.I) or self.day[k][i]==':' or not re.search(r'^(\d+|[Ll]|:)',self.day[k][i],flags=re.I):
      if i==0 or self.day[k][i]==':':
       tmpstr+=""" <div class="dayheader" style="margin-top:%spx;height:%spx"><pre>Day %s %s</pre><hr></div>
  """ % (str(CHG)+'YYY',str(HHH),k+1,"Afternoon" if self.day[k][i]==':' else "Morning")
       tmphc+=HHH+CHG
       if self.day[k][i]==':':
        continue
+     if not re.search(r'^(\d+|[Ll]|:)',self.day[k][i],flags=re.I):
+       tech=self.day[k][i]
+       techchange=True
+       continue;
      if re.search(r'^[Ll]$',self.day[k][i]):
       data=l;l=""
      else:
@@ -109,8 +114,9 @@ class agenda:
   <div class="%s" style="height:%spx">%s class="%s" style="padding-top:%spx;%spx">%s%s
   </div>
   <ul class="daycontent" style="padding-top:10px;">
-""" % ('dayheaderright' if re.search(r'dayheaderleft',tmpstr,re.I) else 'dayheaderleft',HCG if re.search(r'YYY',tmpstr,re.I) else str(CCG)+'XXX',(len(re.findall(r'\n',data))+1)*LH+CHH if self.backend[0]!='m' else '','dayheaderheaderlab' if re.search(r'[Ll]',self.day[k][i]) else 'dayheaderheader',CHH,'<pre' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "<a name=\"main"+self.day[k][i]+"\" href=\"#chap"+str(self.day[k][i])+"\"",'dayheader',CHH/4 if not re.search(r'^[Ll]$',self.day[k][i]) else 0,'height:'+str(CHH) if not re.search(r'^[Ll]$',self.day[k][i]) else 'line-height:'+str(CHH),'     Lab' if re.search(r'[Ll]',self.day[k][i]) else '  Lecture - '+self.db.get(tech,'name','id',self.day[k][i])[0][0],'</pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else '</a>')
+""" % ('dayheaderright' if re.search(r'dayheaderleft',tmpstr,re.I) else 'dayheaderleft',HCG if re.search(r'YYY',tmpstr,re.I) else str(CCG)+'XXX',(len(re.findall(r'\n',data))+1)*LH+CHH if self.backend[0]!='m' else '','dayheaderheaderlab' if re.search(r'[Ll]',self.day[k][i]) else 'dayheaderheadertechchange' if techchange else 'dayheaderheader',CHH,'<pre' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "<a name=\"main"+self.day[k][i]+"\" href=\"#chap"+str(self.day[k][i])+"\"",'dayheader',CHH/4 if not re.search(r'^[Ll]$',self.day[k][i]) else 0,'height:'+str(CHH) if not re.search(r'^[Ll]$',self.day[k][i]) else 'line-height:'+str(CHH),'     Lab' if re.search(r'[Ll]',self.day[k][i]) else '  Lecture - '+self.db.get(tech,'name','id',self.day[k][i])[0][0]+('    ( '+tech+' )' if techchange else ''),'</pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else '</a>')
      subtopiccount=0
+     techchange=False
      for le in [re.sub(r'^\n*(.*?)\n*$',r'\1',e,flags=re.DOTALL) for e in re.split(r'[*]',data) if e]:
       tmpstr+="""   <li>%s%s%s</li>
 """ % ('<pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "<a href=\"#chap"+str(self.day[k][i])+'_'+str(subtopiccount)+"\">" if self.mode=='pdf' and not re.search(r'^[Ll]$',self.day[k][i]) else '<a href=\"#chap'+self.day[k][i]+'_'+str(subtopiccount)+'\">'+'<pre>',re.sub(r'\n','<br>',le,flags=re.DOTALL) if self.mode=='pdf' and not re.search(r'^[Ll]$',self.day[k][i]) else le,'</pre>' if self.mode=='agenda' or re.search(r'^[Ll]$',self.day[k][i]) else "</a>" if self.mode=='pdf' and not re.search(r'^[Ll]$',self.day[k][i]) else '</pre></a>')

@@ -1,4 +1,6 @@
 import sys
+import time
+import os
 import re
 if re.search(r'^(win|cygwin)',sys.platform,flags=re.I):
  import pymysql
@@ -37,6 +39,35 @@ else:
   crsr.execute("SHOW TABLES")
   for (table_name,) in crsr:
    print(table_name)
+ elif re.search('youtube',sys.argv[1],flags=re.I):
+  from selenium import webdriver
+  import json
+  fileexists=False
+  driver=None
+  if os.path.isfile('r.txt') and int(time.time()-os.stat('r.txt').st_mtime)<3600:
+   fileexists=True
+   print("--File r.txt exists in current directory---")
+  if not fileexists:
+   driver=webdriver.Chrome()
+   driver.get('https://www.youtube.com/channel/UChmiKM2jr7e9iUOrVPKRTXQ/videos')
+   for i in range(20):
+    driver.execute_script("window.scrollBy(0,250)")
+    print("window scroll {}".format(i))
+    time.sleep(1)
+   open('r.txt','w').write(driver.page_source)
+  jsonstring=[]
+  for i in [(re.sub(r'.*title="([^"]*)".*',r'\1',i),re.sub(r'.*href="/watch\?v=([^"]*)".*',r'\1',i)) for i in re.findall(r'title=".*href="/watch\?v=[^"]*"',open('r.txt').read() if fileexists else driver.page_source)]:
+   if len(sys.argv)>2: 
+    if re.search(r'^('+sys.argv[2]+r')',i[0],flags=re.I):
+     jsonstring.append([i[0],i[1]])
+   else:
+    jsonstring.append([i[0],i[1]])
+  print(json.dumps(jsonstring))
+  if len(sys.argv)>3:
+   youtubecontent=re.sub(r'.*?({.*}).*',r'\1',str(dbi.get('tech','content','name',sys.argv[3])).replace('\\n','\n').replace(", '",", \n'"),flags=re.DOTALL|re.I)
+   if re.search(r'"youtube"\s*:',youtubecontent,flags=re.I):
+    dbi.update('tech','content',re.sub(r'(.*"youtube"\s*:\s*).*?(,?\s*\n.*)',r'\1'+json.dumps(jsonstring)+r'\2',youtubecontent,flags=re.DOTALL|re.I),'name',sys.argv[3])
+  if not fileexists: driver.close()
  elif len(sys.argv)<=2:
   usage()
  elif re.search('drop',sys.argv[1],flags=re.I):

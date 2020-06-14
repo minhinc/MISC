@@ -1,3 +1,4 @@
+#!/bin/bash
 #args=("$@")
 #$2 ${args[@]:3}
 if [ $1 = "-f" ]; then

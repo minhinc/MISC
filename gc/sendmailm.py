@@ -6,6 +6,9 @@ import os
 import re
 import zipfile
 import time
+import random
+from PIL import Image
+import string
 import urllib.request as urllib2
 #import urllib2#for python 2.7
 import shutil
@@ -24,6 +27,7 @@ class sendmailc(fetchc):
   self.vc=threading.Condition()
 #  self.downloadimage=dict()
   self.jsonemailcontent=dict()
+  self.misc=dict()
  def handle(self):
   fetchc.handle(self)
   self.wdgt.state="password"
@@ -33,6 +37,16 @@ class sendmailc(fetchc):
   tech=self.db.get('tech','name','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0]
   if not tech in self.jsonemailcontent:
    self.jsonemailcontent[tech]=json.loads(re.sub(r'\\\n',r'\\n',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0]))
+   self.misc[tech]=dict()
+   self.misc[tech]['randomnumber']=random.randrange(0,len(self.jsonemailcontent[tech]["youtube"]),1)
+   self.misc[tech]['image']=Image.open(urllib2.urlopen('https://img.youtube.com/vi/'+self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1]+'/0.jpg'))
+   self.misc[tech]['youtubebutton']=Image.open(urllib2.urlopen('http://www.minhinc.com/image/youtubebutton.png'))
+   self.misc[tech]['image'].paste(self.misc[tech]['youtubebutton'],(int((self.misc[tech]['image'].width-self.misc[tech]['youtubebutton'].width)/2),int((self.misc[tech]['image'].height-self.misc[tech]['youtubebutton'].height)/2)),self.misc[tech]['youtubebutton'])
+   #self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth',str(self.misc[tech]['image'].width),re.sub(r'youtubewidth',str((625-self.misc[tech]['image'].width)/2),re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
+   self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth',str(self.misc[tech]['image'].width),re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
+   self.misc[tech]['image'].save(self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
+   os.system('/home/pi/tmp/ftp.sh -f put image ./'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
+   print("tech {} random {}".format(tech,self.misc[tech]['randomnumber']))
   msgRoot=MIMEMultipart('related')
   msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.jsonemailcontent[tech]["1"],flags=re.DOTALL) if "s" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["s"]
   msgRoot['From']=strFrom
@@ -43,7 +57,8 @@ class sendmailc(fetchc):
   msgAlternative = MIMEMultipart('alternative')
   msgRoot.attach(msgAlternative)
 
-  msgHTML=MIMEText(re.sub(r'MMYY',calendar.month_name[(datetime.date.today()+datetime.timedelta(days=16)).month]+' '+str((datetime.date.today()+datetime.timedelta(days=16)).year),re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.I)),'html')
+#  print("mail {}".format(self.jsonemailcontent[tech]["1"]))
+  msgHTML=MIMEText(re.sub(r'MMYY',calendar.month_name[(datetime.date.today()+datetime.timedelta(days=16)).month]+' '+str((datetime.date.today()+datetime.timedelta(days=16)).year),re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),'html')
   msgHTML.replace_header('Content-Type','text/html' if "t" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["t"])
   msgAlternative.attach(msgHTML)
 

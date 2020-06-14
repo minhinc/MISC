@@ -14,7 +14,7 @@ import os
 class getoutofloop(Exception):
  pass
 def printanddelete(mail,index,msg,email_from,email_subject):
- if msg.get_content_type()=="text/plain" and (re.search(r'Mail Delivery (?:Sub)?system',email_from,re.I) or re.search(r'boxbe-notifications@boxbe.com',email_from,re.I) or re.search(r'^\s*Undeliverable:',email_subject,re.I) or re.search(r'^\s*failure notice\s*$',email_subject,re.I)) :
+ if len(sys.argv)==4 or (msg.get_content_type()==r'text/plain' or msg.get_content_type==r'text/html') and (re.search(r'Mail Delivery (?:Sub)?system',email_from,re.I) or re.search(r'boxbe-notifications@boxbe.com',email_from,re.I) or re.search(r'^\s*Undeliverable:',email_subject,re.I) or re.search(r'^\s*failure notice\s*$',email_subject,re.I) or re.search(r'^\s*(Automatic reply:|Rejected:|Out of Office)',email_subject,re.I) or re.search(r'your ticket has been created',email_subject,re.I)) :
   payload = msg.get_payload(decode=True)
   if payload:
    print " ".join(set([imail for imail in re.findall(r'([A-Za-z0-9._%-]+\@[\w-]+[.](?:\w+[.]?)*\b)',payload,flags=re.I) if not re.search(r'(tominhinc.?@gmail.com|.*?@minhinc.com|mx.google.com|pravinkumarsinha@gmail.com)\s*$',imail,re.I)]))
@@ -28,7 +28,10 @@ def read_email_from_gmail():
  try:
   mail = imaplib.IMAP4_SSL('imap.gmail.com',993)
   mail.login(sys.argv[1],sys.argv[2])
-  mail.select('inbox')
+  if len(sys.argv)==4 and sys.argv[3]=='sentmail':
+   mail.select('[Gmail]/Sent Mail')
+  else:
+   mail.select('inbox')
 
   type, data = mail.search(None, 'ALL')
   mail_ids = data[0]
@@ -65,9 +68,20 @@ def read_email_from_gmail():
   print str(e) 
 if len(sys.argv)<=2:
  print('Usage:')
- print('python  read.py <emailaddress> <emailpassword>')
- print('python  read.py tominhinc1@gmail.com mypassword')
+ print('python read.py <emailaddress> <emailpassword> [allinbox|sentmail]')
+ print('--Note-- Emails will not be cleared from database if third argument i.e. allinbox/sentmail specified')
+ print('python read.py tominhinc1@gmail.com mypassword')
+ print('python read.py tominhinc1@gmail.com mypassword allinbox')
+ print('python read.py tominhinc1@gmail.com mypassword sentmail')
  exit(1)
+if len(sys.argv)>=4:
+ print("********* Emails will not be deleted from database ********")
+ print("Press any key to discontinue, press Y/y to continue")
+ inpt=raw_input()
+ if not inpt or not re.search(r'^(y|Y)',inpt):
+  exit(1) 
 open('t.txt','w+').close()
 read_email_from_gmail()
-os.system('python3 seed.py delete track email `cat t.txt`')
+if len(sys.argv)==3:
+ print('--------- Deleting from database --------------')
+ os.system('python3 seed.py delete track email `cat t.txt`')
