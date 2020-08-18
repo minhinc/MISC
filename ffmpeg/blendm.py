@@ -4,24 +4,15 @@ class blendc:
  def __init__(self,libip):
   self.libi=libip
  def blendimage(self,args_p,filter_p,beginstring_p,returnstring_p,count_p):
-  """index transitiontimestamp """
-  for j in range(1,len(args_p)):
-   duration=re.sub(r'.*T\/(\d+).*',r'\1',filter_p)
-   self.libi.ffmpeg('ffmpeg -ss '+str(float(self.libi.getsecond(args_p[j]))-0.25)+' -i input.mp4 -vframes 1 -q:v 2 -y tmp.png')
-   self.libi.ffmpeg('ffmpeg -ss '+str(float(self.libi.getsecond(args_p[j]))-0.25)+' -t '+duration+' -i input.mp4 -y tmp.mp4')
-   self.libi.ffmpeg('ffmpeg -i tmp.png -i tmp.mp4 -filter_complex "'+re.sub(r'^',r'[0][1:v]',filter_p)+'" -y input'+str(count_p)+'.mp4')
-   beginstring_p+="-i input"+str(count_p)+".mp4 "
-   returnstring_p+="["+str(len(re.findall(r' -i ',beginstring_p))-1)+":v]setpts=PTS+"+str(float(self.libi.getsecond(args_p[j]))-0.25)+"/TB[bio"+str(count_p)+"];"+("[0:v]" if not count_p else "[io"+str(count_p-1)+"]")+"[bio"+str(count_p)+"]overlay=eof_action=pass[io"+str(count_p)+"];"
-   count_p=count_p+1
-  return (beginstring_p,returnstring_p,count_p)
-
- def sidebyside(self,args_p,filter_p,beginstring_p,returnstring_p,count_p):
-  """index transitiontimestamp """
-  for j in range(1,len(args_p)):
-   self.libi.ffmpeg('ffmpeg -ss '+args_p[j]+' -t 4.5 -i input.mp4 -c copy -y tmp1.mp4')
-   self.libi.ffmpeg('ffmpeg -ss '+str(float(self.libi.getsecond(args_p[j]))-5)+' -t 6 -i input.mp4 -c copy -y tmp.mp4')
-   self.libi.ffmpeg('ffmpeg -i tmp.mp4 -i tmp1.mp4 -filter_complex "'+re.sub(r'^',r'[0]',filter_p)+'" -y input'+str(count_p)+'.mp4')
-   beginstring_p+="-i input"+str(count_p)+".mp4 "
-   returnstring_p+="["+str(len(re.findall(r' -i ',beginstring_p))-1)+":v]setpts=PTS+"+str(float(lib.getsecond(args_p[j]))-5)+"/TB[bio"+str(count_p)+"];"+("[0:v]" if not count_p else "[io"+str(count_p-1)+"]")+"[bio"+str(count_p)+"]overlay=eof_action=pass[io"+str(count_p)+"];"
-   count_p=count_p+1
-  return (beginstring_p,returnstring_p,count_p)
+  '''index[10]:<image>:<imagesize[20,30]>:<filterpos[S]>:<duration[6,3]>:<filternbr[I]>:<split[B]>:<multiply[F]>'''
+  index,image,imagesize,filterpos,duration,filternum,split,multiply=self.libi.split(args_p[0],(None,'',str(self.libi.videowidth/2)+','+str(self.libi.videoheight/2),'(W-w)/2,(H-h)/2','6,0',filter_p,False,0.0))
+  imagesize=tuple((int(i) for i in re.findall(r'\d+',imagesize)))
+  duration=tuple((int(i) for i in (re.findall(r'\d+',duration) if len(re.findall(r'\d+',duration))==2 else re.findall(r'\d+',duration)+['0'])))
+  self.libi.debug("blendc::blendimage><",index,image,imagesize,filterpos,duration,filternum,split,multiply)
+  if not image:
+   for j in range(1,len(args_p)):
+    self.libi.ffmpeg('ffmpeg -ss '+args_p[j]+' -t '+str(duration[0])+' -i input.mp4 -y tmp'+str(count_p)+'.mp4')
+    beginstring_p,returnstring_p,count_p=self.libi.blendimage([args_p[0],str(float(self.libi.getsecond(args_p[j]))-duration[0])],filternum,beginstring_p,returnstring_p,count_p,'tmp'+str(count_p)+'.mp4',(int(self.libi.videowidth/2),int(self.libi.videoheight/2)),(duration[0],1),filterpos,split_p=True,multiply_p=2.0)
+   return beginstring_p,returnstring_p,count_p
+  else:
+   return self.libi.blendimage(args_p,filternum,beginstring_p,returnstring_p,count_p,image,imagesize,duration,filterpos,split_p=split,multiply_p=multiply)
