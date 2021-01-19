@@ -29,6 +29,8 @@ class databasec:
   crsr.execute("CREATE TABLE IF NOT EXISTS junkemail (name VARCHAR(80) NOT NULL PRIMARY KEY)")
   crsr.execute("CREATE TABLE IF NOT EXISTS junkextension (name VARCHAR(80) NOT NULL PRIMARY KEY)")
 
+  crsr.execute("CREATE TABLE IF NOT EXISTS adsense (id BIGINT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80), value VARCHAR(1000), width INT DEFAULT 0, height INT DEFAULT 0, UNIQUE(name))")
+
   crsr.execute("CREATE TABLE IF NOT EXISTS qt (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
   crsr.execute("CREATE TABLE IF NOT EXISTS qml (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
   crsr.execute("CREATE TABLE IF NOT EXISTS c (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80) NOT NULL, value VARCHAR(960), lab VARCHAR(480), content VARCHAR(90000), UNIQUE(id))")
@@ -47,7 +49,7 @@ class databasec:
  def reconnect(self):
   try:
 #   self.conn=MySQLdb.connect(host='166.62.28.143',user='minhinc',passwd='pinku76minh',db='trackweb')
-   self.conn=MySQLdb.connect(host=re.split('\n',open(os.path.expanduser('~/passwd')).read())[0],user=re.split('\n',open(os.path.expanduser('~/passwd')).read())[1],passwd=re.split('\n',open(os.path.expanduser('~/passwd')).read())[2],db=re.split('\n',open(os.path.expanduser('~/passwd')).read())[3])
+   self.conn=MySQLdb.connect(host=re.split('\n',open(os.path.expanduser('~/passwd')).read())[0],user=re.split('\n',open(os.path.expanduser('~/passwd')).read())[1],passwd=re.split('\n',open(os.path.expanduser('~/passwd')).read())[2],db=re.split('\n',open(os.path.expanduser('~/passwd')).read())[3],connect_timeout=10)
    print('database re-connected')
   except:
    print('database could not be connected')

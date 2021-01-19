@@ -19,11 +19,11 @@ echo '</select></div>
 <div class="row"><pre class="lc bold">Duration:</pre><pre class="l bold center" id="onlineduration"></pre></div>
 <div class="row"><pre class="lc bold">Course Content:</pre><a class="l bold block" href="" id="a_course"></a></div>
 <div class="row"><pre class="lc bold">Name:</pre><input type="text" name="name" placeholder="Your Name" class="l"></div>
-<div class="row"><pre class="lc bold">Email:</pre><input type="text" name="email" placeholder="Email Address" class="l"><pre class="ls bold star">*</pre></div>
-<div class="rowtextarea" ><pre class="lc bold">Comment:</pre><textarea rows="5" name="message" cols="40" class="l2"></textarea><pre class="ls bold star">*</pre></div>
+<div class="row"><pre class="lc bold">Email:</pre><input id="emailid" type="text" name="email" placeholder="Email Address" class="l"><pre class="ls bold star">*</pre></div>
+<div class="rowtextarea" ><pre class="lc bold">Comment:</pre><textarea id="textareaid" rows="5" name="message" cols="40" class="l2"></textarea><pre class="ls bold star">*</pre></div>
 <div class="row"><pre class="lc bold">Date:</pre><input type="date" name="tdate"></div>
-<div class="row"><img id="imgcaptchaid" src="'.$util->level.'/php/captcha.php" style="float:left"/><input name="captcha_entered" type="text" id="captcha_entered" size="5" maxlength="2" placeholder = "Answer" style="margin-left:10px;float:left"/></div>
-<div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold disable" id="s_submit"><iframe name="myIframe" frameborder="0" scrolling="no" class="ls" id="iframeid"></iframe></div>
+<div style="margin:10px 0" class="g-recaptcha" data-sitekey="'.preg_replace('/^(.*)\\n.*/m','$1',file_get_contents($util->level.'/donotdelete/captchav2/sitecaptchav2.key')).'"></div>
+<div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold disable" id="s_submit"><iframe name="myIframe" frameborder="0" scrolling="no" class="l" id="iframeid"></iframe></div>
 </form>
 <div style="clear:both"></div>
 <script>
@@ -78,7 +78,12 @@ document.getElementById("selecttech").onchange=function(){
  }
 }
 document.getElementById("iframeid").onload=function(){
-document.getElementById("imgcaptchaid").src="'.$util->level.'/php/captcha.php?time="+new Date();
+ var framecontent=document.getElementById("iframeid").contentWindow.document.body.innerHTML;
+ if (framecontent.match(/40/gi)){
+  document.getElementById("emailid").value="";
+  document.getElementById("textareaid").value="";
+  grecaptcha.reset();
+ }
 }
 </script>';
 }

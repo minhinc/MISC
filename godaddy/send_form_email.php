@@ -1,12 +1,31 @@
 <?php
 if(isset($_POST['submit'])){
- session_start();
+ $captcha;
+ if(isset($_POST['g-recaptcha-response'])){
+  $captcha=$_POST['g-recaptcha-response'];
+ }
+ if(!$captcha){
+  echo "<p style=\"color:#ff0000\">Captcha Error!!</p>";
+  exit;
+ }
+ $secretKey = preg_replace('/^.*?\\n(.*)/m','$1',file_get_contents('http://www.minhinc.com/donotdelete/captchav2/sitecaptchav2.key'));
+ $ip = $_SERVER['REMOTE_ADDR'];
+// post request to server
+ $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . urlencode($secretKey) .  '&response=' . urlencode($captcha);
+ $response = file_get_contents($url);
+ $responseKeys = json_decode($response,true);
+// should return JSON with success as true
+ if(!$responseKeys["success"]) {
+  echo "<p><span style=\"color:#ff0000\">retry or mailto </span><span style=\"color:#004000\">sales@minhinc.com</span></p>";
+  exit;
+ }
+// session_start();
  $to = "sales@minhinc.com"; // this is your Email address
- $message2 = "Hi!\nHere is a copy of your message:\n    -------\n" . $_POST['message'] . "\n    -------\nThanks for writing in! We've noted your concern/enquiry and will respond to your email within 1 business day. We hope to help you out with any query or issue you might have. In case you want to talk to us on the phone/whatsapp about this, we are at +91 9483160610 (Monday - Saturday, 7AM - 6PM).\nRegards,\nTeam Minh\nweb : http://www.minhinc.com";
+ $message2 = "Here is a copy of your message:\n    -------\n" . $_POST['message'] . "\n\n+91 9483160610\nweb : http://www.minhinc.com";
  $from = $_POST['email']; // this is the sender's Email address
- $subject = "Form submission";
+ $subject = "*** Contact Us *** Form submission";
  $subject2 = "Copy of your form submission";
- $message = $_POST['name'] . "\nwrote the following : " . "\n\n" . $_POST['message'];
+ $message = "*** Contact Us ***\n\nEmail : " . $from . "\nName : " . $_POST['name'] . "\nwrote the following : " . "\n\n" . $_POST['message'];
  
  $headers = "From:" . $from;
  $headers2 = "From:" . $to;
@@ -15,12 +34,8 @@ if(isset($_POST['submit'])){
   echo "<p style=\"color:#ff0000\">Wrong Email Address.</p>";
  }else if(strlen($_POST['message']) < 2) {
   echo "<p style=\"color:#ff0000\">Message Incomplete.</p>";
- }else if (empty($_POST['captcha_entered'])) {
-  echo '<p style="color:#ff0000">Answer the Captcha/p>';
- }else if ($_POST['captcha_entered']!=$_SESSION['rand_code']) {
-  echo '<p style="color:#ff0000">Incorrect answer.</p>';
  }else if(preg_match('/\b(sex.*?|juicy|girl.*?|fuck.*?|wom.n.*?)\b/i',$_POST['message'])){
-  echo "<p style=\"color:#ff0000\">obsene found, send mail to sales@minhinc.com</p>";
+  echo "<p><span style=\"color:#ff0000\">obsene found</span><span style=\"color:#000\">mailto sales@minhinc.com</span></p>";
  }else {
   mail($to,$subject,$message,$headers);
   mail($from,$subject2,$message2,$headers2); // sends a copy of the message to the sender

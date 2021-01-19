@@ -45,7 +45,11 @@ class sendmailc(fetchc):
    #self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth',str(self.misc[tech]['image'].width),re.sub(r'youtubewidth',str((625-self.misc[tech]['image'].width)/2),re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
    self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth',str(self.misc[tech]['image'].width),re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
    self.misc[tech]['image'].save(self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
-   os.system('/home/pi/tmp/ftp.sh -f put image ./'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
+   try:
+    urllib2.urlopen('http://www.minhinc.com/image/'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
+    print('http://www.minhinc.com/image/'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg --> available at /image/')
+   except:
+    os.system('~/tmp/ftp.sh -f put image ./'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
    print("tech {} random {}".format(tech,self.misc[tech]['randomnumber']))
   msgRoot=MIMEMultipart('related')
   msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.jsonemailcontent[tech]["1"],flags=re.DOTALL) if "s" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["s"]

@@ -17,12 +17,12 @@ class textc:
   for i in re.split(r'\\n',s):
    if re.search(r'^\s*$',i): stringlist.append(i)
    else: [stringlist.append(x) for x in textwrap.wrap(i,width=40,drop_whitespace=False)]
-  fnt=self.libi.getfont(stringlist if max([len(x) for x in stringlist]) >= 20 else ['Q'*20],float(size),'/home/pi/.fonts/Consolas.ttf')
+  fnt=self.libi.getfont(stringlist if max([len(x) for x in stringlist]) >= 20 else ['Q'*20],float(size),'../../../.fonts/Consolas.ttf')
   textcolor=tuple((int(i) for i in re.findall(r'\d+',textcolor)))
   backcolor=tuple((int(i) for i in re.findall(r'\d+',backcolor)))
   glasscolor=tuple((int(i) for i in re.findall(r'\d+',glasscolor)))
   textmaxindex=[len(i) for i in stringlist].index(max(len(i) for i in stringlist))
-  textcellheight=fnt.getsize(stringlist[textmaxindex])[1]+offset
+  textcellheight=fnt.getsize(stringlist[textmaxindex])[1]+6*offset
   imagewidth=fnt.getsize(stringlist[textmaxindex])[0]+offset
   img=Image.new('RGBA',(imagewidth,textcellheight*len(stringlist)),backcolor)
   mask=Image.new(r'L',img.size,color=0)
@@ -31,11 +31,12 @@ class textc:
   for i in range(len(stringlist)):
    draw.text(((imagewidth-fnt.getsize(stringlist[i])[0])/2 if re.search(r'm',orientation) else offset/2,i*textcellheight+(textcellheight-fnt.getsize(stringlist[i])[1])/2),stringlist[i],font=fnt,fill=textcolor)
    drawmask.rectangle(((imagewidth-fnt.getsize(stringlist[i])[0])/2-offset/2,i*textcellheight+offset/4,(imagewidth+fnt.getsize(stringlist[i])[0])/2+offset/2,(i+1)*textcellheight-offset/4),fill=backcolor[3])
-   drawmask.text(((imagewidth-fnt.getsize(stringlist[i])[0])/2,i*textcellheight+(textcellheight-fnt.getsize(stringlist[i])[1])/2),stringlist[i],font=fnt,fill=textcolor[3])
+   #drawmask.text(((imagewidth-fnt.getsize(stringlist[i])[0])/2,i*textcellheight+(textcellheight-fnt.getsize(stringlist[i])[1])/2),stringlist[i],font=fnt,fill=textcolor[3])
+   drawmask.text(((imagewidth-fnt.getsize(stringlist[i])[0])/2 if re.search(r'm',orientation) else offset/2,i*textcellheight+(textcellheight-fnt.getsize(stringlist[i])[1])/2),stringlist[i],font=fnt,fill=textcolor[3])
   if re.search(r'm',orientation): img.putalpha(mask)
-  img.save("textimage.png")
+  img.save("textimage"+str(count_p)+".png")
   img.close()
-  return self.libi.blendimage(args_p,self.libi.filterlist[1000+('b','r').index(orientation[1])][0] if len(orientation)==2 else self.libi.filterlist[filter][0],beginstring_p,returnstring_p,count_p,'textimage.png',duration_p=duration,filterpos_p=filterpos,transitiontime_p=transitiontime,glasscolor_p=glasscolor)
+  return self.libi.blendimage(args_p,self.libi.filterlist[1000+('b','r').index(orientation[1])][0] if len(orientation)==2 else self.libi.filterlist[filter][0],beginstring_p,returnstring_p,count_p,'textimage'+str(count_p)+'.png',duration_p=duration,filterpos_p=filterpos,transitiontime_p=transitiontime,glasscolor_p=glasscolor)
  
  def swipetext(self,args_p,filter_p,beginstring_p,returnstring_p,count_p):
   '''41:<text1\\ntext2\\n..>:<size>:<filterpos>:<duration>:<l|b>:<textcolor[(rgba)]>:<glasscolor(rgba)>'''
@@ -46,7 +47,7 @@ class textc:
   glasscolor=tuple((int(i) for i in re.findall(r'\d+',glasscolor)))
   stringlist=re.split(r'\\n',stringlist)
   self.libi.debug("textm::swipetext",stringlist,size,filter,animationduration,orientation,textcolor,glasscolor)
-  fnt=self.libi.getfont(stringlist if max([len(x) for x in stringlist]) >= 20 else ['a'*20],size,'/home/pi/.fonts/Consolas.ttf')
+  fnt=self.libi.getfont(stringlist if max([len(x) for x in stringlist]) >= 20 else ['a'*20],size,'../../../.fonts/Consolas.ttf')
   textmaxindex=[len(i) for i in stringlist].index(max([len(i) for i in stringlist]))
   textcellheight=int(fnt.getsize(stringlist[textmaxindex])[1]*1.2)
   stepcount=20
@@ -78,16 +79,16 @@ class textc:
     img.paste(img1,(int(offset*2/3) if orientation=='l' else 0,i*textcellheight))
    img.save("swipetext"+str(count)+'u'+".png")
    convertstring+="swipetext"+str(count)+'u'+".png "
-  self.libi.system(convertstring+"swipetext.gif")
-  return self.libi.blendimage(args_p,filter_p,beginstring_p,returnstring_p,count_p,'swipetext.gif',duration_p=(animationduration,0),filterpos_p=filter,transitiontime_p=0.0,glasscolor_p=glasscolor)
+  self.libi.system(convertstring+"swipetext"+str(count_p)+".gif")
+  return self.libi.blendimage(args_p,filter_p,beginstring_p,returnstring_p,count_p,'swipetext"+str(count_p)+".gif',duration_p=(animationduration,0),filterpos_p=filter,transitiontime_p=0.0,glasscolor_p=glasscolor)
 
  def logotext(self,args_p,filter_p,beginstring_p,returnstring_p,count_p):
   '''<42>:<size>:<filterpos>'''
-  index,size,filterpos=self.libi.split(args_p[0],(None,0.5,self.libi.filterlist[filter_p][0]))
+  index,size,filterpos=self.libi.split(args_p[0],(None,0.4,self.libi.filterlist[filter_p][0]))
   filterpos=re.sub(r'\\:',r':',self.libi.convertfilter(filterpos,True))
-  font=self.libi.getfont(['Minh, Inc.'],size,'/home/pi/.fonts/tw-cen-mt-bold.ttf')
-  font1=self.libi.getfont(['Minh, Inc.'],size*0.8,'/home/pi/.fonts/tw-cen-mt-bold.ttf')
-  font2=self.libi.getfont(['A Software Research Firm'],size,'/home/pi/.fonts/tw-cen-mt-bold.ttf')
+  font=self.libi.getfont(['Minh, Inc.'],size,'../../../.fonts/tw-cen-mt.ttf')
+  font1=self.libi.getfont(['Minh, Inc.'],size*0.8,'../../../.fonts/tw-cen-mt.ttf')
+  font2=self.libi.getfont(['A Software Research Firm'],size,'../../../.fonts/tw-cen-mt.ttf')
   imagewidth=max(font.getsize('Minh, Inc.')[0],font1.getsize('Minh, Inc.')[0],font2.getsize('A Software Research Firm')[0])
   img=Image.new('RGBA',(imagewidth,int(font.getsize('Minh, Inc.')[1]*1.2+font2.getsize('A Software Research Firm')[1])),(0,0,0,0))
   draw=ImageDraw.Draw(img)
@@ -114,8 +115,8 @@ class textc:
     img.save('out'+str(j)+str(count)+'.png')
    if j==0:
     convertstring+='-delay 30 out'+str(j)+str(count)+'.png -delay 3 '
-  self.libi.system(convertstring+'-delay 1 out'+str(j)+str(count)+'.png logotext.gif')
-  beginstring_p+="-i logotext.gif "
+  self.libi.system(convertstring+'-delay 1 out'+str(j)+str(count)+'.png logotext'+str(count_p)+'.gif')
+  beginstring_p+="-i logotext"+str(count_p)+".gif "
   for j in range(1,len(args_p)):
    returnstring_p+="["+str(len(re.findall(r' -i ',beginstring_p))-1)+":v]setpts=PTS+"+self.libi.getsecond(args_p[j])+"/TB[bio"+str(count_p)+"];"+("[0:v]" if not count_p else "[io"+str(count_p-1)+"]")+"[bio"+str(count_p)+"]"+filterpos+"[io"+str(count_p)+"];"
    count_p=count_p+1
@@ -128,13 +129,13 @@ class textc:
   stringlist=[]
   filterpos=re.sub(r'\\:',r':',self.libi.convertfilter(filterpos,True))
   shadecolor=tuple((int(i) for i in re.findall(r'\d+',shadecolor)))
-  fnt=self.libi.getfont(re.split(r'\\n',s) if max([len(x) for x in re.split(r'\\n',s)]) >= 20 else ['Q'*20],float(size),'/home/pi/.fonts/Consolas.ttf')
-  fnts=self.libi.getfont(re.split(r'\\n',s) if max([len(x) for x in re.split(r'\\n',s)]) >= 20 else ['Q'*20],float(size)*0.5,'/home/pi/.fonts/Consolas.ttf')
+  fnt=self.libi.getfont(re.split(r'\\n',s) if max([len(x) for x in re.split(r'\\n',s)]) >= 20 else ['Q'*20],float(size),'../../../.fonts/Consolas.ttf')
+  fnts=self.libi.getfont(re.split(r'\\n',s) if max([len(x) for x in re.split(r'\\n',s)]) >= 20 else ['Q'*20],float(size)*0.5,'../../../.fonts/Consolas.ttf')
   for i in range(len(re.split(r'\\n',s))):
    if re.search(r'(^|\\n)><',s):
     stringlist.append([re.sub(r'><(.*)',r'\1',re.split(r'\\n',s)[i]),None,int(fnt.getsize(re.sub(r'><(.*)',r'\1',re.split(r'\\n',s)[i]))[1]+offset),fnt] if re.search(r'^><',re.split(r'\\n',s)[i]) else [re.split(r'\\n',s)[i],None,int(fnts.getsize(re.split(r'\\n',s)[i])[1]+offset/6),fnts])
    else:
-    stringlist.append([re.split(r'\\n',s)[i],None,int(fnt.getsize(re.split(r'\\n',s)[i])[1]+offset),fnt])
+    stringlist.append([re.split(r'\\n',s)[i],None,int(fnt.getsize(re.split(r'\\n',s)[i])[1]+4*offset),fnt])
   for i in range(len(stringlist)-1,-1,-1):
    if not re.search(r'^[ ]*$',stringlist[i][0]):
     stringlist[i][2]+=int(offset-offset/6) if stringlist[i][3]==fnts else 0
@@ -186,7 +187,7 @@ class textc:
    img.save("omnitext"+str(count)+".png")
    convertstring+="omnitext"+str(count)+".png "
   convertstring+="-delay "+str((animationduration-1)*100)+" omnitext"+str(count)+".png -delay 10 omnitext"+str(count)+".png "
-  self.libi.system(convertstring+"omnitext.gif")
+  self.libi.system(convertstring+"omnitext"+str(count_p)+".gif")
   #if re.search(r's',orientation):
 #  if shadecolor!=(0,0,0,0):
 #   print("s found")
@@ -194,7 +195,7 @@ class textc:
 #   img.save('back_'+str(count_p)+'.png')
 #   beginstring_p+='-i back_'+str(count_p)+'.png '
 #   imagecount=str(len(re.findall(r' -i ',beginstring_p))-1)
-  beginstring_p+="-i omnitext.gif "
+  beginstring_p+="-i omnitext"+str(count_p)+".gif "
   for j in range(1,len(args_p)):
    #if re.search(r's',orientation):
 #   if shadecolor!=(0,0,0,0):

@@ -10,14 +10,9 @@ elif [[ $1 = "put" ]] && wget -q --method=HEAD http://www.minhinc.com/${2}/$(bas
   exit -1
  fi
 fi
-HOST='minhinc.com'
-USER='pravinkumarsinha'
-PASSWD=`head -5 ~/passwd|tail -1`
-ftp -inv $HOST << !
-quote USER $USER
-quote PASS $PASSWD
+export SSHPASS=`head -5 ~/passwd|tail -1`
+sshpass -e sftp -oBatchMode=no -b - pravinkumarsinha@minhinc.com << !
 cd public_html/${2}
-bin
 $1 ${@:3}
-quit
+bye
 !

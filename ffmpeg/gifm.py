@@ -11,7 +11,7 @@ class gifc:
               ('zoom','rotateandzoom'), #1
               ('overlay','overlay'), #2
               ('text','dialogtext','swipetext','logotext','omnitext'), #2
-              ('misc','scenetransition') #3
+              ('misc','scenetransition','breakvideo','addvideo') #3
              ]
 
  filter={
@@ -31,8 +31,11 @@ class gifc:
           41:(52,(3,1),"#swipetext"),\
           42:(52,(3,2),"#logotext"),\
           43:(52,(3,3),"#omnitext"),\
+          44:(52,(3,4),"#alphaimage"),\
          5:("",-1,"Misc"),\
-          50:(90,(4,0),"#scenetransition(4,0)")
+          50:(90,(4,0),"#scenetransition(4,0)"),\
+          51:(50,(4,1),"#breakvideo(4,1)"),\
+          52:(50,(4,2),"#addvideo(4,2)")
         }
  def __init__(self):
   if len(sys.argv)<2 or sys.argv[1]=='-f' or re.search(r'^\(\d+',sys.argv[1]):
@@ -86,6 +89,6 @@ class gifc:
   for i in range(len(self.arg)):
    index=int(re.sub(r'^\D?(\d+).*',r'\1',self.arg[i][0]))
    beginstring,returnstring,count=getattr(eval("self."+self.classobject[self.filter[index][1][0]][0]+"i"),self.classobject[self.filter[index][1][0]][self.filter[index][1][1]+1],None)(self.arg[i],self.filter[index][0],beginstring,returnstring,count)
-  return beginstring+"-filter_complex \""+re.sub(r';$','',returnstring)+"\" -map \"[io"+str(count-1)+"]\" -map 0:a -c:a copy -preset ultrafast -y output.mp4"
+  return beginstring+"-filter_complex \""+re.sub(r';$','',returnstring)+"\" -map \"[io"+str(count-1)+"]\" -map 0:a -c:a copy "+("-preset ultrafast " if self.libi.debugb else '')+"-y output.mp4"
 
 print(gifc().process())

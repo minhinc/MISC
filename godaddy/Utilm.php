@@ -17,6 +17,7 @@ elseif(!empty($this->headername)) $json=json_decode(mysqli_fetch_row($this->db->
 <html>
 <head>
 <script data-ad-client="ca-pub-8488699542117607" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <?
 echo '<link rel="icon" type="image/png" href="'.$this->level.'/image/favicon-16x16.png" sizes="16x16">
       <link rel="icon" type="image/png" href="'.$this->level.'/image/favicon-32x32.png" sizes="32x32">

@@ -20,7 +20,7 @@ class libc:
 #     30:["split=2[bg][v];[bg]drawbox=t=fill[bg];[v]crop=iw/2:ih[v];[1][v]scale2ref=oh*mdar:ih/2[ic][vc];[ic]split=2[ic1][ic2];[ic1]format=yuva422p,pad=2*iw:2*ih:(ow-iw):(oh-ih)/2:color=black@0[ic1];[bg][vc]overlay='max(0,W/4-t/0.5*W/4)'[bg];[bg][ic1]blend=all_expr='if(gt(X,W/2+2)*between(Y,(H/2-(T-0.5)/1.5*H/2),(H/2+(T-0.5)/1.5*H/2)),B,A)':enable='gt(t,0.5)*lt(t,4)'[bg];[ic2]pad=iw+4:ih+4:(ow-iw)-2:(oh-ih)-2:color=#004000[ic2];[bg][ic2]overlay='max((W-w)/2,W/2-(t-4)/1*W/2)':(H-h)/2:enable='gte(t,4)'[bg];[bg][0]blend=all_expr='if(between(X,(W/4-(T-5)/1*W/4),(3*W/4+(T-5)/1*W/4))*between(Y,(H/4-(T-5)/1*H/4),(3*H/4+(T-5)/1*H/4)),B,A)':enable='gt(t,5)'","#blend sidebyside"],\
      30:["[1]split=2[bg][v];[bg]drawbox=t=fill:color=#200000[bg];[v]crop=7*iw/10[v];[0]format=yuva422p,pad=X:Y:(ow-iw):(oh-ih)/2:color=black@0[ic];[bg][v]overlay='max(0,3*W/20-t/0.25*3*W/20)'[bg];[bg][ic]blend=all_expr='if(gt(X,W/2)*between(Y,max(H/4,(H/2-T/0.5*H/4)),min(3*H/4,H/2+T/0.5*H/4)),B,A)'[bg];[bg][1]blend=all_expr='if(gte(X,(W/2-(T-Z)/1*W/2))*between(Y,(H/4-(T-Z)/1*H/4),(3*H/4+(T-Z)/1*H/4)),B,A)':enable='gt(t,Z)'","#blend sidebyside"],\
      #40:["scale=XX,format=yuva444p,pad=3*iw:3*ih:(ow-iw)/2:(oh-ih)/2:color=black@0,rotate=a='if(lte(t,1),PI*4*t,2*PI)':c=none[rotate1];[0][rotate1]overlay=(W-w)/2:(H-h)/2:shortest=1[out];[2][out]scale2ref=w=oh*mdar:h=ih*2[11][00];[11]format=yuva444p,pad=3*iw:3*ih:(ow-iw)/2:(oh-ih)/2:color=black@0,zoompan=z='min(zoom+0.04,3)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=50:s=YY[img];[img]setpts=PTS+1/TB[img];[00][img]overlay='(W-w)/2':'(H-h)/2'","#rotateandzoom"],\
-     40:["scale=XX1,format=yuva444p,pad=3*iw:3*ih:(ow-iw)/2:(oh-ih)/2:color=black@0,rotate=a='if(lte(t,1),PI*4*t,2*PI)':c=none[rotate1];[0][rotate1]FF1:shortest=1[out];[2]scale=XX2,format=yuva444p,pad=3*iw:3*ih:(ow-iw)ALPHA:(oh-ih)BETA:color=black@0,zoompan=z='min(zoom+0.04,3)':x='iwALPHA-(iw/zoom)ALPHA':y='ihBETA-(ih/zoom)BETA':d=50:s=YY[img];[img]setpts=PTS+1/TB[img];[out][img]FF2","#rotateandzoom"],\
+     40:["scale=XX1,format=yuva444p,pad=W1*iw:H1*ih:(ow-iw)/2:(oh-ih)/2:color=black@0,rotate=a='if(lte(t,1),PI*4*t,2*PI)':c=none[rotate1];[0][rotate1]FF1:shortest=1:enable='lte(t,1)'[out];[2]scale=XX2,format=yuva444p,pad=3*iw:3*ih:(ow-iw)ALPHA:(oh-ih)BETA:color=black@0,zoompan=z='min(zoom+0.04,3)':x='iwALPHA-(iw/zoom)ALPHA':y='ihBETA-(ih/zoom)BETA':d=50:s=YY[img];[img]setpts=PTS+1/TB[img];[out][img]FF2","#rotateandzoom"],\
      50:["overlay","#overlay"],\
      51:["overlay=eof_action=pass","#overlay"],\
      52:["overlay=x=(W-w)/2:y=(H-h)/2","#overlay gif/image/video center"],\
@@ -44,10 +44,21 @@ class libc:
      1006:["blend=all_expr='if(between(X,max(0*W,X1*W-T/1*X1*W),min(1.0*W,X2*W+T/1*X3*W))*between(Y,max(0*H,Y1*H-T/1*Y1*H),min(1.0*H,Y2*H+T/1*Y3*H)),B,A)'","expanding window"]
     }
  debugb=False
- videowidth=videoheight=0
+# videowidth=videoheight=0
  def __init__(self):
   self.videowidth,self.videoheight=[int(x) for x in os.popen('ffmpeg -i input.mp4 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
   print("libc::_init__<> video widthxheight {}x{}".format(self.videowidth,self.videoheight))
+
+ def videoattribute(self,videofile_p):
+  print("videofile_p {}".format(videofile_p))
+#  videowidth,videoheight=[int(x) for x in os.popen('ffmpeg -i input.mp4 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
+  videodata=os.popen('ffmpeg -i '+videofile_p+' 2>&1').read()
+  videowidth,videoheight=re.sub(r'.*,\s*?(\d+x\d+)\s*.*',r'\1',videodata,flags=re.I|re.DOTALL).split('x')
+  fps=re.sub(r'.*?(\d+)\s*fps\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL)
+  samplerate=re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL)
+  channel=re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL)
+  self.debug("libc::videoattribute><",videofile_p,(videowidth,videoheight),fps,samplerate,channel)
+  return ((videowidth,videoheight),fps,samplerate,channel)
 
  def split(self,string_p,default_p=None,delim_p=':'):
   self.debug("libc::split><",string_p,delim_p)
@@ -76,7 +87,7 @@ class libc:
    draw_p.text((strokelist[i][0],strokelist[i][1]),text_p,font=textfont_p,fill=strokecolor_p)
   draw_p.text((x_p,y_p),text_p,font=textfont_p,fill=textcolor_p)
 
- def getfont(self,stringlist_p,screenratio_p=0.8,fontfamily_p='/home/pi/.fonts/twcenmt.ttf'):
+ def getfont(self,stringlist_p,screenratio_p=0.8,fontfamily_p='../../../.fonts/tw-cen-mt.ttf'):
   self.debug("libc::getfont><",stringlist_p,screenratio_p)
   i=10
   maxindex=[len(j) for j in stringlist_p].index(max(len(j) for j in stringlist_p))
@@ -88,9 +99,9 @@ class libc:
  
  def ffmpeg(self,commandstring_p):
   print('              *****************')
-  print("              "+re.sub(r' -y ([^ ]+[.]mp4)',r' -preset ultrafast -y \1',commandstring_p))
+  print("              "+re.sub(r' -y ([^ ]+[.]mp4)',r' -preset ultrafast -y \1',commandstring_p) if self.debugb else commandstring_p)
   print('              *****************')
-  os.system(re.sub(r' -y ([^ ]+[.]mp4)',r' -preset ultrafast -y \1',commandstring_p))
+  os.system(re.sub(r' -y ([^ ]+[.]mp4)',r' -preset ultrafast -y \1',commandstring_p) if self.debugb else commandstring_p)
 
  def getsecond(self,time_p,demark_p=False):
   '''demark is time non colon to colon format'''
@@ -204,7 +215,7 @@ class libc:
   if newy<0: newy=0
   return ([round(i,3) for i in (newx/videosize_p[0],min(1.0,(newx+size_p[0]*multiply_p)/videosize_p[0]),oldx/videosize_p[0],min(1.0,(oldx+size_p[0])/videosize_p[0]))],[round(i,3) for i in (newy/videosize_p[1],min(1.0,(newy+size_p[1]*multiply_p)/videosize_p[1]),oldy/videosize_p[1],min(1.0,(oldy+size_p[1])/videosize_p[1]))])
 
- def blendimage(self,args_p,filter_p,beginstring_p,returnstring_p,count_p,image_p,imagesize_p=None,duration_p=(3,0),filterpos_p='(W-w),(H-h)/2',transitiontime_p=1,split_p=False,multiply_p=None,glasscolor_p=(0,0,0,0),alpha_p=255):
+ def blendimage(self,args_p,filter_p,beginstring_p,returnstring_p,count_p,image_p,imagesize_p=None,duration_p=(3,0),filterpos_p='(W-w),(H-h)/2',transitiontime_p=2,split_p=False,multiply_p=None,glasscolor_p=(0,0,0,0),alpha_p=255):
   self.debug("libc::blendimage><",args_p,filter_p,beginstring_p,returnstring_p,count_p,image_p,imagesize_p,duration_p,filterpos_p,transitiontime_p,split_p,multiply_p,glasscolor_p,alpha_p)
   if alpha_p!=255:
    img=Image.open(image_p).convert('RGBA')
@@ -212,20 +223,23 @@ class libc:
    img.save(image_p)
   imagesize=self.scale(image_p,self.dimension(image_p) if not imagesize_p else imagesize_p)
   filter_p=re.sub(r'(?P<id>T,|\(T-)\d',lambda m:m.group('id')+str(duration_p[0]-transitiontime_p),re.sub(r'(?P<id>[Tt]/|\([Tt]-\d+\)/)\d+',lambda m:m.group('id')+str(transitiontime_p),self.filterlist[filter_p][0] if type(filter_p)==int else filter_p))
+  print("filter {}".format(filter_p))
   singleton=False
-  if not split_p and not multiply_p:
+  if not split_p and not multiply_p and not duration_p[1]:
    print("##################SINGLETON##################")
    singleton=True
-   beginstring_p+=('-ignore_loop 0 ' if re.search(r'[.]gif$',image_p) else '-t '+str(duration_p[0])+' -loop 1 ' if re.search(r'[.](png|jpeg|jpg)$',image_p) else '')+'-i '+image_p+' '
+   beginstring_p+=('-ignore_loop 0 ' if re.search(r'[.]gif$',image_p) else '-t '+str(duration_p[0])+' -loop 1 ' if re.search(r'[.](png|jpeg|jpg)$',image_p) and transitiontime_p else '')+'-i '+image_p+' '
   for j in range(1,len(args_p)):
-   beginstring=('-ignore_loop 0 ' if re.search(r'[.]gif$',image_p) else '-t '+str(duration_p[0])+' -loop 1 ' if re.search(r'[.](png|jpeg|jpg)$',image_p) else '')+'-i '+image_p+' '
+   beginstring=('-ignore_loop 0 ' if re.search(r'[.]gif$',image_p) else '-t '+str(duration_p[0])+' -loop 1 ' if re.search(r'[.](png|jpeg|jpg)$',image_p) and transitiontime_p else '')+'-i '+image_p+' '
    beginstring+='-i '+image_p+' ' if re.search(r'[.](png|jpeg|jpg)$',image_p) and multiply_p and duration_p[1] else ''
    beginstring+='-ss '+self.getsecond(args_p[j])+' -t '+str(duration_p[0]+(duration_p[1] if multiply_p else 0))+' -i input.mp4 '
-   glassscaleblend1='color=0x000000@0:s='+'x'.join([str(imagesize[0]),str(imagesize[1])])+'[i];['+str(len(re.findall(r' -i ',beginstring_p))-1 if singleton else 0)+']scale='+':'.join([str(imagesize[0]-imagesize[0]%2),str(imagesize[1]-imagesize[1]%2)])+'[11];[i][11]'+(filter_p if transitiontime_p else 'overlay')+("[int];"+'color=0x'+''.join(re.sub(r'^0x','0',hex(int(i)))[-2:] for i in glasscolor_p[:3])+'@'+str(round(glasscolor_p[3]/255,3) if glasscolor_p[3] else 0)+':s='+'x'.join([str(imagesize[0]),str(imagesize[1])])+"[i];[i][int]overlay" if glasscolor_p!=(0,0,0,0) else "")+(",setpts=PTS+"+self.getsecond(args_p[j])+"/TB" if singleton else "")+"[i];"+(("[0:v]" if not count_p else "[io"+str(count_p-1)+"]") if singleton else '[bg]' if split_p else '['+str(len(re.findall(r' -i ',beginstring))-1)+"]")+'[i]'+self.convertfilter(str(self.getposition(filterpos_p,imagesize)[0][2])+'*W,'+str(self.getposition(filterpos_p,imagesize)[1][2])+'*H',False)+":eof_action=pass:enable='lte(t,"+str(float(self.getsecond(args_p[j]))+duration_p[0] if singleton else duration_p[0])+")'"+("[io"+str(count_p)+"];" if singleton else "[bg];" if multiply_p and duration_p[1] else "")
+   #glassscaleblend1='color=0x000000@0:s='+'x'.join([str(imagesize[0]),str(imagesize[1])])+'[i];['+str(len(re.findall(r' -i ',beginstring_p))-1 if singleton else 0)+']scale='+':'.join([str(imagesize[0]-imagesize[0]%2),str(imagesize[1]-imagesize[1]%2)])+'[11];[i][11]'+(filter_p if transitiontime_p else 'overlay')+("[int];"+'color=0x'+''.join(re.sub(r'^0x','0',hex(int(i)))[-2:] for i in glasscolor_p[:3])+'@'+str(round(glasscolor_p[3]/255,3) if glasscolor_p[3] else 0)+':s='+'x'.join([str(imagesize[0]),str(imagesize[1])])+"[i];[i][int]overlay" if glasscolor_p!=(0,0,0,0) else "")+(",setpts=PTS+"+self.getsecond(args_p[j])+"/TB" if singleton else "")+"[i];"+(("[0:v]" if not count_p else "[io"+str(count_p-1)+"]") if singleton else '[bg]' if split_p else '['+str(len(re.findall(r' -i ',beginstring))-1)+"]")+'[i]'+self.convertfilter(str(self.getposition(filterpos_p,imagesize)[0][2])+'*W,'+str(self.getposition(filterpos_p,imagesize)[1][2])+'*H',False)+":eof_action=pass:enable='lte(t,"+str(float(self.getsecond(args_p[j]))+duration_p[0] if singleton else duration_p[0])+")'"+("[io"+str(count_p)+"];" if singleton else "[bg];" if multiply_p and duration_p[1] else "")
+#   glassscaleblend1=('color=0x000000@0:s='+'x'.join([str(imagesize[0]),str(imagesize[1])])+'[i];' if transitiontime_p else "")+'['+str(len(re.findall(r' -i ',beginstring_p))-1 if singleton else 0)+']scale='+':'.join([str(imagesize[0]-imagesize[0]%2),str(imagesize[1]-imagesize[1]%2)])+'[11];'+('[i][11]'+filter_p+'[11];' if transitiontime_p else '')+('color=0x'+''.join(re.sub(r'^0x','0',hex(int(i)))[-2:] for i in glasscolor_p[:3])+'@'+str(round(glasscolor_p[3]/255,3) if glasscolor_p[3] else 0)+':s='+'x'.join([str(imagesize[0]),str(imagesize[1])])+"[i];[i][11]overlay[11];" if glasscolor_p!=(0,0,0,0) else "")+("[11]setpts=PTS+"+self.getsecond(args_p[j])+"/TB[11];" if singleton and (transitiontime_p or glasscolor_p!=(0,0,0,0)) else "")+(("[0:v]" if not count_p else "[io"+str(count_p-1)+"]") if singleton else '[bg]' if split_p else '['+str(len(re.findall(r' -i ',beginstring))-1)+"]")+'[11]'+self.convertfilter(str(self.getposition(filterpos_p,imagesize)[0][2])+'*W,'+str(self.getposition(filterpos_p,imagesize)[1][2])+'*H',False)+(":eof_action=pass" if transitiontime_p else '')+":enable='"+("lte(t," if singleton and (transitiontime_p or glasscolor_p!=(0,0,0,0)) else "between(t,"+self.getsecond(args_p[j])+",")+str(float(self.getsecond(args_p[j]))+duration_p[0] if singleton else duration_p[0])+")'"+("[io"+str(count_p)+"];" if singleton else "[bg];" if multiply_p and duration_p[1] else "")
+   glassscaleblend1=('color=0x000000@0:s='+'x'.join([str(imagesize[0]),str(imagesize[1])])+'[i];' if transitiontime_p else "")+'['+str(len(re.findall(r' -i ',beginstring_p))-1 if singleton else 0)+']scale='+':'.join([str(imagesize[0]-imagesize[0]%2),str(imagesize[1]-imagesize[1]%2)])+'[11];'+('[i][11]'+filter_p+(":enable='lte(t,"+str(duration_p[0])+")'" if singleton else '')+'[11];' if transitiontime_p else '')+('color=0x'+''.join(re.sub(r'^0x','0',hex(int(i)))[-2:] for i in glasscolor_p[:3])+'@'+str(round(glasscolor_p[3]/255,3) if glasscolor_p[3] else 0)+':s='+'x'.join([str(imagesize[0]),str(imagesize[1])])+"[i];[i][11]overlay=0:0"+(":enable='lte(t,"+str(duration_p[0])+")'" if singleton else '')+"[11];" if glasscolor_p!=(0,0,0,0) else "")+("[11]setpts=PTS+"+self.getsecond(args_p[j])+"/TB[11];" if singleton and (transitiontime_p or glasscolor_p!=(0,0,0,0)) else "")+(("[0:v]" if not count_p else "[io"+str(count_p-1)+"]") if singleton else '[bg]' if split_p else '['+str(len(re.findall(r' -i ',beginstring))-1)+"]")+'[11]'+self.convertfilter(str(self.getposition(filterpos_p,imagesize)[0][2])+'*W,'+str(self.getposition(filterpos_p,imagesize)[1][2])+'*H',False)+(":eof_action=pass" if transitiontime_p or re.search(r'[.](gif|mp4)$',image_p) else '')+(":enable='lte(t,"+str(float(self.getsecond(args_p[j]))+duration_p[0])+")'" if singleton and (transitiontime_p or glasscolor_p!=(0,0,0,0)) else ":enable='between(t,"+self.getsecond(args_p[j])+","+str(float(self.getsecond(args_p[j]))+duration_p[0])+")'" if singleton and not transitiontime_p else "")+("[io"+str(count_p)+"];" if singleton else "[bg];" if multiply_p and duration_p[1] else "")
    multiplyfactor=round(min(multiply_p,self.videowidth/imagesize[0]) if imagesize[1]*self.videowidth/imagesize[0]<=self.videoheight else min(multiply_p,self.videoheight/imagesize[1]),3) if multiply_p else 0
    glassscaleblend2='color=0x000000@0:s='+'x'.join([str(int(imagesize[0]*multiplyfactor)),str(int(imagesize[1]*multiplyfactor))])+'[i];['+str(0)+']scale='+':'.join([str(int(int(imagesize[0]*multiplyfactor)/2)*2),str(int(int(imagesize[1]*multiplyfactor)/2)*2)])+'[11];[i][11]'+re.sub(r'X1',str(self.getposition(filterpos_p,imagesize,(imagesize[0]*multiplyfactor,imagesize[1]*multiplyfactor))[0][2]),re.sub(r'X2',str(self.getposition(filterpos_p,imagesize,(imagesize[0]*multiplyfactor,imagesize[1]*multiplyfactor))[0][3]),re.sub(r'X3',str(1-self.getposition(filterpos_p,imagesize,(imagesize[0]*multiplyfactor,imagesize[1]*multiplyfactor))[0][3]),re.sub(r'Y1',str(self.getposition(filterpos_p,imagesize,(imagesize[0]*multiplyfactor,imagesize[1]*multiplyfactor))[1][2]),re.sub(r'Y2',str(self.getposition(filterpos_p,imagesize,(imagesize[0]*multiplyfactor,imagesize[1]*multiplyfactor))[1][3]),re.sub(r'Y3',str(round(1-self.getposition(filterpos_p,imagesize,(imagesize[0]*multiplyfactor,imagesize[1]*multiplyfactor))[1][3],3)),self.filterlist[1006][0]))))))+("[int];"+'color=0x'+''.join(re.sub(r'^0x','0',hex(int(i)))[-2:] for i in glasscolor_p[:3])+'@'+str(round(glasscolor_p[3]/255,3) if glasscolor_p[3] else 0)+':s='+'x'.join([str(int(imagesize[0]*multiplyfactor)),str(int(imagesize[1]*multiplyfactor))])+"[i];[i][int]overlay=0:0" if glasscolor_p!=(0,0,0,0) else "")+",setpts=PTS+"+str(duration_p[0])+"/TB[i];"+'[bg][i]'+self.convertfilter(str(self.getposition(filterpos_p,(imagesize[0]*multiplyfactor,imagesize[1]*multiplyfactor))[0][2])+'*W,'+str(self.getposition(filterpos_p,(imagesize[0]*multiplyfactor,imagesize[1]*multiplyfactor))[1][2])+'*H',False)+":enable='lte(t,"+str(duration_p[0]+duration_p[1])+")':shortest=1" if multiply_p and duration_p[1] else ""
    alpha=re.sub(r'.*w\)?(.*),.*',r'\1',filterpos_p) if re.search(r'w',filterpos_p) else '*'+str(min(1.0,round((self.videowidth*float(re.findall(r'\d+(?:[.]\d+)?',filterpos_p)[0])/(self.videowidth-imagesize[0])),3)))
-   beta=re.sub(r'.*h\)?(.*)',r'\1',filterpos_p) if re.search(r'h',filterpos_p) else '*'+str(min(1.0,round((self.videoheight*float(re.findall(r'\d+(?:[.]\d+)?',filterpos_p)[1])/(self.videoheight-imagesize[1])),3)))
+   beta=re.sub(r'.*h\)?(.*)',r'\1',filterpos_p) if re.search(r'h',filterpos_p) else '*'+str(min(1.0,round((self.videoheight*float(re.findall(r',(\d+(?:[.]\d+)?)',filterpos_p)[0])/(self.videoheight-imagesize[1])),3)))
    glassscaleblendzoom2="["+str(1)+"]scale="+(str(int(2.0*self.videowidth)) if self.videowidth>=self.videoheight else '-1')+":"+(str(int(2.0*self.videoheight)) if self.videoheight>self.videowidth else '-1')+",format=yuva422p,pad="+str(multiplyfactor)+"*iw:"+str(multiplyfactor)+"*ih:(ow-iw)"+alpha+":(oh-ih)"+beta+":color=black@0,zoompan=z='min(zoom+0.01,"+str(multiplyfactor)+")':x=iw"+alpha+"-(iw/zoom)"+alpha+":y=ih"+beta+"-(ih/zoom)"+beta+":d="+str(duration_p[1]*25)+":s="+str(int(imagesize[0]*multiplyfactor))+"x"+str(int(imagesize[1]*multiplyfactor))+",setpts=PTS+"+str(duration_p[0])+"/TB[i];[bg][i]overlay=(W-w)"+alpha+":(H-h)"+beta+":shortest=1:enable='lte(t,"+str(duration_p[0]+duration_p[1])+")'"  if multiply_p and duration_p[1] else ""
 #   overlay2=(",setpts=PTS+"+str(self.getsecond(args_p[j]))+"/TB[bg];"+("[0:v]" if not count_p else "[io"+str(count_p-1)+"]")+"[bg]overlay=eof_action=pass[io"+str(count_p)+"];" if split_p else "[io"+str(count_p)+"];")
    background=('['+str(len(re.findall(r'-i ',beginstring))-1)+"]split=2[bg][v];[bg]drawbox=t=fill:color=#000000[bg];[v]crop=7*iw/10[v];[bg][v]overlay='max(0,3*W/20-t/0.1*3*W/20)'[bg];") if split_p else ""

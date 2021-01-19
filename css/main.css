@@ -122,7 +122,7 @@ ul.contact li.main div.r div.dl span.green{color:#004000;}
 ul.contact li.main div.r div.dr {margin-top:20px;font-size:12px;float:left;margin-left:40px;}
 
 /*body {width:960;height:635px;margin:0px;margin:0 auto;background-color:#fff;}*/
-html{overflow:scroll;}
+html{overflow-y:scroll;}
 body {width:960;margin:0 auto;background-color:#fff;}
 .ddm {position:relative;margin-top:2px;float:right;font-size:10px;color:#000;background:#fff}
 /*.ddm ul.drop a {font-family: Calibri; font-size: 16px;color:#000000; text-decoration: none;}*/
@@ -196,14 +196,14 @@ form.common textarea {width:400px; margin-left:140px; padding:2px; border:1px so
 form.common input[type="submit"] {width:100px; background-color:#004000; float:left; margin:20px 0 0 0px;}
 form.common input[type="file"] {clear:both; margin-top:-6px; width:200px;}
 /*input.button {float:left; margin:20px 0 0 20px; font:bolder 12px Arial, Sans-serif; padding: 1px; background: #595959; color: #b8e06d;}*/
-form.common iframe {margin-left:40px; padding-top:10px; height:30px; width:400px;}
+/*form.common iframe {margin-left:40px; padding-top:10px; height:30px; width:400px;}*/
 form.common h1 {font-size:18px; color:#595959; margin:40px 0px;}
 form.common p {width:300px; text-align:left; margin-top:20px; font-size:14px; color:#000; font-weight:bold}
 form.common p.txtar {width:600;}
 
 /* FORM ELEMENTS ONLINE TRAINING */
 form.online {clear:both; margin-top:10px; padding:10px 5px; background-color:#Fff; width:600px; color: #000;}
-form.online iframe {margin-left:10px; height:30px;}
+/*form.online iframe {margin-left:10px;}*/
 form.online input,form.online select {border: 1px solid #878787;height:30px;}
 form.online textarea {border: 1px solid #878787;}
 form online .f18{font-size:18pt;}
@@ -221,6 +221,7 @@ form.online .enable{background-color:#004000;color:#fff}
 form.online .disable{background-color:#ffaa88;color:#fff}
 form.online div.row{height:35px;clear:both}
 form.online div.rowtextarea{height:100px;clear:both;}
+form.online h1 {font-size:18px; color:#595959; margin:40px 0px;}
 
 
 

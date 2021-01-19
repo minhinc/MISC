@@ -23,22 +23,26 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCypT5QJIhCg6kqW808Rsn-mXl
 <div class="r"><pre class="name" style="margin-left:10%">Minh, Inc.</pre><pre class="f10" style="margin-left:10%;">#85<br>5th Main<br>P&T Colony<br>SanjayNagar<br>Bangalore-94</pre><pre class="phone f10 bold" style="margin-left:10%">+91 9483160610 <img src="'.$util->level.'/image/whatsapp.png" width="20px" height="20px"></pre><pre class="f10 bold" style="margin-top:8px;margin-left:10%;color:#4080ff;"><a href="mailto:sales@minhinc.com">sales@minhinc.com</a></pre></div>
 </li>
 <li class="form">
-<form class="common" action="'.$util->level.'/php/send_form_email.php" method="post" target="myIframe">
+<form class="online" action="'.$util->level.'/php/send_form_email.php" method="post" target="myIframe">
 <h1>Reach Out To Us</h1>
-<div><pre class="bold f10 ll">Name:</pre><input class="rr" style="margin-top:-7px" type="text" name="name" placeholder="Your Name"></input></div>
-<div><pre class="bold f10 ll" style="margin-top:30px">Email:</pre><input class="rr" style="margin-top:23px" type="text" name="email" placeholder="Email Address"></input></div>
-<div><pre class="bold f10 ll" style="margin-top:30px">Message:</pre><textarea class="rr" style="margin-top:-20px;" name="message"></textarea></div>
-<div><img id="imgcaptchaid" src="'.$util->level.'/php/captcha.php" style="clear:both;margin:10px 0;float:left"/><input name="captcha_entered" type="text" id="captcha_entered" size="5" maxlength="2" placeholder = "Answer" style="margin:10px 12px;float:left"/></div>
-<input type="submit" name="submit" value="Submit" style="width:40%;clear:both;float:left;color:#fff;">
-<iframe name="myIframe" frameborder="0" scrolling="no" id="iframeid">
-</iframe>
+<div class="row"><pre class="lc bold">Name:</pre><input type="text" name="name" placeholder="Your Name" class="l"></div>
+<div class="row"><pre class="lc bold">Email:</pre><input id="emailid" type="text" name="email" placeholder="Email Address" class="l"></div>
+<div class="rowtextarea"><pre class="lc bold">Query:</pre><textarea id="textareaid" rows="5" name="message" cols="40" class="l2"></textarea></div>
+<div style="margin:10px 0" class="g-recaptcha" data-sitekey="'.preg_replace('/^(.*)\\n.*/m','$1',file_get_contents($util->level.'/donotdelete/captchav2/sitecaptchav2.key')).'"></div>
+<div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold enable"><iframe name="myIframe" frameborder="0" scrolling="no" class="l" id="iframeid"></iframe></div>
 </form>
+<div style="clear:both"></div>
 </li>
 </ul>
 <div class="clr"></div>
 <script>
 document.getElementById("iframeid").onload=function(){
-document.getElementById("imgcaptchaid").src="'.$util->level.'/php/captcha.php?time="+new Date();
+ var framecontent=document.getElementById("iframeid").contentWindow.document.body.innerHTML;
+  if (framecontent.match(/40/gi)){
+   document.getElementById("emailid").value="";
+   document.getElementById("textareaid").value="";
+   grecaptcha.reset();
+  }
 }
 </script>';
 }
