@@ -22,7 +22,7 @@ echo '</select></div>
 <div class="row"><pre class="lc bold">Email:</pre><input id="emailid" type="text" name="email" placeholder="Email Address" class="l"><pre class="ls bold star">*</pre></div>
 <div class="rowtextarea" ><pre class="lc bold">Comment:</pre><textarea id="textareaid" rows="5" name="message" cols="40" class="l2"></textarea><pre class="ls bold star">*</pre></div>
 <div class="row"><pre class="lc bold">Date:</pre><input type="date" name="tdate"></div>
-<div style="margin:10px 0" class="g-recaptcha" data-sitekey="'.preg_replace('/^(.*)\\n.*/m','$1',file_get_contents($util->level.'/donotdelete/captchav2/sitecaptchav2.key')).'"></div>
+<div style="margin:10px 0" class="g-recaptcha" data-sitekey="6LdifdsZAAAAAMU2aqKdvbKtFjph29dqaHAp4Xqj"></div>
 <div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold disable" id="s_submit"><iframe name="myIframe" frameborder="0" scrolling="no" class="l" id="iframeid"></iframe></div>
 </form>
 <div style="clear:both"></div>

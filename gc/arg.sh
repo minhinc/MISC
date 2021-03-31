@@ -42,12 +42,10 @@ for i in "${!alltech[@]}"; do
  if [ $3 == ${i} ] || echo ${3}|egrep '^[Aa]ll'; then
   value=${alltech[$i]}
   python3 agenda.py $1 $2 $i "$under" "${!value}"
-  read -p "Press (y/n) to send advance-${i}-slides${backend}.txt to the server ... " yorno
-  if [ $yorno == "y" ]; then
-   if [ $2 == "php" ]; then
+  if [ $2 == "php" ]; then
+   read -p "Press (y/n) to send advance-${i}-slides${backend}.txt to the server ... " yorno
+   if [ $yorno == "y" ]; then
     ~/tmp/ftp.sh put training/${i} advance-${i}-slides${backend}.txt
-   elif [ $2 == "pdf" ]; then
-    ~/tmp/ftp.sh put training ${i}_pdf.html
    fi
   fi
  fi

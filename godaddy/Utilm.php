@@ -217,7 +217,7 @@ echo '</pre><a href="http://www.minhinc.com/about/online" style="float:right;mar
 public function drawfooter(){
 /*$this->headername="";
 $this->subitem="";
-foreach(split("\/",split("public_html\/?",ereg_replace("\/*$","",getcwd()))[1]) as $item){
+foreach(preg_split("/\//",preg_split("/public_html\/?/",preg_replace("/\/*$/","",getcwd()))[1]) as $item){
 if(empty($this->headername)){
  $this->headername=$item;
 }elseif(empty($this->subitem) and !empty($this->headername)){

@@ -10,7 +10,7 @@ public function __construct(){
  require_once('Databasem.php');
  $this->db=new Databasec;
 //foreach(split("\/",split("public_html\/?",ereg_replace("\/*$","",getcwd()))[1]) as $item){
-foreach(split("\/",$_SERVER['SCRIPT_NAME']) as $item){
+foreach(preg_split("/\//",$_SERVER['SCRIPT_NAME']) as $item){
 if(!empty($item) and !preg_match('/[.]php$/',$item)){
  if($this->level=='.')
   $this->headername=$item;

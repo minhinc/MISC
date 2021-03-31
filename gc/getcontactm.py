@@ -7,7 +7,8 @@ import urllib.request as urllib2
 #import urllib2#for python2.7
 from fetchm import fetchc
 sys.path.append('./util')
-from util.utilm import utilc
+#from util.utilm import utilc
+import requestm
 #import util.googlesearch
 class getcontactc(fetchc):
  def __init__(self,next,wgt,db):
@@ -41,7 +42,7 @@ class getcontactc(fetchc):
   self.wdgt.text1.mark_set('insert','1.0')
   mail=[]
   linklist=[]
-  utili=utilc('utilm')
+#  utili=utilc('utilm')
   #junkextn=r'^('+(''.join([x[0]+'|' for x in self.db.get('junkextension')]))[:-1]+')$'
   junkextn=r'('+(''.join([x[0]+'|' for x in self.db.get('junkextension')]))[:-1]+')'
   junkemail=r'^('+(''.join([x[0]+'|' for x in self.db.get('junkemail')]))[:-1]+')$'
@@ -52,15 +53,18 @@ class getcontactc(fetchc):
     break
    self.addtag(re.sub(r'(^\s*|\s*$)','',line))
    try:
-    linklist=utili.getgoogle(line,int(self.wdgt.entryc.get()))
+#    linklist=utili.getgoogle(line,int(self.wdgt.entryc.get()))
+    linklist=requestm.getgoogle(line,int(self.wdgt.entryc.get()))
     self.db.fill('linkvisited',((re.sub(r'[^a-zA-Z0-9._%-]','_','https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search'),),))
     self.db.update('linkvisited','date',int(re.sub('-','',datetime.date.today().isoformat())),'name',re.sub(r'[^a-zA-Z0-9._%-]','_','https://www.google.co.in/search?q='+re.sub('\s+','+',line)+r'&btnG=Search'))
     for x in [ x for x in set(linklist) if not self.db.search('linkvisited',re.sub(r'[^a-zA-Z0-9._%-]','_',x,flags=re.I)) and not re.search(junkextn,x,flags=re.I)]:
      self.push(self.wdgt.text2,"%s\n" % (x))
      try:
-      mail.extend([ x for x in re.findall(r'([A-Za-z0-9._%-]+\@[\w-]+[.](?:\w+[.]?)*\b)',utili.download(x)) if not re.search(junkemail,x,flags=re.I) ])
+#      mail.extend([ x for x in re.findall(r'([A-Za-z0-9._%-]+\@[\w-]+[.](?:\w+[.]?)*\b)',utili.download(x)) if not re.search(junkemail,x,flags=re.I) ])
+      mail.extend([ x for x in re.findall(r'([A-Za-z0-9._%-]+\@[\w-]+[.](?:\w+[.]?)*\b)',requestm.gets(x,head=True,get=True)) if not re.search(junkemail,x,flags=re.I) ])
      except:
       self.push(self.wdgt.text2,'error:'+x+'\n')
+
     self.db.fill('linkvisited',[ (re.sub(r'[^a-zA-Z0-9._%-]','_',x),int(re.sub('-','',datetime.date.today().isoformat()))) for x in set(linklist) if not self.db.search('linkvisited',re.sub(r'[^a-zA-Z0-9._%-]','_',x,flags=re.I)) and not re.search(junkextn,x,flags=re.I) ],fetchmany=True)
    except:
     self.push(self.wdgt.text2,'google error\n')
@@ -73,5 +77,5 @@ class getcontactc(fetchc):
      print('--not included--#'+re.sub(r'(^\s*|\s*$)','',line)+'\n'+' '.join(set(mail)))
    mail=[]
   self.wdgt.filename=re.sub(r'^(.*)[.]txt$','\\1',self.wdgt.filename)+'_people.txt'
-  utili.close()
+#  utili.close()
   self.wdgt.after(3000,self.clean)

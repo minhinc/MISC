@@ -9,7 +9,7 @@ div.pg a.pn{position:absolute;bottom:-10px;right:5%;}
 
 div.pg pre.title{text-align:center;font-size:24pt;font-weight:bold;}
 div.pg pre.subtitle{text-align:center;font-size:18pt;}
-div.pg pre.company{text-align:center;font-size:16pt;margin-bottom:100px;color:#004000;font-family:mytwcenmt}
+div.pg pre.company{text-align:center;font-size:16pt;color:#004000;font-family:mytwcenmt}
 div.pg div.headerleft{float:left;background-color:#c9c6ff;height:100%;width:24.9%;font-weight:bold;font-size:16pt;}
 div.pg div.headerright{float:right;background-color:#eaebff;height:100%;width:74.9%;}
 div.pg div.headerleft > pre{font-size:13pt;padding:10 0 0 10;font-family:mytwcenmt}
@@ -69,3 +69,7 @@ div.pg pre.slidecontent b{font-family:mytwcenmt}
 div.pg b{font-family:mytwcenmt}
 div.pg pre.blue{color:#447777;font-weight:bold;display:inline;}
 div.pg pre.black{color:#000;font-weight:bold;display:inline;}
+/*@media only screen and (max-width:200px) { .adsense_200,.adsense_300,adsense_400 {display:none}}
+@media only screen and (min-width:200px) and (max-width:300px) { .adsense_200 {display:inline-block} .adsense_300,.adsense_400 {display:none}}
+@media only screen and (min-width:300px) and (max-width:400px) { .adsense_300 {display:inline-block} .adsense_200,.adsense_400 {display:none}}
+@media only screen and (min-width:400px) { .adsense_400 {display:inline-blcok} .adsense_200,.adsense_300 {display:none}}*/

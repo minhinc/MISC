@@ -24,7 +24,8 @@ div.pg img.logo{position:absolute;top:46%;left:57.6%;}*/
 
 div.pg pre.title{text-align:center;font-size:24pt;font-weight:bold;}
 div.pg pre.subtitle{text-align:center;font-size:18pt;}
-div.pg pre.company{text-align:center;font-size:16pt;margin-bottom:100px;color:#004000;font-family:mytwcenmt}
+/*div.pg pre.company{text-align:center;font-size:16pt;margin-bottom:100px;color:#004000;font-family:mytwcenmt}*/
+div.pg pre.company{text-align:center;font-size:16pt;color:#004000;font-family:mytwcenmt}
 div.pg div.headerleft{float:left;background-color:#c9c6ff;height:100%;width:24.9%;font-weight:bold;font-size:16pt;}
 div.pg div.headerright{float:right;background-color:#eaebff;height:100%;width:74.9%;}
 div.pg div.headerleft > pre{font-size:16pt;padding:10 0 0 10;font-family:mytwcenmt}
@@ -64,14 +65,14 @@ div.pg div.slideheader ul.slidecontent li.big pre{font-size:13pt;font-family:myb
 div.pg div.slideheader ul.slidecontent li.big a{color:#000000;font-size:13pt;font-family:mybembo}
 div.pg div.slideheader ul.slidecontent li.sml pre{font-size:6pt;font-family:mybembo}
 div.pg pre.slideabstract{ float:right;width:53%;padding-top:40px;font-size:10pt;font-style:Italic;font-family:mybembo;}
-div.pg pre.slidecontent,div.pg pre.slidecontent span {font-size:13pt;font-family:mytwcenmt;width:60%}
+div.pg pre.slidecontent,div.pg pre.slidecontent span {font-size:13pt;font-family:mytwcenmt;display:inline-block;max-width:60%}
 div.pg pre.slidecontent pre.note {font-size:13pt;padding:2px 0px 8px 8px;border-radius:5px;font-family:mytwcenmt;background-color:#bcd4ff;color:#000000;display:inline-block}
-div.pg pre.code, div.pg pre.code span {font-size:10pt;font-family:myconsolas;}
-div.pg pre.codeb {font-size:9pt;font-family:myconsolas;background-color:#eeeeee;display:inline-block}
+div.pg pre.code, div.pg pre.code span {font-size:10pt;font-family:myconsolas;display:inline-block;max-width:70%}
+div.pg pre.codeb {font-size:9pt;font-family:myconsolas;background-color:#eeeeee;display:inline-block;}
 div.pg pre.codei,div.pg pre.codei span {font-size:10pt;font-family:myconsolas;display:inline}
 div.pg pre.codec, div.pg pre.codec span{font-size:6pt;font-family:myconsolas}
 div.pg pre.codeci, div.pg pre.codeci span{font-size:6pt;font-family:myconsolas;display:inline}
-div.pg pre.codes{font-size:6pt;float:left;font-family:myconsolas; -webkit-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); -moz-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); padding: 5px 0 0 2px; background: #eee; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;max-width:49.9%;}
+div.pg pre.codes{font-size:6pt;float:left;font-family:myconsolas; -webkit-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); -moz-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); padding: 5px 0 0 2px; background: #eee; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;max-width:49%;}
 div.pg pre.slidecontent b{font-family:mytwcenmt}
 div.pg pre.slidecontent pre.blue{color:#447777;font-weight:bold;display:inline;}
 div.pg pre.slidecontent pre.black{color:#000;font-weight:bold;display:inline;}
