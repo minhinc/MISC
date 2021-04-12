@@ -34,7 +34,10 @@ elif re.search('create',sys.argv[1],flags=re.I):
  dbi.close()
 else:
  dbi=databasem.databasec(False)
- crsr=dbi.conn.cursor()
+ try:
+  crsr=dbi.conn.cursor()
+ except Exception as e:
+  print('e.type',type(e))
  if re.search('dump',sys.argv[1],flags=re.I):
   crsr.execute("SHOW TABLES")
   for (table_name,) in crsr:

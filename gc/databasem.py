@@ -49,7 +49,7 @@ class databasec:
  def reconnect(self):
   try:
 #   self.conn=MySQLdb.connect(host='166.62.28.143',user='minhinc',passwd='pinku76minh',db='trackweb')
-   self.conn=MySQLdb.connect(host=re.split('\n',open(os.path.expanduser('~/passwd')).read())[0],user=re.split('\n',open(os.path.expanduser('~/passwd')).read())[1],passwd=re.split('\n',open(os.path.expanduser('~/passwd')).read())[2],db=re.split('\n',open(os.path.expanduser('~/passwd')).read())[3],connect_timeout=10)
+   self.conn=MySQLdb.connect(host=re.split('\n',open(os.path.expanduser('~/passwd')).read())[0],user=re.split('\n',open(os.path.expanduser('~/passwd')).read())[1],passwd=re.split('\n',open(os.path.expanduser('~/passwd')).read())[2],db=re.split('\n',open(os.path.expanduser('~/passwd')).read())[3],connect_timeout=10,read_timeout=10,write_timeout=10)
    print('database re-connected')
   except:
    print('database could not be connected')

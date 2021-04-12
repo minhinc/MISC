@@ -4,6 +4,7 @@ public $level='.';
 public $headername="";
 public $subitem="";
 public $script="";
+public $chap="";
 public $db;
 public $json="";
 public function __construct(){
@@ -19,6 +20,9 @@ if(!empty($item) and !preg_match('/[.]php$/',$item)){
  $this->level=$this->level."/..";
  }elseif(preg_match('/[.]php$/',$item) and $item!='index.php')
   $this->script='http://www.minhinc.com/'.preg_replace('/(.*)[.]php$/','$1',$_SERVER['SCRIPT_NAME']);
+  if (isset($_GET['chap'])){
+   $this->chap='-chap'.$_GET['chap'];
+  }
 }
  $this->drawheader();
 if(!empty($this->script))

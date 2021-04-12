@@ -1,11 +1,14 @@
 /*pg, every page*/
-div.pg {position:relative;margin:0 4px;}
+/*div.pg {position:relative;margin:0 4px;}*/
+div.pg {margin:0 4px;}
 div.pg pre {white-space:pre-wrap;word-wrap:break-word;font-size:11pt;}
 div.pg hr{float:left;width:100%;background-color:#888888;height:2px}
 /*div.pg a{color:#0000aa;font-size:11pt;font-family:mytwcenmt;text-decoration:none;word-wrap:break-word;white-space:pre-wrap;}*/
 div.pg a{color:#0000aa;font-size:11pt;font-family:mytwcenmt;text-decoration:none;word-wrap:break-word;}
-div.pg pre.ftr{position:absolute;bottom:0px;left:40%;color:#004000;font-family:mytwcenmt;font-size:8pt}
-div.pg a.pn{position:absolute;bottom:-10px;right:5%;}
+/*div.pg pre.ftr{position:absolute;bottom:0px;left:40%;color:#004000;font-family:mytwcenmt;font-size:8pt}
+div.pg a.pn{position:absolute;bottom:-10px;right:5%;}*/
+div.pg pre.ftr{color:#004000;font-family:mytwcenmt;font-size:8pt;margin-left:40%}
+div.pg a.pn{display:inline;float:right;margin-right:5%;margin-top:-20px;}
 
 div.pg pre.title{text-align:center;font-size:24pt;font-weight:bold;}
 div.pg pre.subtitle{text-align:center;font-size:18pt;}
@@ -15,11 +18,13 @@ div.pg div.headerright{float:right;background-color:#eaebff;height:100%;width:74
 div.pg div.headerleft > pre{font-size:13pt;padding:10 0 0 10;font-family:mytwcenmt}
 div.pg div.headerright > pre{padding:10 0 0 10;font-family:mytwcenmt}
 
-div.pg a.logo{position:absolute;top:46%;left:22.5%}
+/*div.pg a.logo{position:absolute;top:46%;left:22.5%}
 div.pg a.logo pre.copy {position:absolute;top:22%;left:-3%;}
-div.pg a.logo pre.logot{font-family:'Tw Cen MT';color:#040;font-size:14pt}
-div.pg a.logo pre.logob{font-family:'Tw Cen MT';color:#888;font-size:4pt}
-div.pg img.logo{position:absolute;top:44%;left:64%;}
+div.pg a.logo pre.logot{font-family:'Tw Cen MT';color:#040;font-size:14pt}*/
+div.pg a.logo {text-align:center}
+div.pg a.logo pre {font-family:'Tw Cen MT';color:#040;font-size:20px;position:relative;width:180px;margin:200px auto;}
+div.pg a.logo pre span{font-family:'Tw Cen MT';color:#888;font-size:8pt;position:absolute;top:0px;left:2px;}
+/*div.pg img.logo{position:absolute;top:44%;left:64%;}*/
 
 div.pg div.header2 pre.header {background-color:#c9c6ff;font-size:16pt;font-weight:bold;font-family:mytwcenmt;padding-left:10px;color:#000;}
 div.pg div.header2 pre.content {background-color:#eaebff;padding:10 0 0 10;font-family:mytwcenmt}
@@ -56,7 +61,7 @@ div.pg div.slideheader ul.slidecontent li.big a{color:#000000;font-size:13pt;fon
 div.pg div.slideheader ul.slidecontent li.sml pre{font-size:3pt;font-family:mybembo}
 div.pg pre.slideabstract{ clear:both;width:100%;font-size:10pt;padding-top:10px;font-style:Italic;font-family:mybembo;}
 /*div.pg pre.slideabstract{ float:right;width:53%;padding-top:40px;font-size:10pt;font-style:Italic;font-family:mybembo;}*/
-div.pg img{max-width:100%}
+div.pg img {max-width:100%;}
 div.pg pre.slidecontent ,div.pg pre.slidecontent span {clear:both;font-size:11pt;font-family:mytwcenmt;}
 div.pg pre.slidecontent pre.note {font-size:11pt;padding:2px 0px 8px 8px;border-radius:5px;font-family:mytwcenmt;background-color:#bcd4ff;color:#000000;display:inline-block}
 div.pg pre.code, div.pg pre.code span {clear:both;font-size:7pt;font-family:myconsolas;}
@@ -73,3 +78,11 @@ div.pg pre.black{color:#000;font-weight:bold;display:inline;}
 @media only screen and (min-width:200px) and (max-width:300px) { .adsense_200 {display:inline-block} .adsense_300,.adsense_400 {display:none}}
 @media only screen and (min-width:300px) and (max-width:400px) { .adsense_300 {display:inline-block} .adsense_200,.adsense_400 {display:none}}
 @media only screen and (min-width:400px) { .adsense_400 {display:inline-blcok} .adsense_200,.adsense_300 {display:none}}*/
+.adslot_1 {width:300px;}
+@media (min-width:200px) {.adslot_1 {width:190px;}}
+@media (min-width:250px) {.adslot_1 {width:240px;}}
+@media (min-width:300px) {.adslot_1 {width:290px;}}
+@media (min-width:350px) {.adslot_1 {width:340px;}}
+@media (min-width:400px) {.adslot_1 {width:390px;}}
+@media (min-width:450px) {.adslot_1 {width:440px;}}
+@media (min-width:500px) {.adslot_1 {width:490px;}}

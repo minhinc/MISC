@@ -45,7 +45,18 @@ for i in "${!alltech[@]}"; do
   if [ $2 == "php" ]; then
    read -p "Press (y/n) to send advance-${i}-slides${backend}.txt to the server ... " yorno
    if [ $yorno == "y" ]; then
-    ~/tmp/ftp.sh put training/${i} advance-${i}-slides${backend}.txt
+#    ~/tmp/ftp.sh put training/${i} advance-${i}-slides${backend}.txt
+    argstr="advance-${i}-slides${backend}.txt"
+    for ii in "${!value}"; do
+     ii=`echo ${ii}|sed 's/:/ /g'`
+     for j in $ii; do
+      if [ "$j" -eq "$j" ] 2>/dev/null; then
+       argstr="${argstr} advance-${i}-slides-chap${j}${backend}.txt"
+      fi
+    done
+    done
+    echo $argstr
+    ~/tmp/ftp.sh mput training/${i} $argstr
    fi
   fi
  fi

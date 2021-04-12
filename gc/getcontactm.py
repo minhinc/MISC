@@ -62,8 +62,8 @@ class getcontactc(fetchc):
      try:
 #      mail.extend([ x for x in re.findall(r'([A-Za-z0-9._%-]+\@[\w-]+[.](?:\w+[.]?)*\b)',utili.download(x)) if not re.search(junkemail,x,flags=re.I) ])
       mail.extend([ x for x in re.findall(r'([A-Za-z0-9._%-]+\@[\w-]+[.](?:\w+[.]?)*\b)',requestm.gets(x,head=True,get=True)) if not re.search(junkemail,x,flags=re.I) ])
-     except:
-      self.push(self.wdgt.text2,'error:'+x+'\n')
+     except Exception as e:
+      self.push(self.wdgt.text2,'error:'+x,type(e),'\n')
 
     self.db.fill('linkvisited',[ (re.sub(r'[^a-zA-Z0-9._%-]','_',x),int(re.sub('-','',datetime.date.today().isoformat()))) for x in set(linklist) if not self.db.search('linkvisited',re.sub(r'[^a-zA-Z0-9._%-]','_',x,flags=re.I)) and not re.search(junkextn,x,flags=re.I) ],fetchmany=True)
    except:

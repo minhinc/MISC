@@ -2,7 +2,7 @@
 require_once('Utilbm.php');
 class Utilc extends Utilbc{
 public function drawscript(){
-echo file_get_contents($this->script.'.txt');
+echo file_get_contents($this->script.$this->chap.'.txt');
 }
 public function draw(){
  require_once($this->json['pattern'].'.php');
