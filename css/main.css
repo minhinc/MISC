@@ -109,7 +109,7 @@ ul.next li img {position:absolute;width:100px;height:70;}
 ul.next li img.l {left:8px;top:22px;}
 ul.next li img.r {left:168px;top:22px;}
 
-ul.contact {margin-top:12px}
+ul.contact {margin-top:12px;height:320px;}
 ul.contact p {color:#333;}
 ul.contact li.header {background-color:#272822;width:760px;}
 ul.contact li.header p {color:#fff;}
@@ -168,7 +168,7 @@ ul.common li.main img {width:360px;height:249px;float:left;}
 ul.common li.main div {width:360px;float:left;margin-left:20px;}
 ul.common li.main p.b {font-size:16px;font-weight:bold;}
 ul.common li.main p.n {margin-top:20px;font-size:12px;}
-ul.common li.entry {float:left;margin-top:25px;}
+ul.common li.entry {float:left;margin-top:5px;margin-bottom:5px;}
 ul.common .entry div.dl {float:left;}
 ul.common .entry div.dr {float:left;margin-left:8px;}
 ul.common .entry img {width:120px;height:120px;float:left;}
@@ -210,6 +210,7 @@ form online .f18{font-size:18pt;}
 form.online .lc{clear:both;float:left;width:21%}
 form.online .l{float:left;width:45%}
 form.online .l2{float:left;width:60%}
+form.online .l3{float:left;width:30%}
 form.online .ls{float:left;width:5%}
 form.online .star{color:#ff0000;}
 form.online .clr{clear:both}

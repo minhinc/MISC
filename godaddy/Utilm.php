@@ -319,6 +319,7 @@ echo '<a href="'.$level.'/'.$this->headername.'/'.$key.'"><li class='.$light.'><
 if($light=="light"){$light="dark";}else{$light="light";}
 }
 echo ' </ul>
+<py>requestm.adsensepaste(0,0,backend="")</py>
 </div>';
 }
 

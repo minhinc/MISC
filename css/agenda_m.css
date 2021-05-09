@@ -86,3 +86,5 @@ div.pg pre.black{color:#000;font-weight:bold;display:inline;}
 @media (min-width:400px) {.adslot_1 {width:390px;}}
 @media (min-width:450px) {.adslot_1 {width:440px;}}
 @media (min-width:500px) {.adslot_1 {width:490px;}}
+div.pg div.iframecontainer {position:relative;width:100%;height:0;padding-bottom:56.25%;}
+div.pg div.iframecontainer iframe {position:absolute;top:0;left:0;width:100%;height:100%;}

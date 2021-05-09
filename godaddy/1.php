@@ -2,6 +2,7 @@
 function draw($util){
 echo '<div class="leftpan">
  <a href="./about/online"><img src="./image/traininglogo.png"/></a>
+ <py>requestm.adsensepaste(640,60,backend="desktop",factor=0.0)</py>
  <div class="research">
   <ul class="research">
    <a href="./research/"><li class="header"><p>Research</p></li></a>';
@@ -25,6 +26,7 @@ echo '   <a href="'.$item['link'].'"><li class="'.$light.'"><p class="t">'.$item
 if($light=='light'){$light='dark';}else{$light='light';}
 }
 echo '  </ul>
+  <py>requestm.adsensepaste(310,450,backend="desktop",factor=0.0)</py>
   </div>
 </div>
 <div class="rightpan">
@@ -37,6 +39,7 @@ echo  '<a href="'.$key['link'].'"><li class="'.$light.'"><p class="t">'.$key['ti
 if($light=='light'){$light='dark';}else{$light='light';}
 }
 echo ' </ul>
+<py>requestm.adsensepaste(310,60,backend="desktop")</py>
  <ul class="next">
   <a href="./training/"><li class="header"><p>Training</p></li></a>';
 $first=TRUE;$light="light";$json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name','training'))[0],true);
@@ -55,6 +58,7 @@ if(!$first){
 echo '</li>';
 }
 echo ' </ul>
+<py>requestm.adsensepaste(310,500,backend="desktop",factor=0.0)</py>
 </div>'; 
 }
 ?>

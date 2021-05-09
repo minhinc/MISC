@@ -3,10 +3,9 @@ import sys
 from selenium import webdriver
 from databasem import databasec
 
-sys.path.append('./testdir')
-from testdir import *
-import testdir
-
+sys.path.append('..')
+import utillib.companyadd
+from utillib.companyadd import *
 
 if len(sys.argv)<=5:
  print(''' ---usage---
@@ -17,7 +16,7 @@ filename='test.txt' if len(sys.argv)<=5 else sys.argv[5]
 file=open(filename,'w')
 db=databasec(False)
 driver=webdriver.Chrome()
-for fetcher in [eval(fetcher)() for fetcher in testdir.__all__]:
+for fetcher in [eval(fetcher+'.'+re.sub(r'm$','c',fetcher))() for fetcher in utillib.companyadd.__all__]:
  file.write("#################\n")
  file.write("## "+fetcher.name+" : "+sys.argv[3]+"\n")
  file.write("#################\n")

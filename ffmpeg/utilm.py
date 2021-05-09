@@ -250,7 +250,7 @@ class utilc:
    for i in range(len(z)):
     #print("y {} {} {}".format(z[i][1],stringlist[i][1],stringlist[i][3].getsize(stringlist[i][0])))
 #    draw.text((z[i][0],z[i][1]+(stringlist[i][2]-stringlist[i][3].getsize(stringlist[i][0])[1])/2),stringlist[i][0],font=stringlist[i][3],fill=("white",(0,255,0,255),"yellow","orange")[i%4] if alignment[0]=='o' else "yellow" if stringlist[i][3]==fnt else "white")
-    self.libi.drawtextstroke(draw,z[i][0],z[i][1]+(stringlist[i][2]-stringlist[i][3].getsize(stringlist[i][0])[1])/2,stringlist[i][0],stringlist[i][3],("white",(0,255,0,255),"yellow","orange")[i%4] if alignment[0]=='o' else "yellow" if stringlist[i][3]==fnt else "white")
+    self.libi.drawtextstroke(draw,z[i][0],z[i][1]+(stringlist[i][2]-stringlist[i][3].getsize(stringlist[i][0])[1])/2,stringlist[i][0],stringlist[i][3],((0,191,243),(0,255,0,255),"yellow","orange")[i%4] if alignment[0]=='o' else "yellow" if stringlist[i][3]==fnt else "white")
 #    draw.text((z[i][0],z[i][1]),stringlist[i][0],font=stringlist[i][3],fill=("white",(0,255,0,255),"yellow","orange")[i%4] if orientation[0]=='o' else "yellow" if stringlist[i][3]==fnt else "white")
 #    draw.text((z[i][0],z[i][1]),stringlist[i][0],font=stringlist[i][3],fill=("white","red","yellow","orange")[i%4] if orientation=='o' else "yellow" if stringlist[i][3]==fnt else "white")
    img.save("omnitext"+str(count)+".png")
@@ -270,7 +270,8 @@ class utilc:
   print("Make sure Audacity improved audio is replaced")
   beginstring="ffmpeg "
   outimagename=self.libi.outimagename(imagename)
-  keeplist=sorted([tuple(i.split('-')) for i in re.split(r',',slice)],key=lambda x: int(x[0]))
+#  keeplist=sorted([tuple(i.split('-')) for i in re.split(r',',slice)],key=lambda x: int(x[0]))
+  keeplist=sorted([tuple(map(self.libi.getsecond,i.split('-'))) for i in re.split(r',',slice)],key=lambda x: float(x[0]))
   t=[None]*2
   i=0
   while i<len(keeplist)-1:
@@ -292,28 +293,32 @@ class utilc:
    if join:
     beginstring+="-ss "+i[0]+" -to "+i[1]+" -i "+imagename+" "
    else:
-    self.libi.ffmpeg("ffmpeg -ss "+i[0]+" -to "+i[1]+" -i "+imagename+" -c copy -y "+re.sub(r'(.*)[.](.*)',r'\1{}.\2'.format(count),outimagefile))
+#    self.libi.ffmpeg("ffmpeg -ss "+i[0]+" -to "+i[1]+" -i "+imagename+" -c copy -y "+re.sub(r'(.*)[.](.*)',r'\1{}.\2'.format(count),outimagefile))
+    self.libi.ffmpeg("ffmpeg -ss "+i[0]+" -to "+i[1]+" -i "+imagename+" -c copy -y "+re.sub(r'^(?P<id>.*)[.](?P<id1>.*)$',lambda m:m.group('id')+str(count)+'.'+m.group('id1'),imagename))
   if join:
    self.libi.system(beginstring+"-filter_complex \""+''.join('['+str(i)+':v]['+str(i)+':a]' for i in range(len(re.findall(r' -i ',beginstring))))+"concat=n="+str(len(re.findall(r' -i ',beginstring)))+':v=1:a=1[v][a]'+"\" -map \"[v]\" -map \"[a]\" -y "+outimagename)
    return outimagename
-  return ["input"+str(i)+".mp4" for i in range(0,count+1)]
+#  return ["input"+str(i)+".mp4" for i in range(0,count+1)]
+  return [re.sub(r'^(?P<id>.*)[.](?P<id1>.*)$',lambda m:m.group('id')+str(i)+'.'+m.group('id1'),imagename) for i in range(0,count+1)]
 
- def addvideo(self,videofile,outimagename=None):
+ def addvideo(self,*videofile,outimagename=None):
   '''add videos
-   vilefile - videos list ie. 'input1.mp4,><input2.mp4,<>input3.mp4
-    butterfly ><,<> signifies rotate PI/2 c/ac'''
-#  '''<index[52]:videofilelist[videofile1,><videofile2,videofile3...]'''
+   videofile - videos list ie. 'input1.mp4','><input2.mp4','<>input3.mp4','=input4.mp4'
+    butterfly ><,<> signifies rotate PI/2 c/ac
+    =videofile - refrence videofile'''
   dimension=[]
   beginstring="ffmpeg "
   returnstring="-filter_complex \""
-  for count,i in enumerate(re.split(',',videofile)):
-   dimension.append(self.libi.videoattribute(re.sub(r'\s*(?:><|<>)?(.*)',r'\1',i))[0])
-  maxdimension=(str(max([float(i[0]) for i in dimension])),str(max([float(i[1]) for i in dimension])))
-  print('dimension',dimension,'maxdimension',maxdimension)
-  for count,i in enumerate(re.split(',',videofile)):
-   beginstring+="-i "+re.sub(r'(?:><|<>)?(.*)',r'\1',i)+" "
-   returnstring+="[{}:v]".format(len(re.findall(r' -i ',beginstring))-1)+("transpose={},".format(['><','<>'].index(re.sub('^\s*(><|<>).*',r'\1',i))+1) if re.search(r'^\s*(><|<>)',i) else '')+'scale='+':'.join(dimension[count])+":force_original_aspect_ratio=decrease"+",pad="+':'.join(maxdimension)+r':(ow-iw)/2:(oh-ih)/2'+'[io{}];'.format(count)
-  returnstring+=''.join(['[io'+str(i)+']['+str(i)+':a]' for i in range(count+1)])+'concat=n={}:v=1:a=1[vout][aout]'.format(count+1)
+  [dimension.append(tuple(map(int,self.libi.videoattribute(re.sub(r'^\s*(?:><|<>|=)?(.*)',r'\1',i))[0]))) for i in videofile]
+#  maxdimension=(str(max([float(i[0]) for i in dimension])),str(max([float(i[1]) for i in dimension])))
+  refdimension=dimension[[i for i in range(len(videofile)) if re.search(r'^\s*=',videofile[i])][0]] if any(re.search(r'^\s*=',i) for i in videofile) else sorted([(i,i[0]*i[1]) for i in dimension],key=lambda x:x[1])[0][0]
+  print('dimension',dimension,'refdimension',refdimension)
+#  for count,i in enumerate(re.split(',',videofile)):
+  for count,i in enumerate(videofile):
+   beginstring+="-i "+re.sub(r'(?:><|<>|=)?(.*)',r'\1',i)+" "
+#   returnstring+="[{}:v]".format(len(re.findall(r' -i ',beginstring))-1)+("transpose={},".format(['><','<>'].index(re.sub('^\s*(><|<>).*',r'\1',i))+1) if re.search(r'^\s*(><|<>)',i) else '')+'scale='+':'.join(dimension[count])+":force_original_aspect_ratio=decrease"+",pad="+':'.join(maxdimension)+r':(ow-iw)/2:(oh-ih)/2'+'[io{}];'.format(count)
+   returnstring+="[{}:v]".format(len(re.findall(r' -i ',beginstring))-1)+("transpose={},".format(['><','<>'].index(re.sub('^\s*(><|<>).*',r'\1',i))+1) if re.search(r'^\s*(><|<>)',i) else '')+('scale='+':'.join(tuple(map(str,refdimension)))+',' if dimension[count][0]*dimension[count][1]>refdimension[0]*refdimension[1] else '')+'setsar=sar=1,pad='+':'.join(tuple(map(str,refdimension)))+r':(ow-iw)/2:(oh-ih)/2[io{}];'.format(count) if dimension[count]!=refdimension else ""
+  returnstring+=''.join([('[io'+str(i) if dimension[i]!=refdimension else '['+str(i)+':v')+']['+str(i)+':a]' for i in range(count+1)])+'concat=n={}:v=1:a=1[vout][aout]'.format(count+1)
   outimagename=self.libi.outimagename('videoadded.mp4')
   self.libi.ffmpeg(beginstring+returnstring+"\" -map \"[vout]\" -map \"[aout]\" -y "+outimagename)
   return outimagename

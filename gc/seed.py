@@ -108,6 +108,9 @@ else:
     dbi.update(sys.argv[2],'value',sys.argv[5],'id',int(sys.argv[3]))
    if len(sys.argv)>=7:
     dbi.update(sys.argv[2],'lab',sys.argv[6],'id',int(sys.argv[3]))
+  elif len(sys.argv)<=3:
+   dbi.fill(sys.argv[2])
+   print('inserted empty row in table')
   else:
    for i in range(3,len(sys.argv)):
     dbi.fill(sys.argv[2],((sys.argv[i],),))

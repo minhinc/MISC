@@ -4,6 +4,7 @@ from PIL import Image
 from databasem import databasec
 import json
 import string
+sys.path.append('../utillib')
 import requestm
 from datetime import date
 import math
@@ -204,10 +205,9 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
   LH=20
   cnt=fixheader=header=code=dayhalf=""
   cscount=linecount=subtopiccount=0
-  XOFFSET=10
+  XOFFSET=20
   self.placetopbreak()
   self.hc=self.BTMOFST
-  youtubesize=(480,210 if self.backend[0]=='m' else 270)
   tmpvar1=tmpvar2=tmpcode=None
   htmltag=''
   for k in range(0,len(self.day)):
@@ -255,7 +255,7 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
 '''
      elif re.search(r'^\s*<a>.*?</a>',cnt,flags=re.I|re.DOTALL):
       print("<a>")
-      code,cnt=self.getcodecnt('a',cnt)
+      code,cnt=self.getcodecnt('a',cnt,emptybegin=True)
       self.htmlstr+='<pre class="slideabstract">'+self.lineheightnhtml(code,'<pre class="slideabstract">')[1]+'</pre>\n<div class="clr"></div>\n'
      elif re.search(r'^.*<m>.*</m>',cnt):
       print("<m>",self.hc)
@@ -263,14 +263,14 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
       try:
        if re.search(r'youtube',line,flags=re.I):
         print('youtube,hc,line',self.hc,line)
-        tmpvar1=requestm.youtubeimage(re.sub(r'^.*embed/(.*)$',r'\1',line,flags=re.I)) if self.mode!='php' else None
-        if (self.hc+(youtubesize[1]+30 if self.mode=='php' else tmpvar1[1][1]))>self.PH:
+        tmpvar1=requestm.youtubeimage(re.sub(r'^.*embed/(.*)$',r'\1',line,flags=re.I))
+        if self.hc+tmpvar1[1][1]>self.PH:
          self.placepagebreak(k,i);
-        tmpvar2=self.adsensepaste(self.PAGEWIDTH-youtubesize[0]-XOFFSET,youtubesize[1]+30,stylecode=('float:right;' if self.backend[0]!='m' and self.mode=='php' else ''))
-        self.htmlstr+="<div style=\""+("float:left;" if re.search('float:right',tmpvar2,flags=re.DOTALL) and self.backend[0]!='m' and self.mode=='php' else "")+"background-color:#888888;"+("width:"+str(youtubesize[0])+'px;height:'+str(youtubesize[1]+30)+'px;' if self.backend[0]!='m' else '')+"\"><pre style=\"text-align:center;color:#ffffff;font-weight:bold;font-family:mybembo;font-size:16pt\">YouTube Video</pre><iframe style=\"margin-bottom:2px;width:"+(str(youtubesize[0])+'px;' if self.backend[0]!='m' else '100%')+";height:"+str(youtubesize[1])+"px;\" src=\""+line+"?enablejsapi=1&controls=1&autoplay=1&vq=hd240\" frameborder=\"0\"></iframe></div>"+tmpvar2+"\n" if self.mode=='php' else r'<div style="position:relative;width:'+str(tmpvar1[1][0])+r';height:'+str(tmpvar1[1][1])+r';"><a style="position:absolute;margin-left:25%;" '+r'href="https://www.youtube.com/watch?v='+re.sub(r'^.*embed/(.*)$',r'\1',line,flags=re.I)+'"><img src="'+tmpvar1[0]+'"/></a></div>'
-        self.hc+=(youtubesize[1]+30 if self.mode=='php' else tmpvar1[1][1])
+        tmpvar2=self.adsensepaste(self.PAGEWIDTH-tmpvar1[1][0]-XOFFSET,tmpvar1[1][1],stylecode=('float:right;' if self.backend[0]!='m' and self.mode=='php' else ''))
+        self.htmlstr+="<div class=\"iframecontainer\""+(" style=\""+("float:left;" if re.search('float:right',tmpvar2,flags=re.DOTALL) else "")+"width:"+str(tmpvar1[1][0])+"px;height:"+str(tmpvar1[1][1])+"px;\"" if self.backend[0]!='m' and self.mode=='php' else "")+"><iframe"+(" style=\"width:100%;height:100%;\"" if self.backend[0]!='m' else "")+" src=\""+line+"?enablejsapi=1&controls=1&autoplay=1&vq=hd240&cc_load_policy=1\" frameborder=\"0\"></iframe></div>"+tmpvar2+"\n" if self.mode=='php' else r'<div style="position:relative;width:'+str(tmpvar1[1][0])+r';height:'+str(tmpvar1[1][1])+r';"><a style="position:absolute;left:0px;top:0px;" '+r'href="https://www.youtube.com/watch?v='+re.sub(r'^.*embed/(.*)$',r'\1',line,flags=re.I)+'"><img src="'+tmpvar1[0]+'"/></a></div><div class="clr"></div>'
+        self.hc+=tmpvar1[1][1]
        else:
-        with Image.open(requestm.gets(line,get=True,stream=True)) as img:
+        with Image.open(requestm.gets(line,get=True,stream=True,retrycount=4)) as img:
          if (self.hc+img.height)>self.PH:
           self.placepagebreak(k,i);
          print("hc img",self.hc,img.width,img.height)
@@ -279,7 +279,7 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
          self.htmlstr+="<div"+(' style="float:left;"' if self.backend[0]!='m' and self.mode=='php' else "")+">"+("<a href=\""+re.sub(r'(.*)_s[.](.*)','\\1.\\2',line)+"\">" if re.search(r'_s[.]',line) else '')+"<img class=\"img\" src=\""+line+"\" />"+("</a></div>" if re.search(r'_s[.]',line) else '</div>')+tmpvar2
          self.hc+=img.height
       except Exception as e:
-       print("HTTPError exception,hc,line:{}".format(self.hc,line,e.__class__.__name__))
+       print("img exception,hc,line,type(e) {}:{}:{}".format(self.hc,line,type(e)))
        tmpvar1=self.lineheightnhtml(line,'<pre class="code">')
        self.htmlstr+="""<a href="%s">%s</a>""" % (line,line)
        if (self.hc+tmpvar1[0]['height'])>self.PH:
@@ -340,8 +340,8 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
  def searchtag(self,tag,cnt):
   return re.search(r'^[ \t]*<'+tag+r'>[ \t]*\n',cnt,flags=re.I|re.DOTALL)
 
- def getcodecnt(self,tag,cnt):
-  return re.split(r'<><>',re.sub(r'^[ \t]*<'+tag+r'>[ \t]*\n?(.*?)\n?[ \t]*</'+tag+r'>[ \t]*\n?(.*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
+ def getcodecnt(self,tag,cnt,emptybegin=False):
+  return re.split(r'<><>',re.sub(r'^'+(r'\s*' if emptybegin else r'[ \t]*')+r'<'+tag+r'>[ \t]*\n?(.*?)\n?[ \t]*</'+tag+r'>[ \t]*\n?(.*)$','\\1<><>\\2',cnt,flags=re.DOTALL))
 
  def lineheightnhtml(self,line,htmlcode,addtag=True,skipconversion=False):
   '''calculate line height and html string for line
@@ -463,6 +463,7 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
  def adsensepaste(self,width,height,stylecode='',factor=0.2):
   rightdiv=''
   tmpstr=''
+  width=max(width,-width)
   if not self.responsivesquare:
    self.responsivesquare=[self.db.get('adsense','value','name','responsivesquare')[0][0],False]
    print('responsivesquare',self.responsivesquare)

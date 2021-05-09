@@ -14,6 +14,7 @@ echo ' <ul class="three"">
 <pre class="f10"><span class="bold">Available oral languages: </span><span class="f8">English</span></pre>
 <pre class="f10" style="margin-top:5px"><span class="bold">Online Training: </span><a href="'.$util->level.'/about/online" class="bold" style="font-size:16pt;color:#ff4444;">Click here</a></pre></li>';
 foreach (array('research','product') as $research){
+echo '<div class="clr"></div>    <li class="adsense100"><py>requestm.adsensepaste(0,100,backend="moblie")</py></li>';
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$research))[0],true);
 $first=TRUE;
 foreach ($json['child'] as $key) {

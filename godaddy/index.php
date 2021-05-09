@@ -1,6 +1,6 @@
 <?php
 $level='.';
-foreach(split("\/",split("public_html\/?",ereg_replace("\/*$","",getcwd()))[1]) as $item){
+foreach(preg_split("/\//",preg_split("/public_html\/?/",preg_replace("/\/*$/","",getcwd()))[1]) as $item){
 if(!empty($item)){
   $level=$level."/..";
  }

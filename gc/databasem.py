@@ -60,10 +60,12 @@ class databasec:
     print("number of retry %s" % self.cc)
     return False
    return True
- def fill(self,table,primary,fetchmany=False):
+ def fill(self,table,primary=None,fetchmany=False):
   try:
    crsr=self.conn.cursor()
-   if fetchmany:
+   if not primary:
+    crsr.execute("INSERT INTO {} () VALUES ()".format(table))
+   elif fetchmany:
     if table=='linkvisited':
      crsr.executemany("INSERT INTO linkvisited(name,date) VALUES(%s,%s)",primary)
    else:
@@ -93,7 +95,8 @@ class databasec:
    crsr=self.conn.cursor()
    if (column==''):
     if orderby:
-     crsr.execute("SELECT {} FROM {} ORDER BY {}".format(columnoutput,table,orderby))
+#     crsr.execute("SELECT {} FROM {} ORDER BY {}".format(columnoutput,table,orderby))
+     crsr.execute("SELECT {} FROM {} ORDER BY {}{}".format(columnoutput,table,orderby[0] if type(orderby)==tuple else orderby,' DESC LIMIT '+str(orderby[1]) if type(orderby)==tuple else ''))
     else:
      crsr.execute("SELECT {} FROM {}".format(columnoutput,table))
    elif regex:
@@ -116,7 +119,11 @@ class databasec:
    return crsr.fetchall()
  def update(self,table,column,value,where,wherevalue):
   try:
-   self.conn.cursor().execute("UPDATE {} SET {}='{}' WHERE {}='{}'".format(table,column,value,where,wherevalue))
+   if type(column)==tuple:
+    for column,value in zip(column,value):
+     self.conn.cursor().execute("UPDATE {} SET {}='{}' WHERE {}='{}'".format(table,column,value,where,wherevalue))
+   else:
+    self.conn.cursor().execute("UPDATE {} SET {}='{}' WHERE {}='{}'".format(table,column,value,where,wherevalue))
   except:
    if self.reconnect():
     return self.update(self,table,column,value,where,wherevalue)

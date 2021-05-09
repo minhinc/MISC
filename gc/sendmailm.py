@@ -10,7 +10,8 @@ import random
 from PIL import Image
 import string
 import urllib.request as urllib2
-import requestm
+sys.path.append('..')
+from utillib import requestm
 #import urllib2#for python 2.7
 import shutil
 import json
@@ -40,18 +41,8 @@ class sendmailc(fetchc):
    self.jsonemailcontent[tech]=json.loads(re.sub(r'\\\n',r'\\n',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0]))
    self.misc[tech]=dict()
    self.misc[tech]['randomnumber']=random.randrange(0,len(self.jsonemailcontent[tech]["youtube"]),1)
-   self.misc[tech]['image']=Image.open(urllib2.urlopen('https://img.youtube.com/vi/'+self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1]+'/0.jpg'))
-   self.misc[tech]['youtubebutton']=Image.open(urllib2.urlopen('http://www.minhinc.com/image/youtubebutton.png'))
-   self.misc[tech]['image'].paste(self.misc[tech]['youtubebutton'],(int((self.misc[tech]['image'].width-self.misc[tech]['youtubebutton'].width)/2),int((self.misc[tech]['image'].height-self.misc[tech]['youtubebutton'].height)/2)),self.misc[tech]['youtubebutton'])
-   #self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth',str(self.misc[tech]['image'].width),re.sub(r'youtubewidth',str((625-self.misc[tech]['image'].width)/2),re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
-   self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth',str(self.misc[tech]['image'].width),re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
-   self.misc[tech]['image'].save(self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
-#   try:
-#    urllib2.urlopen('http://www.minhinc.com/image/'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
-   if requestm.gets('http://www.minhinc.com/image/'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg',head=True).ok:
-    print('http://www.minhinc.com/image/'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg --> available at /image/')
-   else:
-    os.system('~/tmp/ftp.sh -f put image ./'+self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1]+'.jpg')
+   requestm.youtubeimage(self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1])
+   self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth','480px',re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
    print("tech {} random {}".format(tech,self.misc[tech]['randomnumber']))
   msgRoot=MIMEMultipart('related')
   msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.jsonemailcontent[tech]["1"],flags=re.DOTALL) if "s" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["s"]

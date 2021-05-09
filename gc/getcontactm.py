@@ -6,9 +6,9 @@ import sys
 import urllib.request as urllib2
 #import urllib2#for python2.7
 from fetchm import fetchc
-sys.path.append('./util')
+sys.path.append('..')
 #from util.utilm import utilc
-import requestm
+from utillib import requestm
 #import util.googlesearch
 class getcontactc(fetchc):
  def __init__(self,next,wgt,db):

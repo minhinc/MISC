@@ -13,6 +13,7 @@ echo '</ul></div>';
 $light="light"; $first=TRUE; $link="";
 foreach (array('training','research','product') as $research){
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$research))[0],true);
+echo '  <li class="adsense100"><py>requestm.adsensepaste(0,100,backend="mobile")</py></li>';
 echo '<div class="one"><a href="'.$json['link'].'"><pre class="title">'.ucfirst($research).'</pre></a><pre class="subtitle">'.$json['description'].'</pre></div>';
 echo ' <ul class="one">';
 $light="light";

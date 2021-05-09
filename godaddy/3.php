@@ -16,13 +16,14 @@ echo '<div class="downloadright">
 <li><p class="l">Online Training: </p><p class="r"><a href="'.$util->level.'/about/online" class="bold" style="font-size:16pt;color:#ff4444;">Click here</a></p></li>
 </ul>';
 foreach (array('research','product') as $research){
+echo '  <li style="height:60px;"><py>requestm.adsensepaste(650,60,backend="desktop")</py></li>';
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$research))[0],true);
 $first=TRUE;
 foreach ($json['child'] as $key) {
 $item=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$key))[0],true);
 if(in_array($util->subitem,$item['tech'])){
 if($first){
-echo '<ul class="publication" style="clear:both">
+echo '<ul class="publication" style="clear:both;margin:0px;">
 <li class="header"><p>'.$json['title'].'</p></li>';
 $first=FALSE;
 }
