@@ -14,6 +14,10 @@ def gets(file,head=False,get=False,binary=False,stream=False,retrycount=1,size=N
   HEAD request, response datastructure is returned
   response.ok to check success
   response.headers for complete hash/dict'''
+ print('><gets ',file)
+ if not re.search(r'^http',file,flags=re.I) and os.path.isfile(file):
+  print('local file',file)
+  return file
  if not hasattr(gets,'session'):
   setattr(gets,'session',requests.Session())
  session=getattr(gets,'session')
@@ -141,19 +145,19 @@ def adsenserect(width,height,criteria='.*desktop.*',factor=0.1):
  return [re.sub(r'style="',"style=\"position:absolute;left:"+str(x[1]+int(int((x[3]+1)*xoffset)))+"px;top:"+str(x[2]+int((x[4]+1)*yoffset))+"px;",adsensecode[x[0]][0]) for x in rectposition[0]]
 
 def youtubeimage(youtubeid):
- if gets(r'http://www.minhinc.com/image/'+youtubeid+r'.jpg',head=True) and Image.open(gets(r'https://img.youtube.com/vi/'+youtubeid+r'/hqdefault.jpg',get=True,retrycount=4,stream=True)).width==Image.open(gets(r'http://www.minhinc.com/image/'+youtubeid+r'.jpg',get=True,stream=True,retrycount=4)).width:
+ if gets(r'http://minhinc.000webhostapp.com/image/'+youtubeid+r'.jpg',head=True):# and Image.open(gets(r'https://img.youtube.com/vi/'+youtubeid+r'/sddefault.jpg',get=True,retrycount=4,stream=True)).width==Image.open(gets(r'http://www.minhinc.com/image/'+youtubeid+r'.jpg',get=True,stream=True,retrycount=4)).width:
   print('image {}{}'.format(youtubeid,r'.jpg available at /image'))
-  img=Image.open(gets(r'http://www.minhinc.com/image/'+youtubeid+r'.jpg',get=True,stream=True))
+  img=Image.open(gets(r'http://minhinc.000webhostapp.com/image/'+youtubeid+r'.jpg',get=True,stream=True,retrycount=4))
  else:
-  with Image.open(gets(r'https://img.youtube.com/vi/'+youtubeid+r'/hqdefault.jpg',get=True,stream=True,retrycount=4)) as img:
-   with Image.open(gets(r'http://www.minhinc.com/image/youtubebutton.png',get=True,stream=True,retrycount=4)) as youtubebuttonimg:
+  with Image.open(gets(r'https://img.youtube.com/vi/'+youtubeid+r'/sddefault.jpg',get=True,stream=True,retrycount=4)) as img:
+   with Image.open(gets(r'http://minhinc.000webhostapp.com/image/youtubebutton.png',get=True,stream=True,retrycount=4)) as youtubebuttonimg:
     img.paste(youtubebuttonimg,(int((img.width-youtubebuttonimg.width)/2),int((img.height-youtubebuttonimg.height)/2)),youtubebuttonimg)
     img=img.crop((0,int((img.height-(img.width*9)/16)/2),img.width,int((img.height+(img.width*9)/16)/2)))
     img.save(youtubeid+".jpg")
-    print('image ',youtubeid,r'.jpg not available at /image uploading...')
+    print('image ',youtubeid+r'.jpg not available at /image uploading...')
     os.system(r'~/tmp/ftp.sh -f put image ./'+youtubeid+'.jpg')
  print('imagewidth',img.size)
- return (r'http://www.minhinc.com/image/'+youtubeid+'.jpg',img.size)
+ return (r'http://minhinc.000webhostapp.com/image/'+youtubeid+'.jpg',img.size)
 
 def adsensepaste(width,height,stylecode='',backend='desktop',factor=0.2):
  rightdiv=''

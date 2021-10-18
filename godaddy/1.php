@@ -1,7 +1,7 @@
 <?php
 function draw($util){
 echo '<div class="leftpan">
- <a href="./about/online"><img src="./image/traininglogo.png"/></a>
+ <a href="./online"><img src="./image/traininglogo.png"/></a>
  <py>requestm.adsensepaste(640,60,backend="desktop",factor=0.0)</py>
  <div class="research">
   <ul class="research">

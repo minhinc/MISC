@@ -49,7 +49,7 @@ if (preg_match('/<e>/i',$errorstring)){
    exit;
   }
   mail_attachment($_FILES["attachment"]["name"], "../career/upload/", $_POST['email'],'sales@minhinc.com','sales@minhinc.com', 'sales@minhinc.com', "*** Training request submission copy ***", $message2);
-  echo '<p style="color:#004000">Mail sent successfully</p>';
+  echo '<p style="color:#004000">Message Sent</p>';
  } else {
   $headers = "From:" . $_POST['email'];
   $headers2 = "From:" . 'sales@minhinc.com';
@@ -60,7 +60,7 @@ if (preg_match('/<e>/i',$errorstring)){
    exit;
   }
   mail($_POST['email'],'*** Copy of Training request ***',$message2,$headers2); // sends a copy of the message to the sender
-  echo '<p style="color:#004000">Mail sent successfully</p>';
+  echo '<p style="color:#004000">Message Sent</p>';
  }
 }
 ?>

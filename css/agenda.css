@@ -12,6 +12,9 @@ div.pg pre.ftr{position:absolute;bottom:0px;left:45%;color:#004000;font-family:m
 div.pg pre.pn{position:absolute;bottom:0px;right:0px;color:#040;font-family:mytwcenmt;font-size:8pt}
 div.pg a.pn{position:absolute;bottom:0px;right:0px;color:#040;font-family:mytwcenmt;font-size:8pt}
 div.pg div.clr {clear:both;}
+div.pg span.dot {height:8px;width:8px;border-radius:50%;vertical-align:middle;display:inline-block;}
+div.pg span.dot1 {height:7px;width:7px;border-radius:50%;vertical-align:middle;display:inline-block;}
+div.pg span.dot2 {height:6px;width:6px;border-radius:50%;vertical-align:middle;display:inline-block;}
 
 div.pg a.logo{position:absolute;width:100%;top:50%;text-align:center}
 div.pg a.logo pre {position:relative;font-family:'Tw Cen MT';color:#040;width:420px;font-size:56px;margin-left:auto;margin-right:auto;}
@@ -54,22 +57,22 @@ div.pg pre.slidetitle {text-align:center;margin-top:30%;font-family:mytwcenmt;fo
 div.pg pre.slidesubtitle {text-align:center;font-family:mytwcenmt;font-size:24pt;color:#004000}
 div.pg pre.slidecompanytitle{margin-top:30%;font-size:46pt;font-family:mytwcenmt;text-align:center;color:#004000}
 div.pg pre.slidedisclaimer {margin-top:20%;margin-left:20px;font-family:mybembo;font-size:8pt;}
-div.pg div.slideheader {float:left;width:45%;margin-bottom:5px;}
+div.pg div.slideheader {float:left;width:45%;margin-bottom:6px;}
 div.pg div.slideheader pre.day {width:100%;background-color:#c9c6ff;line-height:42px;font-weight:bold;font-size:14pt;text-align:center;}
 div.pg div.slideheader pre.topic {width:99.99%;background-color:#eaebff;line-height:32px;font-weight:bold;font-size:14pt;color:#004000}
 div.pg div.slideheader ul.slidecontent {background-color:#eaebff;width:99.99%;}
 div.pg div.slideheader ul.slidecontent li.big{margin-left:45px;font-size:13pt;list-style:disc;}
-div.pg div.slideheader ul.slidecontent li.sml{margin-left:45px;font-size:7pt;list-style:disc}
+div.pg div.slideheader ul.slidecontent li.sml{margin-left:45px;font-size:4pt;list-style:disc}
 div.pg div.slideheader ul.slidecontent li.big pre{font-size:13pt;font-family:mybembo}
 div.pg div.slideheader ul.slidecontent li.big a{color:#000000;font-size:13pt;font-family:mybembo}
-div.pg div.slideheader ul.slidecontent li.sml pre{font-size:6pt;font-family:mybembo}
+div.pg div.slideheader ul.slidecontent li.sml pre{font-size:3pt;font-family:mybembo}
 div.pg pre.slideabstract{ float:right;width:53%;padding-top:40px;font-size:10pt;font-style:Italic;font-family:mybembo;}
 div.pg pre.slidecontent {font-size:13pt;font-family:mytwcenmt;display:inline-block;max-width:60%}
 div.pg pre.slidecontent span {font-size:13pt;font-family:mytwcenmt;}
 div.pg pre.slidecontent pre.note {font-size:13pt;padding:2px 0px 8px 8px;border-radius:5px;font-family:mytwcenmt;background-color:#bcd4ff;color:#000000;display:inline-block}
-div.pg pre.code {font-size:10pt;font-family:myconsolas;display:inline-block;max-width:70%}
+div.pg pre.code {font-size:10pt;font-family:myconsolas;display:inline-block;max-width:70%;margin:4px 0px;}
 div.pg pre.code span {font-size:10pt;font-family:myconsolas;}
-div.pg pre.codeb {font-size:9pt;font-family:myconsolas;background-color:#eeeeee;display:inline-block;max-width:70%}
+div.pg pre.codeb {font-size:9pt;font-family:myconsolas;background-color:#eeeeee;display:inline-block;margin:4px 0px;padding:10px;max-width:70%}
 div.pg pre.codeb span {font-size:9pt;font-family:myconsolas;}
 div.pg pre.codei,div.pg pre.codei span {font-size:10pt;font-family:myconsolas;display:inline}
 div.pg pre.codec{font-size:6pt;font-family:myconsolas;max-width:70%;display:inline-block;}

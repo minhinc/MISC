@@ -9,6 +9,9 @@ div.pg a{color:#0000aa;font-size:11pt;font-family:mytwcenmt;text-decoration:none
 div.pg a.pn{position:absolute;bottom:-10px;right:5%;}*/
 div.pg pre.ftr{color:#004000;font-family:mytwcenmt;font-size:8pt;margin-left:40%}
 div.pg a.pn{display:inline;float:right;margin-right:5%;margin-top:-20px;}
+div.pg span.dot {height:8px;width:8px;border-radius:50%;vertical-align:middle;display:inline-block;}
+div.pg span.dot1 {height:7px;width:7px;border-radius:50%;vertical-align:middle;display:inline-block;}
+div.pg span.dot2 {height:6px;width:6px;border-radius:50%;vertical-align:middle;display:inline-block;}
 
 div.pg pre.title{text-align:center;font-size:24pt;font-weight:bold;}
 div.pg pre.subtitle{text-align:center;font-size:18pt;}
@@ -59,13 +62,18 @@ div.pg div.slideheader ul.slidecontent li.sml{margin-left:45px;font-size:4pt;lis
 div.pg div.slideheader ul.slidecontent li.big pre{font-size:11pt;font-family:mybembo}
 div.pg div.slideheader ul.slidecontent li.big a{color:#000000;font-size:13pt;font-family:mybembo}
 div.pg div.slideheader ul.slidecontent li.sml pre{font-size:3pt;font-family:mybembo}
-div.pg pre.slideabstract{ clear:both;width:100%;font-size:10pt;padding-top:10px;font-style:Italic;font-family:mybembo;}
+div.pg pre.slideabstract{ clear:both;width:100%;font-size:10pt;margin:5px 0px;font-style:Italic;font-family:mybembo;font-weight:bold;}
 /*div.pg pre.slideabstract{ float:right;width:53%;padding-top:40px;font-size:10pt;font-style:Italic;font-family:mybembo;}*/
 div.pg img {max-width:100%;}
-div.pg pre.slidecontent ,div.pg pre.slidecontent span {clear:both;font-size:11pt;font-family:mytwcenmt;}
+div.pg pre.slidecontent {clear:both;font-size:11pt;font-family:mytwcenmt;}
+div.pg pre.slidecontent span {font-size:11pt;font-family:mytwcenmt;}
 div.pg pre.slidecontent pre.note {font-size:11pt;padding:2px 0px 8px 8px;border-radius:5px;font-family:mytwcenmt;background-color:#bcd4ff;color:#000000;display:inline-block}
-div.pg pre.code, div.pg pre.code span {clear:both;font-size:7pt;font-family:myconsolas;}
-div.pg pre.codeb {font-size:6pt;font-family:myconsolas;background-color:#eeeeee;display:inline-block}
+pre::-webkit-scrollbar { width: 12px; }
+pre::-webkit-scrollbar-thumb { border-radius: 10px; background-color:rgba(128,128,128,0.3);}
+div.pg pre.code {clear:both;font-size:7pt;font-family:myconsolas;overflow:auto;white-space:pre;margin:4px 0px;}
+div.pg pre.code span {font-size:7pt;font-family:myconsolas;}
+div.pg pre.codeb {font-size:7pt;font-family:myconsolas;background-color:#eeeeee;overflow:auto;white-space:pre;margin:4px 0px;padding:4px;}
+div.pg pre.codeb span {font-size:7pt;font-family:myconsolas;}
 div.pg pre.codei,div.pg pre.codei span {font-size:7pt;font-family:myconsolas;display:inline}
 div.pg pre.codec,div.pg pre.codec span {clear:both;font-size:4pt;font-family:myconsolas}
 div.pg pre.codeci,div.pg pre.codec span {font-size:4pt;font-family:myconsolas;display:inline}

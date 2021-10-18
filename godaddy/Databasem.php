@@ -4,7 +4,8 @@ public $link="";
 public function __construct() {
 $dbname="trackweb";
 //echo "<p>__construct<br></p>";
-$this->link=mysqli_connect('localhost','minhinc','pinku76minh','trackweb') or die ("<html><script language='javascript'>alert('Unable to connect to database'),history.go(-1)</script></html>");
+//$this->link=mysqli_connect('localhost','minhinc','pinku76minh','trackweb') or die ("<html><script language='javascript'>alert('Unable to connect to database'),history.go(-1)</script></html>");
+$this->link=mysqli_connect('freedb.tech','freedbtech_minhinc','pinku76mi','freedbtech_minhinc') or die ("<html><script language='javascript'>alert('Unable to connect to database'),history.go(-1)</script></html>");
 }
 public function update($table,$column,$value,$where,$wherevalue){
 mysqli_query($this->link,"UPDATE $table SET $column='$value' WHERE $where='$wherevalue'");

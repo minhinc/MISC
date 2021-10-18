@@ -15,7 +15,7 @@ if len(sys.argv)<6 or not re.search(r'^(m|d).*',sys.argv[1],flags=re.I) or not r
  agenda.py <backend> <mode> <tech> <company> <iddaywise>
  agenda.py mobile php qt '' "1 2 3:4 L" "4 5 6:L"
  agenda.py [desktop|mobile] [agenda|pdf|php] [c|cpp|gl|li|ldd|py|qt|qml] '' "1 2 3:4 L" "4 5 6:L qml" "1 2:3 L"
- <m>-image<c>code<cb>codebackground<cc>shortcode<cs>veryshortcode<a>abstract<n>note<rR>red(Bold)<gG>(greenBold)<lL>blue(Bold)''')
+ <m>-image<c>code<cb>codebackground<cc>shortcode<cs>veryshortcode<a>abstract<n>note<d[12..]>dot,<rR>red<gG>green<lL>blue''')
  exit(-1)
 class agenda:
  def __init__(self):
@@ -66,12 +66,14 @@ class agenda:
   self.htmlstr+=""" <pre class=title>%s</pre>
  <pre class=subtitle>%s</pre>
  <pre class=company>%s</pre>
-""" % (self.db.get(self.tech,'value','name','title')[0][0],self.db.get(self.tech,'value','name','subtitle')[0][0],'('+self.company+')' if self.company else '')
+""" % (self.db.get(self.tech,'content','name','title')[0][0],self.db.get(self.tech,'content','name','subtitle')[0][0],'('+self.company+')' if self.company else '')
 #adsensee
-  self.htmlstr+="<div style=\"width:100%;height:100px;\">"+self.adsensepaste(self.PAGEWIDTH,100)+"</div>"
-  for data in self.db.get(self.tech,'*','name','[[:<:]]h_',orderby='id',regex=True):
-   numofline=numofline+max(len(re.findall(r'\n',str(data[1])))+1,len(re.findall(r'\n',str(data[2])))+1)
-  for data in self.db.get(self.tech,'*','name','[[:<:]]h_',orderby='id',regex=True):
+  self.htmlstr+="<div style=\"width:100%;height:100px;\">"+(self.adsensepaste(self.PAGEWIDTH,100) if self.mode=='php' else '')+"</div>"
+#  for data in self.db.get(self.tech,'*','name','[[:<:]]h_',orderby='id',regex=True):
+  for data in self.db.get(self.tech,'*','name','^h_',orderby='id',regex=True):
+   numofline=numofline+max(len(re.findall(r'\n',str(data[1])))+1,len(re.findall(r'\n',str(data[3])))+1)
+#  for data in self.db.get(self.tech,'*','name','[[:<:]]h_',orderby='id',regex=True):
+  for data in self.db.get(self.tech,'*','name','^h_',orderby='id',regex=True):
    if not re.search(r'h_hr',data[1]):
     self.htmlstr+=""" <div style="height:%spx;">
   <div class="headerleft"> <pre>%s</pre>
@@ -79,19 +81,20 @@ class agenda:
   <div class="headerright"> <pre>%s</pre>
   </div>
  </div>
-""" % (max(len(re.findall(r'\n',data[1]))+1,len(re.findall(r'\n',data[2]))+1)*LH+int((50*OFST)/numofline),re.sub(r'^h_','',data[1]),data[2])
+""" % (max(len(re.findall(r'\n',data[1]))+1,len(re.findall(r'\n',data[3]))+1)*LH+int((50*OFST)/numofline),re.sub(r'^h_','',data[1]),data[3])
    else:
     self.htmlstr+=''' <hr>
 '''
   self.placepagebreak(header='noarrow')
   self.hc=0
-  for data in self.db.get(self.tech,'*','name','[[:<:]]h2_',orderby='id',regex=True):
+#  for data in self.db.get(self.tech,'*','name','[[:<:]]h2_',orderby='id',regex=True):
+  for data in self.db.get(self.tech,'*','name','^h2_',orderby='id',regex=True):
    self.htmlstr+=""" <div class="header2" style="margin-top:%spx;">
   <pre class="header" style="line-height:%spx">%s</pre>
   <pre class="content" style="height:%spx">%s</pre>
  </div>
-""" % (0 if not self.hc and self.backend[0]!='m' else OFST*5,HH,re.sub(r'^h2_','',data[1]),len(re.findall(r'\n',data[2]))*LH+OFST,data[2])
-   self.hc=HH+(len(re.findall(r'\n',data[2]))+1)*LH+OFST if not self.hc else self.hc+5*OFST+HH+(len(re.findall(r'\n',data[2]))+1)*LH+OFST
+""" % (0 if not self.hc and self.backend[0]!='m' else OFST*5,HH,re.sub(r'^h2_','',data[1]),len(re.findall(r'\n',data[3]))*LH+OFST,data[3])
+   self.hc=HH+(len(re.findall(r'\n',data[3]))+1)*LH+OFST if not self.hc else self.hc+5*OFST+HH+(len(re.findall(r'\n',data[3]))+1)*LH+OFST
   
   tmpstr='';tmphc=0;dayheight=0
   tech=self.tech
@@ -205,7 +208,7 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
   LH=20
   cnt=fixheader=header=code=dayhalf=""
   cscount=linecount=subtopiccount=0
-  XOFFSET=20
+  XOFFSET=10
   self.placetopbreak()
   self.hc=self.BTMOFST
   tmpvar1=tmpvar2=tmpcode=None
@@ -266,7 +269,7 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
         tmpvar1=requestm.youtubeimage(re.sub(r'^.*embed/(.*)$',r'\1',line,flags=re.I))
         if self.hc+tmpvar1[1][1]>self.PH:
          self.placepagebreak(k,i);
-        tmpvar2=self.adsensepaste(self.PAGEWIDTH-tmpvar1[1][0]-XOFFSET,tmpvar1[1][1],stylecode=('float:right;' if self.backend[0]!='m' and self.mode=='php' else ''))
+        tmpvar2=self.adsensepaste(min(self.PAGEWIDTH/2,self.PAGEWIDTH-tmpvar1[1][0]-XOFFSET),tmpvar1[1][1],stylecode=('float:right;' if self.backend[0]!='m' and self.mode=='php' else ''))
         self.htmlstr+="<div class=\"iframecontainer\""+(" style=\""+("float:left;" if re.search('float:right',tmpvar2,flags=re.DOTALL) else "")+"width:"+str(tmpvar1[1][0])+"px;height:"+str(tmpvar1[1][1])+"px;\"" if self.backend[0]!='m' and self.mode=='php' else "")+"><iframe"+(" style=\"width:100%;height:100%;\"" if self.backend[0]!='m' else "")+" src=\""+line+"?enablejsapi=1&controls=1&autoplay=1&vq=hd240&cc_load_policy=1\" frameborder=\"0\"></iframe></div>"+tmpvar2+"\n" if self.mode=='php' else r'<div style="position:relative;width:'+str(tmpvar1[1][0])+r';height:'+str(tmpvar1[1][1])+r';"><a style="position:absolute;left:0px;top:0px;" '+r'href="https://www.youtube.com/watch?v='+re.sub(r'^.*embed/(.*)$',r'\1',line,flags=re.I)+'"><img src="'+tmpvar1[0]+'"/></a></div><div class="clr"></div>'
         self.hc+=tmpvar1[1][1]
        else:
@@ -275,8 +278,8 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
           self.placepagebreak(k,i);
          print("hc img",self.hc,img.width,img.height)
          tmpvar2=self.adsensepaste(self.PAGEWIDTH-img.width-XOFFSET,img.height,stylecode=('float:right;' if self.backend[0]!='m' and self.mode=='php' else ''))
-#         self.htmlstr+="<div"+(' style="height:'+str(img.height)+'px;' if self.backend[0]!='m' else '')+("float:left;" if self.backend[0]!='m' and self.mode=='php' else "")+"\">"+("<a href=\""+re.sub(r'(.*)_s[.](.*)','\\1.\\2',line)+"\">" if re.search(r'_s[.]',line) else '')+"<img class=\"img\" src=\""+line+"\" />"+("</a></div>" if re.search(r'_s[.]',line) else '</div>')+tmpvar2
-         self.htmlstr+="<div"+(' style="float:left;"' if self.backend[0]!='m' and self.mode=='php' else "")+">"+("<a href=\""+re.sub(r'(.*)_s[.](.*)','\\1.\\2',line)+"\">" if re.search(r'_s[.]',line) else '')+"<img class=\"img\" src=\""+line+"\" />"+("</a></div>" if re.search(r'_s[.]',line) else '</div>')+tmpvar2
+#         self.htmlstr+="<div"+(' style="float:left;"' if self.backend[0]!='m' and self.mode=='php' else "")+">"+("<a href=\""+re.sub(r'(.*)_s[.](.*)','\\1.\\2',line)+"\">" if re.search(r'_s[.]',line) else '')+"<img class=\"img\" src=\""+line+"\" />"+("</a></div>" if re.search(r'_s[.]',line) else '</div>')+tmpvar2
+         self.htmlstr+="<div style=\"width:"+str(img.width)+";height:"+str(img.height)+";\""+(' style="float:left;"' if self.backend[0]!='m' and self.mode=='php' else "")+">"+("<a "+("style=\"position:absolute;\"" if self.backend[0]!='m' else "")+" href=\""+re.sub(r'(.*)_s[.](.*)','\\1.\\2',line)+"\">" if re.search(r'_s[.]',line) else '')+"<img class=\"img\" src=\""+line+"\" />"+("</a></div>" if re.search(r'_s[.]',line) else '</div>')+tmpvar2
          self.hc+=img.height
       except Exception as e:
        print("img exception,hc,line,type(e) {}:{}:{}".format(self.hc,line,type(e)))
@@ -293,7 +296,7 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
       tmpcode=self.pagedivider(tmpcode[1],'<pre class="codes">',tmpcode[0]['height']/2 if tmpcode[0]['height']/2+self.hc < self.PH else None,skipconversion=True)
       while tmpcode[1][0] or tmpcode[1][1]:
        if tmpcode[1][0]:
-        self.htmlstr+=r' <pre class="codes" style="float:left;'+('height:'+str(tmpcode[0]['height'])+'px;' if self.backend[0]!='m' else '')+'">'+tmpcode[1][0]+' </pre>\n'+('<div class="clr"></div>' if tmpvar2 and (self.backend[0]=='m' or self.mode!='php') else '')+(self.adsensepaste(self.PAGEWIDTH-tmpvar1['width']-tmpcode[0]['width']-XOFFSET,max(tmpvar1['height'],tmpcode[0]['height']),stylecode=('float:right;' if self.backend[0]!='m' else '')) if tmpvar2 else "")
+        self.htmlstr+=r' <pre class="codes" style="float:left;'+('height:'+str(tmpcode[0]['height'])+'px;' if self.backend[0]!='m' else '')+'">'+tmpcode[1][0]+' </pre>\n'+('<div class="clr"></div>' if tmpvar2 and (self.backend[0]=='m' or self.mode!='php') else '')+(self.adsensepaste(min(self.PAGEWIDTH/2,self.PAGEWIDTH-tmpvar1['width']-tmpcode[0]['width']-XOFFSET),max(tmpvar1['height'],tmpcode[0]['height']),stylecode=('float:right;' if self.backend[0]!='m' else '')) if tmpvar2 else "")
         if tmpvar2:
          self.hc+=tmpcode[0]['height']
         else:
@@ -323,8 +326,9 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
       tmpcode=self.pagedivider(code,htmltag)
       while tmpcode[1][0] or tmpcode[1][1]:
        if tmpcode[1][0]:
-        tmpvar1=self.adsensepaste(self.PAGEWIDTH-tmpcode[0]['width']-XOFFSET,tmpcode[0]['height'],stylecode=('float:right;' if self.backend[0]!='m' else '')) if self.mode=='php' else ''
-        self.htmlstr+=' '+re.sub(r'(class=)',r'{} \1'.format(('style="height:'+str(tmpcode[0]['height'])+'px;' if self.backend[0]!='m' else '')+('float:left;"' if re.search('float:right',tmpvar1,flags=re.DOTALL) and self.backend[0]!='m' and self.mode=='php' else '"')),htmltag,flags=re.I)+tmpcode[1][0]+' </pre>\n'+tmpvar1
+        tmpvar1=self.adsensepaste(min(self.PAGEWIDTH/2,self.PAGEWIDTH-tmpcode[0]['width']-XOFFSET),tmpcode[0]['height'],stylecode=('float:right;' if self.backend[0]!='m' else '')) if self.mode=='php' else ''
+#        self.htmlstr+=' '+re.sub(r'(class=)',r'{} \1'.format(('style="height:'+str(tmpcode[0]['height'])+'px;' if self.backend[0]!='m' else '')+('float:left;"' if re.search('float:right',tmpvar1,flags=re.DOTALL) and self.backend[0]!='m' and self.mode=='php' else '"' if self.backend[0]!='m' else '')),htmltag,flags=re.I)+tmpcode[1][0]+' </pre>\n'+tmpvar1
+        self.htmlstr+=' '+re.sub(r'(class=)',r'{} \1'.format('style="float:left;"' if re.search('float:right',tmpvar1,flags=re.DOTALL) and self.backend[0]!='m' and self.mode=='php' else ''),htmltag,flags=re.I)+tmpcode[1][0]+' </pre>\n'+tmpvar1
         self.hc+=tmpcode[0]['height']
        else:
         self.placepagebreak(k,i)
@@ -348,6 +352,7 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
    line - multiline for which height and html needs to be calculated
    htmlcode - tag added to test.html fed to selenium webdriver. i.e. '<div class="code">'''
   filedata=r''
+  elementdata=None
   htmltag=re.sub(r'^\s*<\s*(\w+).*$',r'\1',htmlcode,flags=re.I)
   htmlselector=re.sub(r'^\s*<\s*(\w+).*?class\s*=\s*"?(\w+).*$',r'\1.\2',htmlcode,flags=re.I)
   line='\n'.join([x if x else ' ' for x in line.split('\n')]) if not skipconversion else line
@@ -358,11 +363,13 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
    self.driver.minimize_window()
    open(r'./test.html','w').write(filedata)
    self.driver.get(r'file:///'+re.sub(r'/?$','',os.getcwd())+r'/test.html')
-  line=re.sub(r'&lt;(pre.*?|/pre|i|/i|b|/b|c|/c|span.*?|/span|cc|/cc)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<r>',r'<span style="color:#ff0000;">',re.sub(r'<g>',r'<span style="color:#004000;">',re.sub(r'<l>',r'<span style="color:#0055cf;">',re.sub(r'<R>',r'<span style="color:#ff0000;font-weight:bold">',re.sub(r'<G>',r'<span style="color:#004000;font-weight:bold">',re.sub(r'<L>',r'<span style="color:#0055cf;font-weight:bold">',re.sub(r'</[rglRGL]>',r'</span>',re.sub(r'<n>',r'<pre class="note">',re.sub(r'</n>',r'</pre>',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',line,flags=re.I|re.DOTALL))))))))))))))) if not skipconversion else line
+  line=re.sub(r'&lt;(pre.*?|/pre|b|/b|c|/c|span.*?|/span|cc|/cc|a .*?|/a)&gt;',r'<\1>',re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',re.sub(r'<i>',r'<span style="font-style:Italic">',re.sub(r'<d(\d+)?>',r'<span style="background-color:#000" class="dot\1"></span>',re.sub(r'<r>',r'<span style="color:#ff0000;">',re.sub(r'<g>',r'<span style="color:#004000;">',re.sub(r'<l>',r'<span style="color:#0055cf;">',re.sub(r'<R>',r'<span style="color:#ff0000;font-weight:bold">',re.sub(r'<G>',r'<span style="color:#004000;font-weight:bold">',re.sub(r'<L>',r'<span style="color:#0055cf;font-weight:bold">',re.sub(r'</[irglRGL]>',r'</span>',re.sub(r'<n>',r'<pre class="note">',re.sub(r'</n>',r'</pre>',re.sub(r'<c>',r'<pre class="codei">',re.sub(r'</cc?>',r'</pre>',re.sub(r'<cc>',r'<pre class="codeci">',line,flags=re.I|re.DOTALL))))))))))))))))) if not skipconversion else line
   with open(r'./test.html','w') as file:
    file.write('<html>\n<head>\n<link rel="stylesheet" type="text/css" href="../css/main.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="../css/agenda.css" media="all"/>\n</head>\n<body>\n<div class="pg">\n'+(htmlcode if addtag else '')+line+('</'+htmltag+'>\n' if addtag else '')+'</div>\n</body>\n</html>')
   self.driver.refresh()
-  return (self.driver.find_element_by_css_selector(htmlselector).size,line)
+#  return (self.driver.find_element_by_css_selector(htmlselector).size,line)
+  elementdata=self.driver.find_element_by_css_selector(htmlselector)
+  return ({'height':elementdata.size['height']+int(re.sub(r'^\s*(\d+).*$',r'\1',elementdata.value_of_css_property('margin-top')))+int(re.sub(r'^\s*(\d+).*$',r'\1',elementdata.value_of_css_property('margin-bottom'))),'width':elementdata.size['width']},line)
  
  def pagedivider(self,code,htmlselector,height=None,skipconversion=False):
   '''partition code to before page end and after page end
@@ -423,9 +430,9 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
   if self.mode != 'php':
    print("--writing to %s" % sys.argv[3]+'_pdf.html')
    with open(sys.argv[3]+"_pdf.html",'w') as file:
-    open('tmp.css','w').write('div.pg pre.slidecontent, div.pg pre.code,div.pg codeb,  div.pg pre.codec {display:block;}\ndiv.pg pre.slidetitle{margin-top:20%},div.pg pre.slidedisclaimer {margin-top:20%;}')
-    file.write(re.sub(r'.*?(<div\s+class="pg".*)',r'<html>\n<head>\n<title>Minh, Inc. Software development and Outsourcing| '+sys.argv[3]+' training Bangalore India</title>\n<META http-equiv="Content-Type" content="text/html; charset=UTF-8">\n<link rel="stylesheet" type="text/css" href="../css/main.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="../css/agenda.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="./tmp.css" media="all"/>\n'+r'\1'+'</body>\n</html>',self.htmlstr,flags=re.DOTALL))
-   print('creating pdf ... advance-'+sys.argv[3]+'-'+('agenda' if self.mode == 'agenda' else 'slides')+'.pdf crateated')
+    open('tmp.css','w').write('div.pg pre.slidecontent, div.pg pre.code,div.pg pre.codeb,  div.pg pre.codec {display:block;}\ndiv.pg pre.slidetitle{margin-top:20%},div.pg pre.slidedisclaimer {margin-top:20%;}')
+    file.write(re.sub(r'.*?(<div\s+class="pg".*)',r'<html>\n<head>\n<title>Minh, Inc. Software development and Outsourcing| '+sys.argv[3]+' training Bangalore India</title>\n<META http-equiv="Content-Type" content="text/html; charset=UTF-8">\n<link rel="stylesheet" type="text/css" href="../css/main.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="../css/agenda.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="./tmp.css" media="all"/>\n</head>\n<body>\n'+r'\1'+'</body>\n</html>',self.htmlstr,flags=re.DOTALL))
+   print('creating pdf ... advance-'+sys.argv[3]+'-'+('agenda' if self.mode == 'agenda' else 'slides')+'.pdf created')
 #   pdfkit.from_file(sys.argv[3]+'_pdf.html','advance-'+sys.argv[3]+'-'+('agenda' if self.mode == 'agenda' else 'slides')+'.pdf')
    os.system('wkhtmltopdf --enable-local-file-access '+sys.argv[3]+'_pdf.html advance-'+sys.argv[3]+'-'+('agenda' if self.mode == 'agenda' else 'slides')+'.pdf')
 
@@ -435,13 +442,13 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
    self.htmlstr+="""<pre class="ftr">&copy www.minhinc.com</pre><a href="#main%s" class="pn">%s%s</a>
 </div>
 <div class="pg" style="margin-top:%spx;height:%spx;%s">
-""" % (self.day[k][i],'<img src="http://minhinc.com/image/arrow.png" width="20px" height="20px"/>' if header!='noarrow' else '',"p"+str(self.pagenumber),self.TM,self.PH,"border:"+border if border else '')
+""" % (self.day[k][i],'<img src="../../image/arrow.png" width="20px" height="20px"/>' if header!='noarrow' else '',"p"+str(self.pagenumber),self.TM,self.PH,"border:"+border if border else '')
 #   self.hc=self.BTMOFST
   elif header:
     self.htmlstr+="""<br><pre class="ftr">&copy www.minhinc.com</pre><a class="pn" href="#main%s">%s</a>
 </div>
 <div class="pg" style="margin-top:%spx;">
-""" % (self.day[k][i],'<img src="http://minhinc.com/image/arrow.png" style="width:20px"/>' if header!='noarrow' else '',self.TM)
+""" % (self.day[k][i],'<img src="../../image/arrow.png" style="width:20px"/>' if header!='noarrow' else '',self.TM)
   self.hc=self.BTMOFST
 
  def placetopbreak(self,top=False,border=''):
@@ -462,13 +469,14 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
 
  def adsensepaste(self,width,height,stylecode='',factor=0.2):
   rightdiv=''
+  PAGECOUNT=2
   tmpstr=''
   width=max(width,-width)
   if not self.responsivesquare:
-   self.responsivesquare=[self.db.get('adsense','value','name','responsivesquare')[0][0],False]
+   self.responsivesquare=[self.db.get('adsense','value','name','responsivesquare')[0][0],False,1]
    print('responsivesquare',self.responsivesquare)
   if self.backend[0]=='m':
-   if self.hc+height<=self.PH/2 or self.responsivesquare[1]:
+   if self.hc+height<=self.PH/2 or self.responsivesquare[2]!=PAGECOUNT or self.responsivesquare[1]:
     height=height if width == self.PAGEWIDTH else int(height/4)
     tmpstr=re.sub(r'\s*data-ad-format="auto".*responsive="true"',r'',re.sub(r'(class="adsbygoogle)',r'\1 adslot_1',re.sub(r'display:block',r'display:inline-block;height:'+str(height)+'px;',self.responsivesquare[0],flags=re.I|re.DOTALL),flags=re.I|re.DOTALL),flags=re.I|re.DOTALL) if height >= 50 else ''
 #    rightdiv+="<div style=\"width:100%;height:"+str(height)+"px;\"><div align=\"center\" style=\"width:100%;height:"+str(height)+"px;"+stylecode+"\">"+tmpstr+r'</div></div>' if tmpstr else ''
@@ -478,8 +486,11 @@ Document contains XXPAGEXX pages.""" % (self.tech,self.tech,date.today().strftim
    rightdiv=("<div style=\"width:"+str(int(width))+"px;height:"+str(height)+"px;position:relative;"+stylecode+"\" align=\"center\">"+tmpstr+r'</div>' if tmpstr and self.mode=='php' else '')+(r'<div class="clr"></div>' if re.search(r'float\s*:\s*right',stylecode,flags=re.I) and self.mode=='php' else '')
   if self.hc<=self.PH/2 and self.responsivesquare[1]:
    self.responsivesquare[1]=False
+   self.responsivesquare[2]+=1
   if self.hc+height>self.PH/2 and not self.responsivesquare[1]:
-   rightdiv+="<div align=\"center\" style=\"width:100%;\""+self.responsivesquare[0]+r'</div>' if self.mode=='php' else ''
+   if self.responsivesquare[2]==PAGECOUNT:
+    rightdiv+="<div align=\"center\" style=\"width:100%\">"+self.responsivesquare[0]+r'</div>' if self.mode=='php' else ''
+    self.responsivesquare[2]=0
    self.responsivesquare[1]=True
   return rightdiv
 

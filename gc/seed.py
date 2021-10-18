@@ -25,7 +25,8 @@ def usage():
  python seed.py delete linkvisited [regexp] name .*minh.*
  python seed.py delete linkvisited date 20180318
  python seed.py update track status 2 email sales@minhinc.com
- python seed.py print track
+ python seed.py print <tablename> i.e. "print track" or "print"
+ python seed.py push [<tablename>] <datafilename> i.e. "push qt data.txt" or "push data.txt"
  python seed.py search track [regex] name .*minh.*''')
 if len(sys.argv)<=1:
  usage()
@@ -42,6 +43,29 @@ else:
   crsr.execute("SHOW TABLES")
   for (table_name,) in crsr:
    print(table_name)
+ elif re.search('push',sys.argv[1],flags=re.I):
+  tempvar1=None
+  selectq=None
+  tbl=dict()
+  [tbl.__setitem__(re.sub(r'^(\w+).*$',r'\1',i[0]),re.findall(r'(\w+)\s+(\w*CHAR|\w*INT|\w*TEXT|\w*BLOB)',i[1])) for i in re.findall('CREATE TABLE.*?(\w+)\s*\((.*?)\)"\s*\)',open('databasem.py').read())]
+  print('tbl',tbl)
+  with open(sys.argv[2 if len(sys.argv)<=3 else 3]) as file:
+   for line in [line.strip('\n') for line in file]:
+    if re.search(r'^(database re-connected|\s*$)',line,flags=re.I):
+     continue
+    if re.search(r'^[ ]+\w+',line):
+     tempvar1=re.sub(r'^\s*(\w+).*$',r'\1',line,flags=re.I)
+     if len(sys.argv)>3 and not re.search(r'^'+tempvar1+r'$',sys.argv[2],flags=re.I):
+      tempvar1=None
+     else:
+      selectq=f'INSERT INTO {tempvar1}('+','.join(i[0] for i in tbl[tempvar1])+r') VALUES('+('%s,'*len(tbl[tempvar1]))[:-1]+r')'
+      print(f'truncating {tempvar1}')
+      crsr.execute("TRUNCATE TABLE %s" % (tempvar1,))
+     continue
+    if tempvar1:
+     splitline=re.split('!ABS SBA!',line)
+     col=[int(re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',splitline[i]).encode('utf-8').decode('unicode_escape')) if tbl[tempvar1][i][1]=='INT' else re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',splitline[i]).encode('utf-8').decode('unicode_escape') for i in range(len(splitline))]
+     crsr.execute(selectq,col)
  elif re.search('youtube',sys.argv[1],flags=re.I):
   from selenium import webdriver
   import json
@@ -71,6 +95,21 @@ else:
    if re.search(r'"youtube"\s*:',youtubecontent,flags=re.I):
     dbi.update('tech','content',re.sub(r'(.*"youtube"\s*:\s*).*?(,?\s*\n.*)',r'\1'+json.dumps(jsonstring)+r'\2',youtubecontent,flags=re.DOTALL|re.I),'name',sys.argv[3])
   if not fileexists: driver.close()
+ elif re.search('print',sys.argv[1],flags=re.I):
+  tempvar1=None
+  if len(sys.argv)>2:
+#   tempvar1=sys.argv[2:]
+   tempvar1=sys.argv[2:3]
+  else:
+   crsr.execute('SHOW TABLES')
+   tempvar1=[i[0] for i in crsr]
+  for i in tempvar1:
+   print(f'      {i}      ')
+   for j in dbi.get(i):
+    if len(sys.argv)>3:
+     print([j[int(x)] for x in sys.argv[3:]])
+    else:
+     print(repr('!ABS SBA!'.join(str(k) if type(k)!=str else k for k in j)))
  elif len(sys.argv)<=2:
   usage()
  elif re.search('drop',sys.argv[1],flags=re.I):
@@ -101,7 +140,7 @@ else:
     dbi.fill('country',((sys.argv[i],),))
     dbi.update('country','id',int(sys.argv[3])+i-4,'id',0)
     print("inserted into country %s" % sys.argv[i])
-  elif re.search('^(qt|qml|gl|c|cpp|py|ldd|li|dp|headername)$',sys.argv[2],flags=re.I):
+  elif re.search('^(qt|qml|gl|c|cpp|py|ldd|li|dp|ai|headername)$',sys.argv[2],flags=re.I):
    dbi.fill(sys.argv[2],((sys.argv[4],),))
    dbi.update(sys.argv[2],'id',int(sys.argv[3]),'id',0)
    if len(sys.argv)>=6:
@@ -118,17 +157,13 @@ else:
  elif re.search('update',sys.argv[1],flags=re.I):
   dbi.update(sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6])
   print("updated table %s field %s value %s for %s = %s" % (sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6]))
- elif re.search('print',sys.argv[1],flags=re.I):
-  for i in dbi.get(sys.argv[2]):
-   if len(sys.argv)>3:
-    print([i[int(x)] for x in sys.argv[3:]])
-   else:
-    print(i)
  elif re.search('search',sys.argv[1],flags=re.I):
   if re.search(r'reg',sys.argv[3],flags=re.I):
    if dbi.search(sys.argv[2],sys.argv[5],sys.argv[4],regex=True):
     print(dbi.get(sys.argv[2],'*',sys.argv[4],sys.argv[5],regex=True))
   else:
    if dbi.search(sys.argv[2],sys.argv[4],sys.argv[3]):
-    print(str(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4])).replace('\\n','\n').replace(", '",", \n'"))
+#    print(str(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4])).replace('\\n','\n').replace(", '",", \n'"))
+#    print(str(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4])).replace(r'\\',"!double escape!").replace(r'\n','\n').replace('!double escape!',r'\\'))
+    print(str(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4])).encode('utf-8').decode('unicode_escape'))
  dbi.close()

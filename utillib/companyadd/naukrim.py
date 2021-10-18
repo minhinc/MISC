@@ -23,10 +23,10 @@ class naukric:
 #    for i in [re.sub(r'<span class="org">([^<]*)<.*?<span class="loc">.*?<span>([^<]*)<','\\1 \\2',name) for name in re.findall(r'<span class="org">[^<]*<.*?<span class="loc">.*?<span>[^<]*<',utili.download('https://www.naukri.com/'+tech+'-jobs-in-'+sys.argv[1].lower()+extension))]:
     print('><naukri.com https://www.naukri.com/'+tech+'-jobs-in-'+sys.argv[1].lower()+extension)
     driverp.get('https://www.naukri.com/'+tech+'-jobs-in-'+sys.argv[1].lower()+extension)
-#    for i in range(2):
-#     driverp.execute_script("window.scrollBy(0,250)")
-#     print("window scroll {}".format(i))
-#     time.sleep(1)
+    for i in range(2):
+     driverp.execute_script("window.scrollBy(0,250)")
+     print("window scroll {}".format(i))
+     time.sleep(1)
     for i in [i for i in re.findall(r'target="_blank" title="[^"]*"\s*>.*?</a>',driverp.page_source) if re.sub(r'.*title="(.*?)".*',r'\1',i,flags=re.I) == re.sub(r'.*>(.*?)</a>.*',r'\1',i,flags=re.I) and not re.search(r'(Naukri|Ambition Box)',i,flags=re.I)]:
      fetchstr_l.append(re.sub(r'.*>(.*?)</a>.*',r'\1',i,flags=re.I)+' '+sys.argv[1])
    except:

@@ -2,45 +2,65 @@ import os
 import math
 from PIL import Image,ImageDraw,ImageFont
 import re
+import shlex
+import subprocess
 class libc:
  '''library class to provide basic functions'''
  counti=-1
- def __init__(self,debug=False,inputfile='input.mp4'):
+ def __init__(self,debug=False,inputfile=None,destdir='logdir'):
   self.filter={
-          'blend':{'blend':"blend=all_expr='A*(1-min(T/1,1))+B*(min(T/1,1))'",
-                   'up': "blend=all_expr='if(lte(Y,(H-T/1*H)),A,B)'", #Curtain up \
-                   'right':"blend=all_expr='if(gte(X,(T/1*W)),A,B)'", #Curtain right \
-                   'down':"blend=all_expr='if(gte(Y,(T/1*H)),A,B)'", #curtain down \
-                   'left':"blend=all_expr='if(lte(X,(W-T/1*W)),A,B)'", #curtain left \
-                   'verticalopen':"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2)),B,A)'",
-                   'horizontalclose':"blend=all_expr='if(between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)'",
-                   'verticalclose':"",
-                   'horizontalclose':"",
-                   'circleopen':"blend=all_expr='if(gte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(T/2*max(W,H))),A,B)'",
-                   'circleclose':"blend=all_expr='if(lte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(max(W,H)-(T/1*max(W,H)))),A,B)'",
-                   'expandingwindow':"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2))*between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)'",
-                   'fadein': "[1]fade=in:st=0:d=1:alpha=1"
-                  },
-          'overlay':{ 'up' :"overlay=x='(W-w)/2':y='max((H-h)/2,H-t/1*H)'",
-                      'right' : "overlay=x='min((W-w)/2,-w+t/1*W)':y='(H-h)/2'",
-                      'bottom': "overlay=x='(W-w)/2':y='min((H-h)/2,-h+t/1*H)'",
-                      'left' : "overlay=x='max((W-w)/2,W-t/1*W)':y='(H-h)/2'"
-                    }
-         }
+   'blend':{'blend':"blend=all_expr='A*(1-min(T/1,1))+B*(min(T/1,1))'",
+     'up': "blend=all_expr='if(lte(Y,(H-T/1*H)),A,B)'", #Curtain up \
+     'right':"blend=all_expr='if(gte(X,(T/1*W)),A,B)'", #Curtain right \
+     'down':"blend=all_expr='if(gte(Y,(T/1*H)),A,B)'", #curtain down \
+     'left':"blend=all_expr='if(lte(X,(W-T/1*W)),A,B)'", #curtain left \
+     'verticalopen':"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2)),B,A)'",
+     'horizontalclose':"blend=all_expr='if(between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)'",
+     'verticalclose':"",
+     'horizontalclose':"",
+     'circleopen':"blend=all_expr='if(gte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(T/2*max(W,H))),A,B)'",
+     'circleclose':"blend=all_expr='if(lte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(max(W,H)-(T/1*max(W,H)))),A,B)'",
+     'expandingwindow':"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2))*between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)'",
+     'fadein': "[1]fade=in:st=0:d=3:alpha=1"
+   },
+   'overlay':{ 'normal':"overlay=x='(W-w)/2':y='(H-h)/2'",
+     'up' :"overlay=x='(W-w)/2':y='max((H-h)/2,H-t/1*H)'",
+     'right' : "overlay=x='min((W-w)/2,-w+t/1*W)':y='(H-h)/2'",
+     'bottom': "overlay=x='(W-w)/2':y='min((H-h)/2,-h+t/1*H)'",
+     'left' : "overlay=x='max((W-w)/2,W-t/1*W)':y='(H-h)/2'"
+   }
+  }
   self.debugf=debug
-  self.inputfile=inputfile
-  self.videowidth,self.videoheight=[int(x) for x in os.popen('ffmpeg -i '+self.inputfile+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
+  if not os.path.isdir(destdir):
+   os.mkdir(destdir)
+  self.destdir=destdir
+#  self.inputfile=self.adddestdir(inputfile) if inputfile else None
+#  self.videowidth,self.videoheight=[int(x) for x in os.popen('ffmpeg -i '+self.inputfile+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')] if self.inputfile else None,None
+  self.videowidth=self.videoheight=0
+  if inputfile:
+   self.setvideo(inputfile)
   self.palettecolor={
-         'red':(255,0,0,255),
-         'blue':(0,0,255,255),
-         'green':(0,255,0,255),
-         'gi':(0,64,0,255),
-         'white':(255,255,255,255),
-         'black':(0,0,0,255),
-         'transparent':(0,0,0,0),
-         'shade1':(0,0,0,32), 'shade2':(0,0,0,64), 'shade3':(0,0,0,96), 'shade4':(0,0,0,128), 'shade5':(0,0,0,160), 'shade6':(0,0,0,192), 'shade7':(0,0,0,224)
-        }
-  self.debug("<>libc::_init__ video widthxheight {}x{}".format(self.videowidth,self.videoheight))
+   'red':(255,0,0,255),
+   'blue':(0,0,255,255),
+   'green':(0,255,0,255),
+   'gi':(0,64,0,255),
+   'white':(255,255,255,255),
+   'black':(0,0,0,255),
+   'transparent':(0,0,0,0),
+   'shade1':(0,0,0,32), 'shade2':(0,0,0,64), 'shade3':(0,0,0,96), 'shade4':(0,0,0,128), 'shade5':(0,0,0,160), 'shade6':(0,0,0,192), 'shade7':(0,0,0,224),
+   'shade8':(255,255,255,32), 'shade9':(255,255,255,64), 'shade10':(255,255,255,96), 'shade11':(255,255,255,128), 'shade12':(255,255,255,160), 'shade13':(255,255,255,192), 'shade14':(255,255,255,224)
+  }
+  print(f'<>libc::_init__ {self.videowidth=} {self.videoheight=}')
+
+# def setvideo(self,inputfile,dimension=None):
+ def setvideo(self,inputfile):
+  print(f'><libc.setvideo {inputfile=}')
+  if re.search(r'^\s*[\d]+\s*[-:x,]\s*[\d]+\s*$',inputfile):
+   self.videowidth,self.videoheight=[int(x) for x in re.split('[-:,x]',inputfile)]
+  else:
+#   self.inputfile=self.adddestdir(inputfile) if inputfile else None
+   self.videowidth,self.videoheight=([int(x) for x in os.popen('ffmpeg -i '+inputfile+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]) if self.inputfile else (None,None)
+  print(f'<>libc.setvideo {self.videowidth=} {self.videoheight=}')
 
  def videoattribute(self,videofile_p):
   print("videofile_p {}".format(videofile_p))
@@ -65,15 +85,18 @@ class libc:
     if x:
 #     arglist[count]=x.replace(DBL_ESC,'\\')
      if arglist[count]!=None: 
-      arglist[count]=type(arglist[count])(x.replace(DBL_ESC,'\\'))
+      arglist[count]=type(arglist[count])(x.replace('\\:',':').replace(DBL_ESC,'\\'))
      else:
-      arglist[count]=x.replace(DBL_ESC,'\\')
+      arglist[count]=x.replace('\\:',':').replace(DBL_ESC,'\\')
    return arglist
-  return [x.replace(DBL_ESC,'\\') for x in re.split(r'(?<!\\):',string_p.replace(r'\\',DBL_ESC))]
+  return [x.replace('\\:',':').replace(DBL_ESC,'\\') for x in re.split(r'(?<!\\):',string_p.replace(r'\\',DBL_ESC))]
 
  def dimension(self,file_p):
-  if re.search(r'[.]mp4',file_p,flags=re.I):
-   return [int(x) for x in os.popen('ffmpeg -i "+self.inputfile+" 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
+  if re.search(r'[.]mp4$',file_p,flags=re.I):
+#   return [int(x) for x in os.popen('ffmpeg -i "+self.inputfile+" 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
+   retval= [str(int(x)) for x in os.popen('ffmpeg -i '+file_p+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
+   print(f'libc.dimension {retval=} {file_p=}')
+   return retval
   else:
    return Image.open(file_p).size
 
@@ -84,6 +107,7 @@ class libc:
   draw_p.text((x_p,y_p),text_p,font=textfont_p,fill=textcolor_p)
 
  def getfont(self,stringlist_p,screenratio_p=0.8,fontfamily_p='/home/minhinc/.fonts/ufonts.com_tw-cen-mt.ttf'):
+  print(f'><libc.getfont {self.videowidth=} {self.videoheight=} {stringlist_p} {screenratio_p} {fontfamily_p}')
   self.debug("libc::getfont><",stringlist_p,screenratio_p)
   i=10
   maxindex=[len(j) for j in stringlist_p].index(max(len(j) for j in stringlist_p))
@@ -97,7 +121,8 @@ class libc:
   print('*****************')
   if self.debugf:
    input("Press key to continue...")
-  os.system(re.sub(r' -y ([^ ]+[.].*)$',r' -preset ultrafast -y \1',commandstring_p) if self.debugf else commandstring_p)
+#  os.system(re.sub(r' -y ([^ ]+[.].*)$',r' -preset ultrafast -y \1',commandstring_p) if self.debugf else commandstring_p)
+  subprocess.call(shlex.split(re.sub(r' -y ([^ ]+[.].*)$',r' -preset ultrafast -y \1',commandstring_p) if self.debugf else commandstring_p))
 
  def getsecond(self,time_p,demark_p=False):
   '''demark is time non colon to colon format'''
@@ -113,10 +138,11 @@ class libc:
   return time_p
 
  def system(self,commandstring_p):
-  self.debug("libm::system<>",commandstring_p)
+  print(f'libc.system {commandstring_p=}')
   if self.debugf:
    input("Press key to continue...")
-  os.system(commandstring_p)
+#  os.system(commandstring_p)
+  subprocess.call(shlex.split(commandstring_p))
 
  def stepvalue(self,initial_p,last_p,step_p=2):
   '''min step_p=2. that is 0 and 1. For step_p=1 initial_p would return'''
@@ -203,7 +229,15 @@ class libc:
      return self.palettecolor[key]
   return None
 
+ def adddestdir(self,filename):
+  if not re.search(r'/\w+',filename,flags=re.I) and not re.search(self.destdir+r'/*$',os.getcwd(),flags=re.I):
+   print('filename in search',filename)
+   return self.destdir+r'/'+filename
+  return filename
  def outimagename(self,imagename,outimagename=None,extension=None):
   '''new imagename as imagename<self.count()>.<extension>'''
-  outimagename=outimagename if outimagename else re.sub('^(?P<id>[^.]*)(?P<id1>.*?)$',lambda m: m.group('id')+str(self.count())+m.group('id1'),imagename,re.I)
-  return outimagename if not extension else re.sub(r'[.].*$',r'.{}'.format(extension),outimagename)
+  if not outimagename:
+   outimagename=re.sub('^(?P<id>[^.]*)(?P<id1>.*?)$',lambda m: m.group('id')+'_'+str(self.count())+m.group('id1'),imagename,re.I)
+   while os.path.isfile(outimagename):
+    outimagename=re.sub('^(?P<id>[^.]*)(?P<id1>.*?)$',lambda m: m.group('id')+'_'+str(self.count())+m.group('id1'),imagename,re.I)
+  return self.adddestdir(outimagename if not extension else re.sub(r'[.].*$',r'.{}'.format(extension),outimagename))

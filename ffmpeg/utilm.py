@@ -7,14 +7,17 @@ import re
 import math
 #import json
 import requests
-import libm
+import MISC.ffmpeg.libm as libm
 class utilc:
  '''1. Video editing functions
     2. Gif creation functions
     3. Image manipulation functions'''
- def __init__(self,debug=False):
+ def __init__(self,debug=False,inputfile=None):
   '''Enable debug True/False'''
-  self.libi=libm.libc(debug)
+  self.libi=libm.libc(debug,inputfile=inputfile)
+
+ def setvideo(self,inputfile):
+  self.libi.setvideo(inputfile)
 
  def addalpha(self,imagename,alpha,outimagename=None):
   '''Add alpha to image/video (png/jpg/mp4)'''
@@ -22,9 +25,9 @@ class utilc:
   mask=Image.new(r'L',[int(i) for i in self.libi.videoattribute(imagename)[0]] if re.search(r'[.]mp4$',imagename,re.I) else Image.open(imagename).size,color=alpha)
   if re.search(r'video',self.libi.exiftool(imagename,'MIME Type'),re.I):
    outimagename=self.libi.outimagename(imagename,outimagename,'mov')
-   mask.save('maskimage.png')
+   mask.save(self.libi.adddestdir('maskimage.png'))
    mask.close()
-   self.libi.ffmpeg("ffmpeg -i "+imagename+" -loop 1 -i maskimage.png -filter_complex \"[0][1]alphamerge\" -pix_fmt rgba -vcodec png -y "+outimagename)
+   self.libi.ffmpeg("ffmpeg -i "+imagename+" -loop 1 -i "+self.libi.adddestdir('maskimage.png')+" -filter_complex \"[0][1]alphamerge\" -pix_fmt rgba -vcodec png -y "+outimagename)
   else:
    outimagename=self.libi.outimagename(imagename,outimagename)
    img=Image.open(imagename).convert('RGBA')
@@ -33,7 +36,8 @@ class utilc:
    img.close()
   return outimagename
 
- def image2gif(self,imagename,filter,mode,duration=None,backcolor=(0,0,0,0),outimagename=None):
+# def image2gif(self,imagename,filter,mode,duration=None,backcolor=(0,0,0,0),outimagename=None):
+ def image2gif(self,imagename,filtermode,duration=None,backcolor=(0,0,0,0),outimagename=None):
   '''Create mov from png/gif/.mp4 image based on filter,mode libc.filter[filter][mode]
    filter - blend/overlay
    mode - up/left/bottom/right.... see libc.filter
@@ -42,21 +46,21 @@ class utilc:
    backcolor - background glass color
    outimagename - output mov name=<imagename>_<count>.mov'''
   img=Image.new('RGBA',[int(i) for i in self.libi.videoattribute(imagename)[0]] if re.search('video',self.libi.exiftool(imagename,'MIME Type'),re.I) else Image.open(imagename).size,backcolor)
-  img.save('transparentpng.png')
+  img.save(self.libi.adddestdir('transparentpng.png'))
   img.close()
 #  os.system('rm out*.png')
 #  self.libi.system("ffmpeg -i transparentpng.png"+(" -loop 1 -t "+str(duration) if not re.search(r'.(gif|mp4)$',imagename) else "")+" -i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',self.libi.filter[filter][mode]) else "")+self.libi.filter[filter][mode]+",split=2[b][f];[b]palettegen[b];[f][b]paletteuse,fps=10\" -vsync 0 out%0"+str(int(math.log10(duration*10))+1)+"d.png")
   outimagename=self.libi.outimagename(imagename,outimagename,extension='mov')
 #  self.libi.system("ffmpeg -i transparentpng.png"+(" -loop 1 -t "+str(duration) if not re.search(r'.(gif|mp4)$',imagename) else "")+" -i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',self.libi.filter[filter][mode]) else "")+self.libi.filter[filter][mode]+"\" -pix_fmt rgba -vcodec png "+outimagename)
-  self.libi.ffmpeg("ffmpeg -i transparentpng.png "+(("-loop 1 " if not re.search(r'[.](gif|mov|mp4)$',imagename) else "-ignore_loop 0 " if re.search(r'[.]gif$',imagename,re.I) else "")+"-t "+str(duration)+" " if duration else "")+"-i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',self.libi.filter[filter][mode]) else "")+self.libi.filter[filter][mode]+"\" -pix_fmt rgba -vcodec png -y "+outimagename)
+  self.libi.ffmpeg("ffmpeg -i "+self.libi.adddestdir('transparentpng.png')+" "+(("-loop 1 " if not re.search(r'[.](gif|mov|mp4)$',imagename) else "-ignore_loop 0 " if re.search(r'[.]gif$',imagename,re.I) else "")+"-t "+str(duration)+" " if duration else "")+"-i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',filtermode) else "")+filtermode+"\" -pix_fmt rgba -vcodec png -y "+outimagename)
 #  duration=duration if duration else float(self.libi.exiftool(imagename,'Duration')) if re.search(r'[.](gif|mov|mp4)$',imagename,re.I) else duration
 #  self.libi.ffmpeg("ffmpeg -loop 1 -t "+str(duration)+" -i transparentpng.png "+(("-ignore_loop 0 " if re.search(r'[.]gif$',imagename,re.I) else "")+"-t "+str(duration)+" " if duration and re.search(r'[.](gif|mov|mp4)$',imagename,re.I) else "")+"-i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',self.libi.filter[filter][mode]) else "")+self.libi.filter[filter][mode]+"\" -pix_fmt rgba -vcodec png -y "+outimagename)
 #  self.libi.system("convert -loop 1 -dispose Background -delay 10 out*.png "+outimagename)
   return outimagename
 
- def text2image(self,text,textcolor='r',backcolor='shade6',size=0.3,stroke=False,alignment='m',margin=10,outimagename=None):
+ def text2image(self,text,textcolor='r',backcolor=(0,0,0,0),size=0.3,stroke=False,alignment='m',margin=10,outimagename=None):
   '''Create text png image
-   text - text to draw=r'Sample\nText' or 'Sample\\nText'
+   text - text to draw=r'<text>:<size>:<textcolor>:<rectcolor>:<verticalmargin>,Sample\nText' or 'Sample\\nText'
    textcolor - default color of text='red' see lib.palettecolor
    backcolor - background color of text=(0,0,0,192)
    size - width of textline/video width=0.4
@@ -72,7 +76,7 @@ class utilc:
    stringlist.append(self.libi.split(i,('',size,textcolor,str(backcolor),margin)))
   imagewidth=max([self.libi.getfont([stringlist[i][0]] if len(stringlist[i][0]) >= 20 else ['Q'*20],stringlist[i][1],'/home/minhinc/.fonts/Consolas.ttf').getsize(stringlist[i][0])[0]+offset for i in range(len(stringlist))])
   imageheight=sum([self.libi.getfont([stringlist[i][0]] if len(stringlist[i][0]) >= 20 else ['Q'*20],stringlist[i][1],'/home/minhinc/.fonts/Consolas.ttf').getsize(stringlist[i][0])[1]+stringlist[i][4] for i in range(len(stringlist))])
-  print('stringlist,imagewidth,imageheight',stringlist,imagewidth,imageheight)
+  print(f'{stringlist=} {imagewidth=} {imageheight=}')
   img=Image.new('RGBA',(imagewidth,imageheight),(0,0,0,0))
   draw=ImageDraw.Draw(img)
   bottommargin=0
@@ -110,11 +114,11 @@ class utilc:
   if textdata[0]:draw.text((xoffset,-10),textdata[0],font=font,fill=textcolor[0])
   if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-10),textdata[1],font=font1,fill=textcolor[0])
   if textdata[2]:draw.text((int((imagewidth-font2.getsize(textdata[2])[0])/2),font.getsize(textdata[0])[1]+1.5*yoffset-10),textdata[2],font=font2,fill=textcolor[1])
-  img.save('frnt.png')
+  img.save(self.libi.adddestdir('frnt.png'))
   convertstring='convert -loop 0 -dispose Background -delay 4 '
   for j in range(2):
    for count,i in enumerate(self.libi.stepvalue(0,imagewidth+int(font.getsize(textdata[0]+textdata[1])[1]+4*yoffset+font2.getsize(textdata[2])[1]),22)):
-    img=Image.open(r'frnt.png').convert('RGBA')
+    img=Image.open(self.libi.adddestdir('frnt.png')).convert('RGBA')
     mask=Image.new(r'L',img.size,color=0)
     draw=ImageDraw.Draw(mask)
     if textdata[0]:draw.text((xoffset,-10),textdata[0],font=font,fill=255)
@@ -125,12 +129,12 @@ class utilc:
     else:
      draw.polygon([(0,0),(i,0),(0,i)],fill=0)
     img.putalpha(mask)
-    convertstring+='out'+str(j)+str(count)+'.png '
-    img.save('out'+str(j)+str(count)+'.png')
+    convertstring+=self.libi.adddestdir('out'+str(j)+str(count)+'.png')+' '
+    img.save(self.libi.adddestdir('out'+str(j)+str(count)+'.png'))
    if j==0:
-    convertstring+='-delay 30 out'+str(j)+str(count)+'.png -delay 3 '
+    convertstring+='-delay 30 '+self.libi.adddestdir('out'+str(j)+str(count)+'.png')+' -delay 3 '
   outimagename=self.libi.outimagename('logotext.',extension='gif')
-  self.libi.system(convertstring+'-delay 1 out'+str(j)+str(count)+'.png '+outimagename)
+  self.libi.system(convertstring+'-delay 1 '+self.libi.adddestdir('out'+str(j)+str(count)+'.png')+' '+outimagename)
   return outimagename
 
  def swipetext(self,text,size=0.4,alignment='l',duration=6,textcolor=(255,255,255,255),glasscolor=(0,0,0,0),outimagename=None):
@@ -167,10 +171,10 @@ class utilc:
     else:
      draw.text(((img1.width-fnt.getsize(stringlist[i])[0])/2,max((textcellheight-fnt.getsize(stringlist[textmaxindex])[1])/2,j-int(diff[i]))),stringlist[i],font=fnt,fill=textcolor)
     img.paste(img1,(int(offset*2/3) if alignment=='l' else 0,i*textcellheight))
-   img.save("swipetext"+str(count)+".png")
-   convertstring+="swipetext"+str(count)+".png "
+   img.save(self.libi.adddestdir("swipetext"+str(count)+".png"))
+   convertstring+=self.libi.adddestdir("swipetext"+str(count)+".png")+" "
 #  convertstring+="-delay "+str(duration*100*0.7)+" swipetext"+str(count)+".png -delay "+str((duration*100-duration*100*0.7)/stepcount)+' '
-  convertstring+="-delay "+str((duration-2)*100)+" swipetext"+str(count)+".png -delay "+str((100*1)/(stepcount/2))+' '
+  convertstring+="-delay "+str((duration-2)*100)+" "+self.adddestdir("swipetext"+str(count)+".png")+" -delay "+str((100*1)/(stepcount/2))+' '
   for count,j in enumerate(self.libi.stepvalue((textcellheight-fnt.getsize(stringlist[textmaxindex])[1])/2,-fnt.getsize(stringlist[textmaxindex])[1],int(stepcount/2))):
    img=Image.new('RGBA',(fnt.getsize(stringlist[textmaxindex])[0]+(offset if alignment=='l' else 0),textcellheight*len(stringlist)+(offset if alignment=='b' else 0)),(0,0,0,0))
    draw=ImageDraw.Draw(img)
@@ -182,8 +186,8 @@ class utilc:
     else:
      draw.text(((img1.width-fnt.getsize(stringlist[i])[0])/2,j),stringlist[i],font=fnt,fill=(255,255,255,255))
     img.paste(img1,(int(offset*2/3) if alignment=='l' else 0,i*textcellheight))
-   img.save("swipetext"+str(count)+'u'+".png")
-   convertstring+="swipetext"+str(count)+'u'+".png "
+   img.save(self.libi.adddestdir("swipetext"+str(count)+'u'+".png"))
+   convertstring+=self.libi.adddestdir("swipetext"+str(count)+'u'+".png")+" "
   outimagename=self.libi.outimagename('swipetext.',extension='gif')
   self.libi.system(convertstring+outimagename)
   return outimagename
@@ -253,37 +257,40 @@ class utilc:
     self.libi.drawtextstroke(draw,z[i][0],z[i][1]+(stringlist[i][2]-stringlist[i][3].getsize(stringlist[i][0])[1])/2,stringlist[i][0],stringlist[i][3],((0,191,243),(0,255,0,255),"yellow","orange")[i%4] if alignment[0]=='o' else "yellow" if stringlist[i][3]==fnt else "white")
 #    draw.text((z[i][0],z[i][1]),stringlist[i][0],font=stringlist[i][3],fill=("white",(0,255,0,255),"yellow","orange")[i%4] if orientation[0]=='o' else "yellow" if stringlist[i][3]==fnt else "white")
 #    draw.text((z[i][0],z[i][1]),stringlist[i][0],font=stringlist[i][3],fill=("white","red","yellow","orange")[i%4] if orientation=='o' else "yellow" if stringlist[i][3]==fnt else "white")
-   img.save("omnitext"+str(count)+".png")
-   convertstring+="omnitext"+str(count)+".png "
-  convertstring+="-delay "+str((duration-1)*100)+" omnitext"+str(count)+".png -delay 10 omnitext"+str(count)+".png "
+   img.save(self.libi.adddestdir("omnitext"+str(count)+".png"))
+   convertstring+=self.libi.adddestdir("omnitext"+str(count)+".png ")
+  convertstring+="-delay "+str((duration-1)*100)+" "+self.libi.adddestdir("omnitext"+str(count)+".png")+" -delay 10 "+self.libi.adddestdir("omnitext"+str(count)+".png")+" "
   outimagename=self.libi.outimagename('omnitext.',extension='gif')
   self.libi.system(convertstring+outimagename)
   return outimagename
 
- def breakvideo(self,imagename,slice,join=True,delete=False,outimagename=None):
+ def breakvideo(self,imagename,slice,join=False,delete=False,reencode=False,outimagename=None):
   '''break video in subvidoes
    imagename - name of video file
    slice - time slice ie. ('0-40,40-00:31,00:02:00-140')
+   reencode - reencode the video audio
    join - join the sliced videos
    delete - time slice is deleted slices
    outimagename - output file name'''
   print("Make sure Audacity improved audio is replaced")
   beginstring="ffmpeg "
   outimagename=self.libi.outimagename(imagename)
-#  keeplist=sorted([tuple(i.split('-')) for i in re.split(r',',slice)],key=lambda x: int(x[0]))
-  keeplist=sorted([tuple(map(self.libi.getsecond,i.split('-'))) for i in re.split(r',',slice)],key=lambda x: float(x[0]))
+#  keeplist=sorted([tuple(map(self.libi.getsecond,i.split('-'))) for i in re.split(r',',slice)],key=lambda x: float(x[0]))
+  keeplist=[tuple(map(self.libi.getsecond,i.split('-'))) for i in re.split(r',',slice)]
   t=[None]*2
   i=0
-  while i<len(keeplist)-1:
-   if int(keeplist[i][1])>int(keeplist[i+1][0]):
-    t[0]=keeplist[i][0]
-    t[1]=keeplist[i][1] if int(keeplist[i][1])>int(keeplist[i+1][1]) else keeplist[i+1][1]
-    keeplist.pop(i)
-    keeplist.pop(i)
-    keeplist.insert(i,tuple(t))
-   else:
-    i=i+1
   if delete and keeplist:
+   keeplist=sorted(keeplist,key=lambda x: float(x[0]))
+   while i<len(keeplist)-1:
+    if int(keeplist[i][1])>int(keeplist[i+1][0]):
+     t[0]=keeplist[i][0]
+     t[1]=keeplist[i][1] if int(keeplist[i][1])>int(keeplist[i+1][1]) else keeplist[i+1][1]
+     keeplist.pop(i)
+     keeplist.pop(i)
+     keeplist.insert(i,tuple(t))
+    else:
+     i=i+1
+#  if delete and keeplist:
    t=[('0',keeplist[0][0]),(keeplist[-1][1],self.libi.exiftool(imagename,'Duration'))]
    keeplist=[(keeplist[i-1][1],keeplist[i][0]) for i in range(1,len(keeplist))]
    keeplist.insert(0,t[0])
@@ -294,18 +301,19 @@ class utilc:
     beginstring+="-ss "+i[0]+" -to "+i[1]+" -i "+imagename+" "
    else:
 #    self.libi.ffmpeg("ffmpeg -ss "+i[0]+" -to "+i[1]+" -i "+imagename+" -c copy -y "+re.sub(r'(.*)[.](.*)',r'\1{}.\2'.format(count),outimagefile))
-    self.libi.ffmpeg("ffmpeg -ss "+i[0]+" -to "+i[1]+" -i "+imagename+" -c copy -y "+re.sub(r'^(?P<id>.*)[.](?P<id1>.*)$',lambda m:m.group('id')+str(count)+'.'+m.group('id1'),imagename))
+    self.libi.ffmpeg("ffmpeg -ss "+i[0]+" -to "+i[1]+" -i "+imagename+" "+("" if reencode else "-c copy")+" -y "+re.sub(r'^(?P<id>.*)[.](?P<id1>.*)$',lambda m:m.group('id')+'_'+str(count)+'.'+m.group('id1'),imagename))
   if join:
    self.libi.system(beginstring+"-filter_complex \""+''.join('['+str(i)+':v]['+str(i)+':a]' for i in range(len(re.findall(r' -i ',beginstring))))+"concat=n="+str(len(re.findall(r' -i ',beginstring)))+':v=1:a=1[v][a]'+"\" -map \"[v]\" -map \"[a]\" -y "+outimagename)
    return outimagename
 #  return ["input"+str(i)+".mp4" for i in range(0,count+1)]
-  return [re.sub(r'^(?P<id>.*)[.](?P<id1>.*)$',lambda m:m.group('id')+str(i)+'.'+m.group('id1'),imagename) for i in range(0,count+1)]
+  return [re.sub(r'^(?P<id>.*)[.](?P<id1>.*)$',lambda m:m.group('id')+'_'+str(i)+'.'+m.group('id1'),imagename) for i in range(0,count+1)]
 
  def addvideo(self,*videofile,outimagename=None):
   '''add videos
    videofile - videos list ie. 'input1.mp4','><input2.mp4','<>input3.mp4','=input4.mp4'
     butterfly ><,<> signifies rotate PI/2 c/ac
     =videofile - refrence videofile'''
+  print(f'utic.addvideo {videofile=}')
   dimension=[]
   beginstring="ffmpeg "
   returnstring="-filter_complex \""
@@ -397,7 +405,7 @@ class utilc:
    similarity - much similar image color from colorhex. 0-1 complete same to everything=0.3
    blend - transparent level, 0-1 complete transparent to opaque=0.0'''
   outimagename=self.libi.outimagename(imagename,outimagename,extension='mov')
-  self.libi.ffmpeg("ffmpeg -i "+imagename+" -filter_complex \"[0:v]colorkey="+colorhex+":"+str(similarity)+":"+str(blend)+"\" -pix_fmt rgba -vcodec png -y "+outputimagename)
+  self.libi.ffmpeg("ffmpeg -i "+imagename+" -filter_complex \"[0:v]colorkey="+colorhex+":"+str(similarity)+":"+str(blend)+"\" -pix_fmt rgba -vcodec png -y "+outimagename)
   return outimagename
 
  def slowfast(self,imagename,factor=0.5,outimagename=None):

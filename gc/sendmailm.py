@@ -41,8 +41,7 @@ class sendmailc(fetchc):
    self.jsonemailcontent[tech]=json.loads(re.sub(r'\\\n',r'\\n',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0]))
    self.misc[tech]=dict()
    self.misc[tech]['randomnumber']=random.randrange(0,len(self.jsonemailcontent[tech]["youtube"]),1)
-   requestm.youtubeimage(self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1])
-   self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth','480px',re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
+   self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth',str(requestm.youtubeimage(self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1])[1][0])+'px',re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
    print("tech {} random {}".format(tech,self.misc[tech]['randomnumber']))
   msgRoot=MIMEMultipart('related')
   msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.jsonemailcontent[tech]["1"],flags=re.DOTALL) if "s" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["s"]
@@ -58,7 +57,7 @@ class sendmailc(fetchc):
   msgHTML=MIMEText(re.sub(r'MMYY',calendar.month_name[(datetime.date.today()+datetime.timedelta(days=16)).month]+' '+str((datetime.date.today()+datetime.timedelta(days=16)).year),re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),'html')
   msgHTML.replace_header('Content-Type','text/html' if "t" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["t"])
   msgAlternative.attach(msgHTML)
-
+  print('message datastructure filled')
   return msgRoot
  def get(self):
   if not self.wdgt.password:
