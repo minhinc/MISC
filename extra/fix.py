@@ -35,7 +35,8 @@ for k in file:
     if re.sub(r'^(\s*).*',r'\1',i)==mode:#definition signature
      i=re.sub(r'^(\s*)(cp?def)(\s+\w+)(.*:?).*',r'\1'+r'def\3'+r'_'+r'\2\4',i)
      i=re.sub(r':\s*#.*$',r':',i)
-     data+=re.sub(r'([(,]\s*)([\w*]+)\s+[\w*]+',r'\1\2',i)
+#     data+=re.sub(r'([(,]\s*)([\w*]+)\s+[\w*]+',r'\1\2',i)
+     data+=re.sub(r'([(,]\s*)(?:[\w*]+\s+)+([\w*]+)',r'\1\2',re.sub(r'[.]','',i))
      if re.search(r'\(',i) and not re.search(r'\)',i):
       mode+='def'
      else:
@@ -44,10 +45,12 @@ for k in file:
     elif re.search(r'^\s*def',mode):#mulitiline definition nextline
      if re.search(r'\)\s*:\s*($|#)',i):
       i=re.sub(r'^(.*:).*',r'\1',i)
-      data+=re.sub(r'([\w*]+)\s+[\w*]+',r'\1',i)+'pass'+'\n'
+#      data+=re.sub(r'([\w*]+)\s+[\w*]+',r'\1',i)+'pass'+'\n'
+      data+=re.sub(r'(?:[\w*]+\s+)+([\w*]+)',r'\1',re.sub(r'[.]','',i))+'pass'+'\n'
       mode=re.sub(r'^(\s*)def',r'\1',mode)
      elif not re.search(r'^\s*(cp?)?def\s+\w+\s*\(',i):
-      data+=re.sub(r'([\w*]+)\s+[\w*]+',r'\1',i)+'\n'
+#      data+=re.sub(r'([\w*]+)\s+[\w*]+',r'\1',i)+'\n'
+      data+=re.sub(r'(?:[\w*]+\s+)+([\w*]+)',r'\1',re.sub(r'[.]','',i))+'\n'
    elif mode=='tuple' or re.search(r'^c?import\s+',i) or re.search(r'^from\s+\S+\s+c?import',i):
     if mode=='class':
      data+=' pass\n'
