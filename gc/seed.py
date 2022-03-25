@@ -1,12 +1,11 @@
-import sys
+import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp')
 import time
-import os
 import re
 if re.search(r'^(win|cygwin)',sys.platform,flags=re.I):
  import pymysql
  pymysql.install_as_MySQLdb()
 import MySQLdb
-import databasem
+import MISC.utillib.databasem as databasem
 def _id_(db,country):
  if not country.isdigit():
   return db.get('country','id','name',country)[0][0]
@@ -31,7 +30,7 @@ def usage():
 if len(sys.argv)<=1:
  usage()
 elif re.search('create',sys.argv[1],flags=re.I):
- dbi=databasem.databasec()
+ dbi=databasem.databasec(True)
  dbi.close()
 else:
  dbi=databasem.databasec(False)
@@ -47,7 +46,7 @@ else:
   tempvar1=None
   selectq=None
   tbl=dict()
-  [tbl.__setitem__(re.sub(r'^(\w+).*$',r'\1',i[0]),re.findall(r'(\w+)\s+(\w*CHAR|\w*INT|\w*TEXT|\w*BLOB)',i[1])) for i in re.findall('CREATE TABLE.*?(\w+)\s*\((.*?)\)"\s*\)',open('databasem.py').read())]
+  [tbl.__setitem__(re.sub(r'^(\w+).*$',r'\1',i[0]),re.findall(r'(\w+)\s+(\w*CHAR|\w*INT|\w*TEXT|\w*BLOB)',i[1])) for i in re.findall('CREATE TABLE.*?(\w+)\s*\((.*?)\)"\s*\)',open('../utillib/databasem.py').read())]
   print('tbl',tbl)
   with open(sys.argv[2 if len(sys.argv)<=3 else 3]) as file:
    for line in [line.strip('\n') for line in file]:

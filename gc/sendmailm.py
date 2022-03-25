@@ -37,12 +37,14 @@ class sendmailc(fetchc):
   self.wdgt.entry.insert(0,"Enter password")
  def message(self,strFrom,strTo):
   tech=self.db.get('tech','name','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0]
+  print(f'><message {strFrom=} {strTo=} {tech=}')
   if not tech in self.jsonemailcontent:
    self.jsonemailcontent[tech]=json.loads(re.sub(r'\\\n',r'\\n',self.db.get('tech','content','id',self.db.get('track','tech_id','email',strTo)[0][0])[0][0]))
    self.misc[tech]=dict()
    self.misc[tech]['randomnumber']=random.randrange(0,len(self.jsonemailcontent[tech]["youtube"]),1)
    self.jsonemailcontent[tech]["1"]=re.sub(r'youtubeimagewidth',str(requestm.youtubeimage(self.jsonemailcontent[tech]['youtube'][self.misc[tech]['randomnumber']][1])[1][0])+'px',re.sub(r'youtubeid',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][1],re.sub(r'youtubetitle',self.jsonemailcontent[tech]["youtube"][self.misc[tech]['randomnumber']][0],self.jsonemailcontent[tech]["1"],flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I)
    print("tech {} random {}".format(tech,self.misc[tech]['randomnumber']))
+   print(f'{self.jsonemailcontent[tech]["1"]=}')
   msgRoot=MIMEMultipart('related')
   msgRoot['Subject']=re.sub(r'^\s*<!--(.*?)-->.*',r'\1',self.jsonemailcontent[tech]["1"],flags=re.DOTALL) if "s" not in self.jsonemailcontent[tech] else self.jsonemailcontent[tech]["s"]
   msgRoot['From']=strFrom

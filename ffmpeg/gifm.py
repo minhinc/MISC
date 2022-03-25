@@ -17,6 +17,7 @@ class gifc:
  def replaceaudiobreakjoin(self,*videoproperty):
   """videoproperty - (<videoname>,<timebreak>)
      *(('=one.mp4','00:00:01-00:10:01,00:10:00-00:12:33'),('two.mp4',))"""
+  print(f'gifc.replaceaudiobreakjoin {videoproperty=}')
   concatstring='';count=0;self.dimension=None
   self.duration=0
   for i in videoproperty:
@@ -26,10 +27,11 @@ class gifc:
     break
   for i in videoproperty:
    print(f'replaceaudiobreakjoin {i=}')
-   self.duration+=sum([float(self.libi.getsecond(re.split('-',x)[1]))-float(self.libi.getsecond(re.split('-',x)[0])) for x in re.findall(r'([^,\s]+\s*-\s*[^,\s]+)',i[1])]) if len(i)>1 else float(self.libi.exiftool(self.libi.adddestdir(i[0]),'Duration'))
-   self.beginstring+=''.join([' -ss '+(' -to '.join(re.split('-',x)))+' -i '+re.sub(r'^=','',i[0])+' ' for x in re.findall(r'([^,\s]+\s*-\s*[^,\s]+)',i[1])]) if len(i)>1 else ' -i '+i[0]+' '
+   self.duration+=sum([float(self.libi.getsecond(re.split('-',x)[1]))-float(self.libi.getsecond(re.split('-',x)[0])) for x in re.findall(r'([^,\s]+\s*-\s*[^,\s]+)',i[1])]) if len(i)>1 else float(self.libi.exiftool(self.libi.adddestdir(re.sub(r'^=','',i[0])),'Duration'))
+   self.beginstring+=''.join([' -ss '+(' -to '.join(re.split('-',x)))+' -i '+re.sub(r'^=','',i[0])+' ' for x in re.findall(r'([^,\s]+\s*-\s*[^,\s]+)',i[1])]) if len(i)>1 else ' -i '+re.sub(r'^=','',i[0])+' '
    concatstring+=''.join([('[io' if re.search(r'^=',i[0]) else '[')+str(x+count)+('' if re.search(r'^=',i[0]) else ':v')+']['+str(x+count)+':a]' for x in range(len(re.findall('-',i[1] if len(i)>1 else '')) or 1)])
-   self.returnstring+=''.join(['['+str(x+count)+':v]'+'scale='+self.dimension+',setsar=sar=1'+'[io'+str(x+count)+'];' for x in range(len(re.findall('-',i[1] if len(i)>1 else '')))]) if re.search(r'^=',i[0]) else ''
+#   self.returnstring+=''.join(['['+str(x+count)+':v]'+'scale='+self.dimension+',setsar=sar=1'+'[io'+str(x+count)+'];' for x in range(len(re.findall('-',i[1] if len(i)>1 else '')))]) if re.search(r'^=',i[0]) else ''
+   self.returnstring+=''.join(['['+str(x+count)+':v]'+('scale='+self.dimension if int(re.split('x',self.dimension)[0])<=int(self.libi.dimension(re.sub(r'^=','',i[0]))[0]) or int(re.split('x',self.dimension)[1])<=int(self.libi.dimension(re.sub(r'^=','',i[0]))[1]) else 'pad='+re.sub('x',':',self.dimension)+r':(ow-iw)/2:(oh-ih)/2')+',setsar=sar=1'+'[io'+str(x+count)+'];' for x in range(len(re.findall('-',i[1] if len(i)>1 else '')) or 1)]) if re.search(r'^=',i[0]) else ''
    count+=len(re.findall('-',i[1] if len(i)>1 else '')) or 1
   self.returnstring+=concatstring+'concat=n='+str(len(re.findall(' -i ',self.beginstring)))+':v=1:a=1[io'+str(len(re.findall(' -i ',self.beginstring))-1)+'][aout];' if len(re.findall(' -i ',self.beginstring))>1 else ''
   self.libi.setvideo(self.dimension)

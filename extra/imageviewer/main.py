@@ -2,7 +2,7 @@ import os
 from PySide6.QtQml import qmlRegisterType #, qmlRegisterUncreatableType
 from PySide6.QtQuick import QQuickView
 import re, sys
-from PySide6.QtGui import QGuiApplication,QCursor
+from PySide6.QtGui import QGuiApplication,QCursor,QSurfaceFormat
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import Qt
 from fileio import FileIO
@@ -13,6 +13,9 @@ if __name__=='__main__':
  app=QGuiApplication()
 
  os.environ['XCURSOR_SIZE']='64'
+ format=QSurfaceFormat()
+ format.setSamples(4);
+ QSurfaceFormat.setDefaultFormat(format);
 # app.setOverrideCursor(QCursor("/home/minhinc/tmp/example/imageviewer/mycursor.png"))
 
  qmlfile=sys.argv[1] if len(sys.argv)>1 else re.sub(r'^(.*)[.]py$',r'\1',sys.argv[0])+'.qml'

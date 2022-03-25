@@ -35,8 +35,29 @@ CustomMenu {
  CustomMenuItem {
  text:qsTr("Split...")
   onTriggered: {
-   for (var i=0;i<splitviewid.count;i++) {
+   for (var i=0;i<splitviewid.count;i++) //{
     splitviewid.itemAt(i).SplitView.preferredWidth=itemid.width/splitviewid.count;
+//   }
+  }
+  customsubmenu: CustomMenu {
+   CustomMenuItem {
+   text:qsTr("Clear...")
+    onTriggered: {
+    let cellwidth=itemid.width/splitviewid.count
+     if (splitviewid.count>2)
+      if (splitviewid.currentIndex!=0)
+      cellwidth=(itemid.width-(itemid.width*5)/6)/(splitviewid.count-3)
+      else
+      cellwidth=(itemid.width-(itemid.width*2)/3)/(splitviewid.count-2)
+     for (var i=0;i<splitviewid.count;i++) {
+     splitviewid.itemAt(i).SplitView.preferredWidth=cellwidth
+      if (splitviewid.count>2)
+       if (i==splitviewid.currentIndex)
+       splitviewid.itemAt(i).SplitView.preferredWidth=itemid.width/2
+       else if (i==splitviewid.currentIndex-1 || i==splitviewid.currentIndex+1)
+       splitviewid.itemAt(i).SplitView.preferredWidth=itemid.width/6
+     }
+    }
    }
   }
  }
@@ -56,15 +77,15 @@ CustomMenu {
      splitviewid.itemAt(i).currentindex=i
     }
    }
-   CustomMenuItem {
-   text:qsTr("FullScreen...")
-    onTriggered: {
-    if (itemid.visibility == Window.FullScreen)
-    itemid.showNormal()
-    else
-    itemid.showFullScreen()
-    }
-   }
+  }
+ }
+ MenuItem {
+ text:qsTr("FullScreen...")
+  onTriggered: {
+   if (itemid.visibility == Window.FullScreen)
+   itemid.showNormal()
+   else
+   itemid.showFullScreen()
   }
  }
  Component {

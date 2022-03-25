@@ -11,8 +11,11 @@ class databasec:
  def __init__(self,ct=True): #ct-createtable
   self.conn=None
   self.cc=0#connection count
-  self.reconnect()
-  if(ct):
+  while self.cc<4 and not self.reconnect():
+   print(f'problem in connection.. {self.cc=}')
+   self.cc+=1
+  self.cc=0 if self.cc<4 else self.cc
+  if(ct and self.cc<4):
    self.create()
  def create(self):
   crsr=self.conn.cursor()
@@ -48,20 +51,58 @@ class databasec:
   print('table created')
   self.conn.commit()
  def reconnect(self):
+ # print(f'databasec.reconnect {self.conn=} {self.cc=}')
+  passwd=re.split('\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])
+  if not hasattr(databasec.reconnect,'lastconnecttime'):
+   setattr(databasec.reconnect,'lastconnecttime',int(time.time()))
+  if (int(time.time())-databasec.reconnect.lastconnecttime) > 600: # 5 minutes connection works
+   print(f'last connection works for 5 minutes or more so restting self.cc')
+   self.cc=0
+  elif self.cc>4:
+   print(f'number of retry exceeds {self.cc=} cannot connect')
+   self.conn=None 
+   return False
   try:
-#   self.conn=MySQLdb.connect(host='166.62.28.143',user='minhinc',passwd='pinku76minh',db='trackweb')
-   self.conn=MySQLdb.connect(host=re.split('\n',open(os.path.expanduser('~/passwd')).read())[0],user=re.split('\n',open(os.path.expanduser('~/passwd')).read())[1],passwd=re.split('\n',open(os.path.expanduser('~/passwd')).read())[2],db=re.split('\n',open(os.path.expanduser('~/passwd')).read())[3],connect_timeout=10,read_timeout=10,write_timeout=10)
+   self.conn=MySQLdb.connect(host=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[0],user=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[1],passwd=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[2],db=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[3],connect_timeout=10,read_timeout=10,write_timeout=10)
    print('database re-connected')
   except:
    print('database could not be connected')
+   self.conn=None
    return False
   else:
    self.cc=self.cc+1
+   databasec.reconnect.lastconnecttime=int(time.time())
+   '''
    if self.cc>4:
     print("number of retry %s" % self.cc)
     return False
+   '''
    return True
+
+ def fillbulk(self,table,*splitline):
+  print(f'databasec.fillbulk {table=} {splitline=}')
+  selectq=None
+  tbl=dict()
+  try:
+   crsr=self.conn.cursor()
+   [tbl.__setitem__(re.sub(r'^(\w+).*$',r'\1',i[0]),re.findall(r'(\w+)\s+(\w*CHAR|\w*INT|\w*TEXT|\w*BLOB)',i[1])) for i in re.findall('CREATE TABLE.*?(\w+)\s*\((.*?)\)"\s*\)',open('databasem.py').read())]
+   selectq=f'INSERT INTO {table}('+','.join(i[0] for i in tbl[table])+r') VALUES('+('%s,'*len(tbl[table]))[:-1]+r')'
+   col=[int(re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',str(splitline[i])).encode('utf-8').decode('unicode_escape')) if tbl[table][i][1]=='INT' else re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',splitline[i]).encode('utf-8').decode('unicode_escape') for i in range(len(splitline))]
+   #print(f'{tbl=} {table=} {splitline=} {selectq=} {col=}')
+   crsr.execute(selectq,col)
+  except Exception as ec:
+   print(f'fillbulk {ec=} {type(ec)=}')
+   if type(ec)!=MySQLdb._exceptions.IntegrityError and self.reconnect():
+    return self.fillbulk(table,*splitline)
+   else:
+    print(f'{ec=}')
+    return False
+  else:
+   self.conn.commit()
+   return True
+
  def fill(self,table,primary=None,fetchmany=False):
+#  print(f'databasec.fill {table=} {primary=} {fetchmany=}')
   try:
    crsr=self.conn.cursor()
    if not primary:
@@ -90,8 +131,9 @@ class databasec:
   else:
    self.conn.commit()
    return True
- def get(self,table,columnoutput='*',column='',columninput='', orderby=None,regex=None):
-  #print("get %s,%s,%s,%s,%s,%s" % (table,columnoutput,column,columninput,orderby,regex))
+
+ def get(self,table,columnoutput='*',column='',columninput='', orderby=None,regex=None,compare='='):
+#  print(f"databasec.get {table=} {columnoutput=} {column=} {columninput=} {orderby=} {regex=}")
   try:
    crsr=self.conn.cursor()
    if (column==''):
@@ -110,7 +152,8 @@ class databasec:
      crsr.execute("SELECT {} FROM {} WHERE {}='{}' ORDER BY {}".format(columnoutput,table,column,columninput,orderby))
     else:
 #     crsr.execute("SELECT {} FROM {} WHERE {}='{}'".format(columnoutput,table,column,columninput))
-     selectq = """SELECT %s FROM %s WHERE %s=%%s;""" % (columnoutput,table,column)
+#     selectq = """SELECT %s FROM %s WHERE %s=%%s;""" % (columnoutput,table,column)
+     selectq = """SELECT %s FROM %s WHERE %s%s%%s;""" % (columnoutput,table,column,compare)
      crsr.execute(selectq,(columninput,))
   except:
    #print("exception")
@@ -120,7 +163,9 @@ class databasec:
     return False
   else:
    return crsr.fetchall()
+
  def update(self,table,column,value,where,wherevalue):
+#  print(f'databasec.update {table=} {column=} {value=} {where=} {wherevalue=}')
   try:
    if type(column)==tuple:
     for column,value in zip(column,value):
@@ -137,6 +182,7 @@ class databasec:
   else:
    return True
  def search(self,table,columnvalue='',column='name',regex=False):
+#  print(f'databasec.search {table=} {columnvalue=} {column=} {regex=}')
   #print("table,columnvalue,column,regex %s,%s,%s,%s" % (table,columnvalue,column,regex))
   try:
    crsr=self.conn.cursor()
@@ -153,6 +199,79 @@ class databasec:
    if crsr.fetchone()[0] == 0:
     return False
    return True
+
+ def search2(self,table,*column,mode=''):
+  """\
+  search2('track','expire','>',20211011,'status','<',2,mode='search')
+  search2('track','date','expire','>',20211011,'status','<',2,mode='get')
+  search2('track','date','202111012,'email','=''abc@def.com',mode='update')
+  search2('linkvisited','data','<',20220101,mode='delete')
+  search2('track','abc@def.com',<uuid>,....,mode='fill')\
+  """
+  tbl=dict()
+  selectq=col=None
+#  print(f'databasec.search2 {table=} {column=} {mode=}')
+  try:
+   crsr=self.conn.cursor()
+   if mode=='search':
+    selectq=("""SELECT count(*) FROM %s WHERE """+' and '.join(["""%s%s%%s""" for x in range(int(len(column)/3))])) % (table,*[x for count,x in enumerate(column) if (count+1)%3])
+    col=[x for count,x in enumerate(column) if not (count+1)%3]
+   elif mode=='delete':
+    selectq=("""DELETE FROM %s WHERE """+' and '.join(["""%s %s %%s""" for x in range(int(len(column)/3))])) % (table,*[x for count,x in enumerate(column) if (count+1)%3])
+    col=[x for count,x in enumerate(column) if not (count+1)%3]
+   elif mode=='get':
+    selectq=("""SELECT %s FROM %s WHERE """+' and '.join(["""%s%s%%s""" for x in range(int(len(column[1:])/3))])) % (column[0],table,*[x for count,x in enumerate(column[1:]) if (count+1)%3])
+    col=[x for count,x in enumerate(column[1:]) if not (count+1)%3]
+   elif mode=='update':
+    selectq = ("""UPDATE %s SET %s=%%s WHERE """+' and '.join(["""%s%s%%s""" for x in range(int(len(column[2:])/3))])) % (table,column[0],*[x for count,x in enumerate(column[2:]) if (count+1)%3])
+    col=(column[1],*[x for count,x in enumerate(column[2:]) if not (count+1)%3])
+   elif mode=='updatebulk':
+    selectq=f'UPDATE {table} SET {column[0][0]}=%s WHERE {column[0][2]}{column[0][3]}%s'
+    col=[[x[i] for i in range(len(x)) if i in [1,4]] for x in column]
+   elif mode=='fill':
+    [tbl.__setitem__(re.sub(r'^(\w+).*$',r'\1',i[0]),re.findall(r'(\w+)\s+(\w*CHAR|\w*INT|\w*TEXT|\w*BLOB)',i[1])) for i in re.findall('CREATE TABLE.*?(\w+)\s*\((.*?)\)"\s*\)',open(os.path.expanduser('~')+r'/tmp/MISC/utillib/'+'databasem.py').read())]
+    selectq=f'INSERT INTO {table}('+','.join(i[0] for i in tbl[table])+r') VALUES('+('%s,'*len(tbl[table]))[:-1]+r')'
+    col=[int(re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',str(column[i])).encode('utf-8').decode('unicode_escape')) if tbl[table][i][1]=='INT' else re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',column[i]).encode('utf-8').decode('unicode_escape') for i in range(len(column))]
+   elif mode=='fillbulk':
+    [tbl.__setitem__(re.sub(r'^(\w+).*$',r'\1',i[0]),re.findall(r'(\w+)\s+(\w*CHAR|\w*INT|\w*TEXT|\w*BLOB)',i[1])) for i in re.findall('CREATE TABLE.*?(\w+)\s*\((.*?)\)"\s*\)',open(os.path.expanduser('~')+r'/tmp/MISC/utillib/'+'databasem.py').read())]
+    selectq=f'INSERT INTO {table}('+','.join(i[0] for i in tbl[table])+r') VALUES('+('%s,'*len(tbl[table]))[:-1]+r') ON DUPLICATE KEY UPDATE '+','.join(str(i[0])+r'=values('+str(i[0])+r')' for i in tbl[table])
+    col=[[int(re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',str(x[i])).encode('utf-8').decode('unicode_escape')) if tbl[table][i][1]=='INT' else re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',x[i]).encode('utf-8').decode('unicode_escape') for i in range(len(x))] for x in column]
+   if mode=='fillbulk' or mode=='updatebulk':
+    print(f'fillbulk2 {selectq=} {col=}')
+    crsr.executemany(selectq,col)
+   else:
+    crsr.execute(selectq,col)
+  except Exception as ec:
+   print(f'search2 {type(ec)=}')
+   if type(ec)==MySQLdb._exceptions.OperationalError and self.reconnect():
+    return self.search2(table,*column,mode=mode)
+   else:
+    return False
+  else:
+   if mode=='search':
+    if crsr.fetchone()[0]!=0:
+     return True
+   elif mode=='get':
+    return crsr.fetchall()
+   elif mode in ['delete','fill','fillbulk','update','updatebulk']:
+    self.conn.commit()
+    return True
+   return False
+
+ def get2(self,table,output,*column):
+  """get2('track','email',('expire','>',20211011,'status','<',2)"""
+  try:
+   crsr=self.conn.cursor()
+   selectq=("""SELECT %s FROM %s WHERE """+' and '.join(["""%s%s%%s""" for x in range(int(len(column)/3))])) % (output,table,*[x for count,x in enumerate(column) if (count+1)%3])
+   crsr.execute(selectq,[x for count,x in enumerate(column) if not (count+1)%3])
+  except:
+   if self.reconnect():
+    return self.get2(table,output,*column)
+   else:
+    return False
+  else:
+   return crsr.fetchall()
+
  def getemailcompany(self):#called only from dbpushpull.py
   try:
    crsr=self.conn.cursor()

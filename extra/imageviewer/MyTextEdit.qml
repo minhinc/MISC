@@ -15,6 +15,8 @@ property alias persistent:textArea.persistent
  property int currentindex:0
  property var files:undefined
  property int fileindex:-1
+ property int mousex:0
+ property int mousey:0
  property var persistent:[]
  wrapMode: TextArea.Wrap
  font.family:"Consolas"
@@ -88,6 +90,9 @@ property alias persistent:textArea.persistent
     splitviewid.itemAt(textArea.currentindex).width-=0.1;splitviewid.itemAt(textArea.currentindex).width+=0.1
     }
    }
+   if ((event.key == Qt.Key_X) && (event.modifiers & Qt.ControlModifier)) {
+   textArea.persistent[textArea.persistent.length-1][2].x=textArea.mousex;textArea.persistent[textArea.persistent.length-1][2].y=textArea.mousey
+   }
   }
   Label {
   anchors {top:parent.top;right:parent.right;rightMargin:parent.width/40;topMargin:parent.width/40}
@@ -101,6 +106,7 @@ property alias persistent:textArea.persistent
   propagateComposedEvents:true
   preventStealing: true
    onClicked: (mouse)=> {
+   textArea.mousex=mouse.x;textArea.mousey=mouse.y
    splitviewid.setCurrentIndex(textArea.currentindex)
     if (mouse.button == Qt.LeftButton) {
     splitviewid.setfillwidth(parent.currentindex)

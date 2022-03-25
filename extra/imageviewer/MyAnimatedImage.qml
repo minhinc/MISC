@@ -105,7 +105,7 @@ AnimatedImage {
  Timer {
  id:timerid
  interval:1000; running:false; repeat:true
- onTriggered: splitviewid.keyleftright(Qt.Key_Right,Qt.NoModifier)
+ onTriggered: splitviewid.keyleftright(Qt.Key_Right,Qt.NoModifier,currentindex)
  }
  function focuschange(focusin) {
   if (focusin==true)

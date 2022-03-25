@@ -24,9 +24,18 @@ property var customsubmenu:undefined
   }
  }
  onClicked: (mouse)=> {
- console.log('Button clicked manuid.x,buttonid.menu.y,buttonid.menu.width,buttonid.menu.height,x,y',buttonid.menu.x,buttonid.menu.y,buttonid.menu.width,buttonid.menu.height,x,y)
- if (typeof menu.parent.menu !=="undefined")
- menu.parent.menu.close()
+// console.log('Button clicked manuid.x,buttonid.menu.y,buttonid.menu.width,buttonid.menu.height,x,y',buttonid.menu.x,buttonid.menu.y,buttonid.menu.width,buttonid.menu.height,x,y)
+ let pmenu=menu
+  for (var i=0;i<pmenu.count; i++)
+   if (pmenu.itemAt(i).customsubmenu != undefined && customsubmenu.opened)
+    pmenu=pmenu.itemAt(i).customsubmenu
+  while (pmenu.parent.menu != undefined && pmenu.parent.menu != pmenu) {
+  pmenu.close()
+  pmenu=pmenu.parent.menu
+  }
+ pmenu.close()
+ /*if (typeof menu.parent.menu !=="undefined")
+ menu.parent.menu.close()*/
  }
 /* Connections {
  target:buttonid.menu

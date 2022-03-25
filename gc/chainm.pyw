@@ -1,5 +1,6 @@
+import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp/')
 import widgetm
-import databasem
+import MISC.utillib.databasem as databasem
 import getcontactm
 import sendmailm
 import dbpushpullm

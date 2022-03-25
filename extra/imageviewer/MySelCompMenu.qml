@@ -61,7 +61,8 @@ Menu {
     if (selComp.parent.persistent[i][2]==selComp) {
     selComp.parent.persistent[i][1]=!selComp.parent.persistent[i][1]
     selComp.border.color=(selComp.parent.persistent[i][1]==false?'steelblue':'steelblue')
-     if (selComp.parent.fileindex!=i && selComp.parent.persistent[i][1]==false)
+//     if (selComp.parent.fileindex!=i && selComp.parent.persistent[i][1]==false)
+     if (selComp.parent.fileindex!=selComp.parent.persistent[i][0] && selComp.parent.persistent[i][1]==false)
      selComp.visible=false
     }
    }

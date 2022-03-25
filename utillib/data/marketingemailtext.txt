@@ -1,0 +1,27 @@
+<table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:youtubeimagewidth;">
+<tr><td height="20"></td></tr>
+<tr>
+ <td align="left"><a href="https://www.youtube.com/c/minhinc" style="text-decoration:none;font-size:12pt;font-weight:bold;color:#000"><span style="font-size:18pt;color:#666">YouTube Video : </span>youtubetech</a><br><a style="margin-left:1%;font-size:8pt;" href="https://youtube.com/c/minhinc">https://youtube.com/c/minhinc</a></td>
+</tr>
+<tr><td height="60"></td></tr>
+<tr>
+<td ><a href="https://www.youtube.com/c/minhinc" style="text-decoration:none;float:left;margin-left:35%;font-size:20px;background-color:#a3b1be;color:#004000;font-family:arial, helvetica, sans;font-weight:bold">Minh Inc</a>
+<a href="https://www.youtube.com/c/minhinc/?sub_confirmation=1" style="text-decoration:none;display:block;float:right;;color:#ffffff;font-size:14px;text-align:center;width:80px;line-height:30px;border-radius:2px;background-color:#cc0000;font-family:arial, helvetica, sans;">Subscribe</a></td>
+</tr>
+<tr>
+ <td align="center"><a href="https://www.youtube.com/watch?v=youtubeid"><img src="http://minhinc.42web.io/image/youtubeid.jpg" width="100%"/></a></td>
+</tr>
+<tr>
+ <td align="left"><a href="https://www.youtube.com/c/minhinc" style="text-decoration:none;font-size:14px;font-weight:bold;color:#000">youtubetitle</a></td>
+</tr>
+<tr><td height="200"></td></tr>
+<tr>
+ <td align="center"><a style="text-decoration:none;" href="http://minhinc.42web.io/research"><span style="font-size:8pt;color:#660000;">Technical Writeup</span><br><span style="font-size:10pt;color:#004000;">tominhinc@gmail.com</span</a></td>
+</tr>
+<tr><td height="250"></td></tr>
+<tr>
+ <td  align="center">
+ <pre style="text-align:center;margin-top:5px"><a href="http://minhinc.42web.io/about/unsubscribe_wn.php?email=XXX" target="_blank" style="color:#4444ff;font-weight:bold;font-family:arial,helvetica,sans-serif;font-size:9pt;">Unsubscribe</a></pre>
+ </td>
+</tr>
+</table>

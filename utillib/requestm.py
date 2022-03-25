@@ -7,7 +7,7 @@ import time#D
 import sys
 #sys.path.append('..')
 #from gtc.databasem import databasec
-from databasem import databasec
+from .databasem import databasec
 from io import BytesIO
 def gets(file,head=False,get=False,binary=False,stream=False,retrycount=1,size=None,timeout=(10,20)):
  '''requests
@@ -40,25 +40,31 @@ def gets(file,head=False,get=False,binary=False,stream=False,retrycount=1,size=N
   now=time.time()
   while retrycount:
    try:
-    retrycount-=1
+ #   retrycount-=1
     data=session.get(file,timeout=timeout[1])
    except Exception as e:
+    retrycount-=1
     print("gets exception",type(e),":",e.__class__.__name__,int(time.time()-now),":",file)
     data=None
-   if data and data.ok:
+   else:
     break
+#   if data and data.ok:
+#    break
    print('<requestm.gets> trying... retrycount',retrycount)
    time.sleep(1)
   if not data or not data.ok:
-   return ''
+#   return ''
+   return ('',retrycount)
   elif stream:
    return BytesIO(data.content)
   elif binary:
    return data.content
   else:
-   return data.text
+#   return data.text
+   return (data.text,retrycount)
  else:
-  return ''
+#  return ''
+  return ('',retrycount)
 
 def get(file,head=False,get=False,binary=False,size=None,timeout=30):
  '''get the file if size is less than 100KB'''
@@ -145,19 +151,21 @@ def adsenserect(width,height,criteria='.*desktop.*',factor=0.1):
  return [re.sub(r'style="',"style=\"position:absolute;left:"+str(x[1]+int(int((x[3]+1)*xoffset)))+"px;top:"+str(x[2]+int((x[4]+1)*yoffset))+"px;",adsensecode[x[0]][0]) for x in rectposition[0]]
 
 def youtubeimage(youtubeid):
- if gets(r'http://minhinc.000webhostapp.com/image/'+youtubeid+r'.jpg',head=True):# and Image.open(gets(r'https://img.youtube.com/vi/'+youtubeid+r'/sddefault.jpg',get=True,retrycount=4,stream=True)).width==Image.open(gets(r'http://www.minhinc.com/image/'+youtubeid+r'.jpg',get=True,stream=True,retrycount=4)).width:
-  print('image {}{}'.format(youtubeid,r'.jpg available at /image'))
-  img=Image.open(gets(r'http://minhinc.000webhostapp.com/image/'+youtubeid+r'.jpg',get=True,stream=True,retrycount=4))
+# print(f'youtubeimage {youtubeid=}')
+ if os.path.exists(os.path.expanduser('~')+r'/tmp/MISC/image/'+youtubeid+r'.jpg'):
+#  print(f'image {youtubeid=}.jpg available at {os.path.expanduser("~")+r"/tmp/MISC/image"}')
+  img=Image.open(os.path.expanduser('~')+r'/tmp/MISC/image/'+youtubeid+r'.jpg')
  else:
   with Image.open(gets(r'https://img.youtube.com/vi/'+youtubeid+r'/sddefault.jpg',get=True,stream=True,retrycount=4)) as img:
-   with Image.open(gets(r'http://minhinc.000webhostapp.com/image/youtubebutton.png',get=True,stream=True,retrycount=4)) as youtubebuttonimg:
+   with Image.open(os.path.expanduser('~')+r'/tmp/MISC/image/youtubebutton.png') as youtubebuttonimg:
     img.paste(youtubebuttonimg,(int((img.width-youtubebuttonimg.width)/2),int((img.height-youtubebuttonimg.height)/2)),youtubebuttonimg)
     img=img.crop((0,int((img.height-(img.width*9)/16)/2),img.width,int((img.height+(img.width*9)/16)/2)))
-    img.save(youtubeid+".jpg")
     print('image ',youtubeid+r'.jpg not available at /image uploading...')
-    os.system(r'~/tmp/ftp.sh -f put image ./'+youtubeid+'.jpg')
- print('imagewidth',img.size)
- return (r'http://minhinc.000webhostapp.com/image/'+youtubeid+'.jpg',img.size)
+    img.save(os.path.expanduser('~')+r'/tmp/MISC/image/'+youtubeid+".jpg")
+    #os.system(r'~/tmp/ftp.sh -f put image ./'+youtubeid+'.jpg')
+ #print('imagewidth',img.size)
+ #return (r'http://minhinc.000webhostapp.com/image/'+youtubeid+'.jpg',img.size)
+ return (r'http://minhinc.42web.io/image/'+youtubeid+'.jpg',img.size)
 
 def adsensepaste(width,height,stylecode='',backend='desktop',factor=0.2):
  rightdiv=''
@@ -174,3 +182,27 @@ def adsensepaste(width,height,stylecode='',backend='desktop',factor=0.2):
  else:
   rightdiv="<div align=\"center\" style=\"width:100%;\""+getattr(adsensepaste,'responsivesquare')+r'</div>'
  return rightdiv
+
+def syncyoutube(*youtubelinklist):
+# print(f'syncyoutube>< {youtubelinklist=}')
+ trycount=2
+ data=''
+ while trycount:
+  data=os.popen(r'~/tmp/ftp.sh ls image').read()
+  print(f'syncyoutube {data=}')
+  if data and not re.search(r'not connected',data,flags=re.I) and re.search(r'[.](jpg|png|jpeg)',data,flags=re.I):
+   break
+  else:
+   print(f'error data not found {trycount=}')
+   trycount-=1
+ else:
+  return
+ ftpstring=''
+ for i in [re.sub(r'.*\?v=(.*)$',r'\1',i) for i in youtubelinklist]:
+  if not re.search(i+r'.jpg\n',data):
+   if not os.path.exists(os.path.expanduser('~')+r'/tmp/MISC/image/'+i+r'.jpg'):
+    youtubeimage(i)
+   ftpstring+=r' ./'+i+'.jpg'
+ print(f'syncyoutube {ftpstring=}')
+ if ftpstring:
+  os.system('cd ~/tmp/MISC/image/;~/tmp/ftp.sh mput image'+ftpstring)

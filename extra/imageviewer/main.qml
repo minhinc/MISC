@@ -31,25 +31,25 @@ ApplicationWindow {
   }
   Keys.onPressed : function(event) {
   event.accepted = true
-  keyleftright(event.key,event.modifiers)
+  keyleftright(event.key,event.modifiers,splitviewid.currentIndex)
   }
-  function keyleftright(key,modifiers) {
+  function keyleftright(key,modifiers,index) {
    if (key == Qt.Key_Left || ((key == Qt.Key_Left) && (modifiers & Qt.ControlModifier))) {
-    for (var i=0;i<splitviewid.currentItem.persistent.length;i++)
-     if (splitviewid.currentItem.persistent[i][0]==splitviewid.currentItem.fileindex && splitviewid.currentItem.persistent[i][1]==false)
-     splitviewid.currentItem.persistent[i][2].visible=false
-  splitviewid.currentItem.fileindex=Math.max(splitviewid.currentItem.fileindex-1,0)
-   for (var i=0;i<splitviewid.currentItem.persistent.length;i++)
-    if (splitviewid.currentItem.persistent[i][0]==splitviewid.currentItem.fileindex && splitviewid.currentItem.persistent[i][1]==false)
-    splitviewid.currentItem.persistent[i][2].visible=true
+    for (var i=0;i<splitviewid.itemAt(index).persistent.length;i++)
+     if (splitviewid.itemAt(index).persistent[i][0]==splitviewid.itemAt(index).fileindex && splitviewid.itemAt(index).persistent[i][1]==false)
+     splitviewid.itemAt(index).persistent[i][2].visible=false
+  splitviewid.itemAt(index).fileindex=Math.max(splitviewid.itemAt(index).fileindex-1,0)
+   for (var i=0;i<splitviewid.itemAt(index).persistent.length;i++)
+    if (splitviewid.itemAt(index).persistent[i][0]==splitviewid.itemAt(index).fileindex && splitviewid.itemAt(index).persistent[i][1]==false)
+    splitviewid.itemAt(index).persistent[i][2].visible=true
    } else if (key==Qt.Key_Right || ((key == Qt.Key_Right) && (modifiers & Qt.ControlModifier))) {
-    for (var i=0;i<splitviewid.currentItem.persistent.length;i++)
-     if (splitviewid.currentItem.persistent[i][0]==splitviewid.currentItem.fileindex && splitviewid.currentItem.persistent[i][1]==false)
-     splitviewid.currentItem.persistent[i][2].visible=false
-   splitviewid.currentItem.fileindex=Math.min(splitviewid.currentItem.fileindex+1,splitviewid.currentItem.files.length-1)
-    for (var i=0;i<splitviewid.currentItem.persistent.length;i++)
-     if (splitviewid.currentItem.persistent[i][0]==splitviewid.currentItem.fileindex && splitviewid.currentItem.persistent[i][1]==false)
-     splitviewid.currentItem.persistent[i][2].visible=true
+    for (var i=0;i<splitviewid.itemAt(index).persistent.length;i++)
+     if (splitviewid.itemAt(index).persistent[i][0]==splitviewid.itemAt(index).fileindex && splitviewid.itemAt(index).persistent[i][1]==false)
+     splitviewid.itemAt(index).persistent[i][2].visible=false
+   splitviewid.itemAt(index).fileindex=Math.min(splitviewid.itemAt(index).fileindex+1,splitviewid.itemAt(index).files.length-1)
+    for (var i=0;i<splitviewid.itemAt(index).persistent.length;i++)
+     if (splitviewid.itemAt(index).persistent[i][0]==splitviewid.itemAt(index).fileindex && splitviewid.itemAt(index).persistent[i][1]==false)
+     splitviewid.itemAt(index).persistent[i][2].visible=true
    }
   }
   onCurrentIndexChanged: {

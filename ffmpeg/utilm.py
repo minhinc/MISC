@@ -99,7 +99,7 @@ class utilc:
   img.close()
   return outimagename
 
- def logotext(self,size=0.4,textdata=('Minh, ','Inc.','A Software Research Firm'),textcolor=((0,64,0,255),(200,200,200,255)),outimagename=None):
+ def logotext(self,size=0.4,textdata=('Minh, ','Inc.','A Software Research Firm'),textcolor=((0,64,0,255),(0,64,0,255),(200,200,200,255)),outimagename=None):
   '''Create Logo giff three words two lines (one+two/three)
    size - gif width/video width=0.4
    textdata=tuple of three words=('Minh, ','Inc.','A Software Research Firm')'''
@@ -112,8 +112,10 @@ class utilc:
   draw=ImageDraw.Draw(img)
   xoffset=(font2.getsize(textdata[2])[0]-(font.getsize(textdata[0])[0]+font1.getsize(textdata[1])[0]))/2
   if textdata[0]:draw.text((xoffset,-10),textdata[0],font=font,fill=textcolor[0])
-  if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-10),textdata[1],font=font1,fill=textcolor[0])
-  if textdata[2]:draw.text((int((imagewidth-font2.getsize(textdata[2])[0])/2),font.getsize(textdata[0])[1]+1.5*yoffset-10),textdata[2],font=font2,fill=textcolor[1])
+#  if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-10),textdata[1],font=font1,fill=textcolor[0])
+  if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-10),textdata[1],font=font1,fill=textcolor[1])
+#  if textdata[2]:draw.text((int((imagewidth-font2.getsize(textdata[2])[0])/2),font.getsize(textdata[0])[1]+1.5*yoffset-10),textdata[2],font=font2,fill=textcolor[1])
+  if textdata[2]:draw.text((int((imagewidth-font2.getsize(textdata[2])[0])/2),font.getsize(textdata[0])[1]+1.5*yoffset-10),textdata[2],font=font2,fill=textcolor[2])
   img.save(self.libi.adddestdir('frnt.png'))
   convertstring='convert -loop 0 -dispose Background -delay 4 '
   for j in range(2):

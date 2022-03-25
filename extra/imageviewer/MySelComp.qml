@@ -21,11 +21,11 @@ width:parent.paintedWidth/Const.width;height:parent.paintedWidth/Const.height
 property int rulersSize: 18
  onXChanged: {
   if (parent.paintedWidth!=0)
-   x=parent.getfractionX(x,width);
+   x=parent.getfractionX(Math.min(x,parent.width-width),width);
  }
  onYChanged: {
   if (parent.paintedHeight!=0)
-   y=parent.getfractionY(y,height);
+   y=parent.getfractionY(Math.min(y,parent.height-height),height);
  }
  Keys.onPressed : function(event) {
   if (event.key == Qt.Key_R) {
