@@ -25,11 +25,12 @@ def classname(filename,hint=None):
  else:
   return re.findall(r'^class\s+('+hint+r')\b.*:\s*$',open(filename).read(),flags=re.I|re.M)
 if re.search(r'[.]py$',sys.argv[1]):
- if len(sys.argv)==3:
+ if len(sys.argv)==3 and not re.search(r'[.]py$',sys.argv[2]):
   file=[(sys.argv[1],sys.argv[2])] if sys.argv[2]!='=' else [(sys.argv[1],classname(sys.argv[1],re.sub(r'.*/(.*?)[.]py$',r'\1',sys.argv[1]))[0])]
  else:
-  for k in classname(sys.argv[1]):
-   file.append((sys.argv[1],k))
+  for i in sys.argv[1:]:
+   for k in classname(i):
+    file.append((i,k))
 else:
  for i in os.walk(sys.argv[1]):
   for j in [j for j in i[2] if re.search(r'[.]py$',j)]:

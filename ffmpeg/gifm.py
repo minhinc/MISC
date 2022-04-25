@@ -1,12 +1,14 @@
 #ffmpeg version 4.2.4-1ubuntu0.1
 import datetime, os, re
 import MISC.ffmpeg.libm as libm
+import MISC.ffmpeg.utilm as utilm
 class gifc:
  '''1.image,gif,video,audio overlay on source video
   2. pushes video to social media'''
  def __init__(self,debug=False,inputfile=None):
   '''Enable debug True/False'''
-  self.libi=libm.libc(debug,inputfile)
+  self.libi=libm.libc(debug,inputfile,gifp=self)
+  self.utili=utilm.utilc(debug,inputfile,libp=self.libi)
   self.returnstring=''
   self.audiostrip=[]
 #  self.inputfile=self.libi.adddestdir(inputfile)
@@ -17,7 +19,7 @@ class gifc:
  def replaceaudiobreakjoin(self,*videoproperty):
   """videoproperty - (<videoname>,<timebreak>)
      *(('=one.mp4','00:00:01-00:10:01,00:10:00-00:12:33'),('two.mp4',))"""
-  print(f'gifc.replaceaudiobreakjoin {videoproperty=}')
+  print(f'gifc.replaceaudiobreakjoin videoproperty={videoproperty}')
   concatstring='';count=0;self.dimension=None
   self.duration=0
   for i in videoproperty:
@@ -26,8 +28,8 @@ class gifc:
     self.dimension='x'.join(self.libi.dimension(i[0]))
     break
   for i in videoproperty:
-   print(f'replaceaudiobreakjoin {i=}')
-   self.duration+=sum([float(self.libi.getsecond(re.split('-',x)[1]))-float(self.libi.getsecond(re.split('-',x)[0])) for x in re.findall(r'([^,\s]+\s*-\s*[^,\s]+)',i[1])]) if len(i)>1 else float(self.libi.exiftool(self.libi.adddestdir(re.sub(r'^=','',i[0])),'Duration'))
+   print(f'replaceaudiobreakjoin i={i}')
+   self.duration+=sum([float(self.libi.getsecond(re.split('-',x)[1]))-float(self.libi.getsecond(re.split('-',x)[0])) for x in re.findall(r'([^,\s]+\s*-\s*[^,\s]+)',i[1])]) if len(i)>1 else float(self.libi.exiftool(re.sub(r'^=','',i[0]),'Duration'))
    self.beginstring+=''.join([' -ss '+(' -to '.join(re.split('-',x)))+' -i '+re.sub(r'^=','',i[0])+' ' for x in re.findall(r'([^,\s]+\s*-\s*[^,\s]+)',i[1])]) if len(i)>1 else ' -i '+re.sub(r'^=','',i[0])+' '
    concatstring+=''.join([('[io' if re.search(r'^=',i[0]) else '[')+str(x+count)+('' if re.search(r'^=',i[0]) else ':v')+']['+str(x+count)+':a]' for x in range(len(re.findall('-',i[1] if len(i)>1 else '')) or 1)])
 #   self.returnstring+=''.join(['['+str(x+count)+':v]'+'scale='+self.dimension+',setsar=sar=1'+'[io'+str(x+count)+'];' for x in range(len(re.findall('-',i[1] if len(i)>1 else '')))]) if re.search(r'^=',i[0]) else ''
@@ -35,7 +37,7 @@ class gifc:
    count+=len(re.findall('-',i[1] if len(i)>1 else '')) or 1
   self.returnstring+=concatstring+'concat=n='+str(len(re.findall(' -i ',self.beginstring)))+':v=1:a=1[io'+str(len(re.findall(' -i ',self.beginstring))-1)+'][aout];' if len(re.findall(' -i ',self.beginstring))>1 else ''
   self.libi.setvideo(self.dimension)
-  print(f'<>gifm.audiobreakjoin {self.beginstring=} {self.returnstring=} {concatstring=} {self.dimension=} {self.duration=}')
+  print(f'<>gifm.audiobreakjoin self.beginstring={self.beginstring} self.returnstring={self.returnstring} concatstring={concatstring} self.dimension={self.dimension} self.duration={self.duration} self.libi.duration={self.libi.duration}')
 
  def overlay(self,imagename,begintime,duration=None,position='(W-w)/2,(H-h)/2'):
   '''overlay png/gif/mov/mp4 over video
@@ -44,7 +46,7 @@ class gifc:
            imagename or (audiofile,weights) or audiofile - if only one is available
      begintime - when overlay starts hh:mm:ss.ms/ss.ms
      position - x,y of overlay W/2,H/2 or W*2 H*5'''
-  print(f'><gifc.overlay {imagename=} {begintime=} {duration=} {position=}')
+  print(f'><gifc.overlay imagename={imagename} begintime={begintime} duration={duration} position={position}')
   audiofile=None
   volumeweights=None
   if type(imagename) == tuple: # imagename and audio file
@@ -63,14 +65,15 @@ class gifc:
  # count=int(re.sub(r'.*io(\d+)\];.*',r'\1',self.returnstring))+1 if self.returnstring else 0
   count=int(re.sub(r'.*io(\d+)\];?.*',r'\1',self.returnstring))+1 if self.returnstring else 0
 
-  self.returnstring+="["+str(len(re.findall(r' -i ',self.beginstring))-1)+":v]setpts=PTS+"+self.libi.getsecond(begintime)+"/TB[bio"+str(count)+"];" +("[0:v]" if not count else "[io"+str(count-1)+"]") + "[bio"+str(count)+"]" + self.libi.convertfilter(position,begintime)+":eof_action=pass[io"+str(count)+"];" if imagename else ""
+#  self.returnstring+="["+str(len(re.findall(r' -i ',self.beginstring))-1)+":v]setpts=PTS+"+self.libi.getsecond(begintime)+"/TB[bio"+str(count)+"];" +("[0:v]" if not count else "[io"+str(count-1)+"]") + "[bio"+str(count)+"]" + self.libi.convertfilter(position,begintime)+":eof_action=pass[io"+str(count)+"];" if imagename else ""
+  self.returnstring+="["+str(len(re.findall(r' -i ',self.beginstring))-1)+":v]setpts=PTS+"+self.libi.getsecond(begintime)+"/TB[bio"+str(count)+"];" +("[0:v]" if not count else "[io"+str(count-1)+"]") + "[bio"+str(count)+"]" + self.libi.convertfilter(position,begintime)+":eof_action=pass:format=auto[io"+str(count)+"];" if imagename else ""
 
   if audiofile:
    #(('<index>',begintime,weights),<begintime>,<endtime>)
 #   self.audiostrip.append(((str(len(re.findall(r' -i',self.beginstring))-(2 if imagename else 1)),float(self.libi.getsecond(begintime)),volumeweights),float(self.libi.getsecond(begintime)),float(self.libi.getsecond(begintime))+(duration if duration and float(self.libi.exiftool(audiofile,'Duration'))>duration else float(self.libi.exiftool(audiofile,'Duration')))))
    #(index,weight,begintime,endtime)
    self.audiostrip.append((str(len(re.findall(r' -i ',self.beginstring))-(2 if imagename else 1)),volumeweights,float(self.libi.getsecond(begintime)),float(self.libi.getsecond(begintime))+(duration if duration and float(self.libi.exiftool(audiofile,'Duration'))>duration else float(self.libi.exiftool(audiofile,'Duration')))))
-  print(f'gifc.overlay {self.audiostrip=}')
+  print(f'gifc.overlay self.audiostrip={self.audiostrip}')
 
  def stroke(self,outimagename=None):
   '''Render the filtergraphs on video=input.mp4'''
@@ -89,8 +92,8 @@ class gifc:
    lastoffset=i
 #   maxvolume=max([float(x[1]) for x in result if x[1]] or [1])
    maxvolume=max([float(x[1] if x[1] else 1) for x in result] or [1])
-   print(f'gifc.stroke {maxvolume=}')
-   print(f'gifc.stroke {i=} {result=} {lastoffset=}')
+   print(f'gifc.stroke maxvolume={maxvolume}')
+   print(f'gifc.stroke i={i} result={result} lastoffset={lastoffset}')
    if len(result)>1:
 #    audiostring+=''.join(['['+j[0]+':a]atrim='+str(round(j[2],3))+':'+str(round(j[3],3))+(',volume='+(str(float(j[1])/maxvolume) if j[1] else str(1/maxvolume)) if [x for x in result if x[1]] else '')+',asetpts=PTS-STARTPTS[aio'+j[0]+'];' for j in result])+''.join(['[aio'+j[0]+']' for j in result])+'amerge=inputs='+str(len(result))+'[aout'+str(count)+'];'
     audiostring+=''.join([('['+j[0]+':a]' if j[0]!='aout' else '[aout]')+'atrim='+str(round(j[2],3))+':'+str(round(j[3],3))+(',volume='+(str(float(j[1])/maxvolume) if j[1] else str(1/maxvolume)) if [x for x in result if x[1]] else '')+',asetpts=PTS-STARTPTS[aio'+j[0]+'];' for j in result])+''.join(['[aio'+j[0]+']' for j in result])+'amerge=inputs='+str(len(result))+'[aout'+str(count)+'];'
@@ -153,6 +156,62 @@ class gifc:
 #   if re.search(r'y',input("wanna push \""+self.outputfile+"\" to "+key+" ?(y/n)..."),re.I):
 #    self.libi.system(self.socialmedia[key])
 
+ def stroke2(self,*arg,outputfile=None):
+  '''*arg - (<[=non-referent]videoname>,<timestamps>),(<videoname>,<timestamps>),((<video>,[audio],[volume]),<position>,<timestamps,[timestamp_duration]>)
+  *arg - (<[=non-referent]videoname>,<timestamps>),(<videoname>,<timestamps>),((<audio>,[volume,=10 for other to mute]),<[<filter>]<position>>,<timestamps,[timestamp_duration]>)
+  *arg - ('=VID.mp4','00:01:00-00:02:00,00:03:00-00:04:20'),('VID2.mp4','00:00:00-00:40:00'),(('longway.gif','longo.mp3',0.2),'(W-w)/2,(H-h)/2',00:00:30-00:00:40,00:00:50_10,20_10')
+  *arg - ('=VID.mp4','00:01:00-00:02:00,00:03:00-00:04:20'),('VID2.mp4','00:00:00-00:40:00'),(('longway.gif','longo.mp3',0.2),55,00:00:30-00:00:40,00:00:50')
+  *arg - ('=VID.mp4','00:01:00-00:02:00,00:03:00-00:04:20'),('VID2.mp4','00:00:00-00:40:00'),(('longway.gif','longo.mp3',0.2),('010',55),00:00:30-00:00:40,00:00:50_10,20_10')
+  *arg - ('=VID.mp4','00:01:00-00:02:00,00:03:00-00:04:20'),('VID2.mp4','00:00:00-00:40:00'),(('Hello Man\nHello Sir','longo.mp3',0.2),(01,55),00:00:30-00:00:40,00:00:50_10,20_10')
+  (<filter>,<position>) - non tuple - direct overlay, tuple filter three digit - image2gif->overlay , tuple filter two digit - text2image->image2gif->overlay'''
+  print(f'><gifc.stroke2 arg={arg} outputfile={outputfile}')
+  def audio(filename):
+   return re.search('audio',self.libi.exiftool(filename,'MIME Type'),re.I)
+  audiolist=[]
+  result=[]
+#  audiostring=videostring='';count=0;maxvolume=0
+  audiostring='';audiocount=0;maxvolume=0
+  filename=None
+  lastoffset=0
+  self.replaceaudiobreakjoin(*[i for i in arg if len(i)<=2])
+  audiolist.append((('aout',1),(0,self.libi.duration)))
+  for i in [i for i in arg if len(i)==3]: #non primary videos
+   if type(i[0])==tuple and not audio(i[0][0]) or type(i[0])==str and not audio(i[0]): #non audio files
+    filename=i[0][0] if type(i[0])==tuple else i[0]
+    print(f'video file filename={filename} i={i}')
+    [self.overlay(filename if not type(i[1])==tuple else self.utili.image2gif(filename,filtermode=self.libi.filter[self.libi.filter[i[1][0]][0]],duration=float(self.libi.getsecond(re.split('-',ii)[1]))-float(self.libi.getsecond(re.split('-',ii)[0])) if re.search(r'-',ii) else None,backcolor=self.libi.filter[i[1][0]][1]) if i[1][0][0]=='3' else self.utili.image2gif(self.utili.text2image('\n'.join(x+self.libi.filter[i[1][0]][0] for count,x in enumerate(re.split('\n',filename))),richtext=True),filtermode=self.libi.filter[self.libi.filter[i[1][0]][1][0]],duration=float(self.libi.getsecond(re.split('-',ii)[1]))-float(self.libi.getsecond(re.split('-',ii)[0])) if re.search('-',ii) else None,backcolor=self.libi.filter[i[1][0]][1][1]),begintime=re.split('-',ii)[0] if re.search('-',ii) else ii,position=self.libi.co(int(i[1][1]) if type(i[1])==tuple else i[1]),duration=float(self.libi.getsecond(re.split('-',ii)[1]))-float(self.libi.getsecond(re.split('-',ii)[0])) if re.search('-',ii) else None) for ii in re.split(',',str(i[2]))]
+   if type(i[0])==tuple and (len(i[0])>=2 or audio(i[0][0])) or audio(i[0]): #audio file
+    print(f'audio file -> i={i}')
+    audiolist.append(((i[0][1:] if len(i[0])>2 else (i[0][1],1) if not audio(i[0][0]) else i[0]) if type(i[0])==tuple else (i[0],1),*[[float(self.libi.getsecond(y)) for y in re.split('-',x)] if re.search('-',x) else (float(x),float(x)+float(self.libi.exiftool((i[0][1] if len(i[0])>2 else i[0][1] if not audio(i[0][0]) else i[0][0]) if type(i[0])==tuple else i[0],'Duration'))) for x in re.split(r',',str(i[2]))]))
+  self.beginstring+=' '+' '.join(('-ss '+re.split('-',y)[0]+' -to '+re.split('-',y)[1] if y else '')+' -i '+re.sub(r'=','',re.sub('[.]mp4$',r'.mp3',x[0])) for x in arg if len(x)<=2 for y in (re.split(',',x[1]) if len(x)==2 else [None]))+' '+' '.join(r'-i '+x[0][0] for x in audiolist if x[0][0]!='aout')
+  self.returnstring=re.sub(r'\[(?P<id>\d+):a\]',lambda m:r'['+str(int(m.group('id'))+[count for count,i in enumerate(re.findall(r'-i\s+(\S+)',self.beginstring,flags=re.I)) if i in [re.sub(r'=','',re.sub(r'[.]mp4$',r'.mp3',x[0])) for x in arg if len(x)==2]][0])+r':a]',self.returnstring,flags=re.I)
+  print(f'audiolist={audiolist} \n self.beginstring={self.beginstring} \n self.returnstring={self.returnstring}')
+  for i in sorted(set([y for i in audiolist for x in i[1:] for y in x]))[1:]:
+   for j in audiolist:
+    for k in j[1:]:
+     if k[0]<i<=k[1]:
+      result.append((j[0],lastoffset-k[0],i-k[0]))
+   lastoffset=i
+   maxvolume=max([float(x[0][1] if type(x[0])==tuple and len(x[0])==2 else 1) for x in result] or [1])
+   print(f'result={result}')
+   if len(result)>1:
+    audiostring+=''.join([(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r':a]' if x[0][0]!='aout' else '[aout]')+'atrim='+str(round(x[1],3))+':'+str(round(x[2],3))+',volume='+str(float(x[0][1]/maxvolume if maxvolume<10 else 0 if x[0][1]!= maxvolume else 1))+r',asetpts=PTS-STARTPTS[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r'];' if x[0][0]!='aout' else r'aout];') for x in result])+''.join([r'[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r']' if x[0][0]!='aout' else r'aout]') for x in result])+'amerge=inputs='+str(len(result))+'[aout'+str(audiocount)+r'];'
+   elif len(result)==1:
+    audiostring+=(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(result[0][0][0]))+r':a]' if result[0][0][0]!='aout' else '[aout]')+'atrim='+str(round(result[0][1],3))+':'+str(round(result[0][2],3))+r',asetpts=PTS-STARTPTS[aout'+str(audiocount)+'];'
+#   videostring+=''.join([r'[vout]trim='+str(round(j[1],3))+':'+str(round(j[2],3))+r',setpts=PTS-STARTPTS[vout'+str(count)+r'];' for j in result if j[0][0]=='aout'])
+   audiocount+=1
+   result=[]
+  print(f'self.returnstring={self.returnstring}XX')
+  audiostring=re.sub(r'^(.*):.*?(,asetpts.*)$',r'\1\2',audiostring)
+#  audiostring=re.sub(r'.*(\[[^\]]+\]);$',r'\1',self.returnstring)+r'split='+str(count)+'[vout]'*(count)+';'+videostring+'[aout]asplit='+str(count)+'[aout]'*(count)+';'+audiostring if count else ''
+  audiostring=re.sub(r'.*(\[[^\]]+\]);$',r'\1',self.returnstring)+r'split='+str(audiocount)+'[vout]'*(audiocount)+';'+''.join(re.sub('aout','vout',re.sub('atrim','trim',re.sub('asetpts','setpts',re.sub(r'volume=[^,]+,','',re.sub('\[\w+\];',r'[vout'+str(count)+r'];',x))))) for count,x in enumerate(re.findall(r'\[aout\]atrim.*?;',audiostring)))+('[aout]' if re.search(r'\[aout\]',self.returnstring) else r'['+str(re.findall(r'-i\s+\S+',self.beginstring).index(re.sub(r'[.]mp4',r'.mp3',re.findall(r'-i\s+\S+',self.beginstring)[0])))+r':a]')+r'asplit='+str(audiocount)+'[aout]'*(audiocount)+';'+audiostring if audiocount else ''
+  for i in range(audiocount):
+   audiostring+='[vout'+str(i)+'][aout'+str(i)+']'
+  audiostring+='concat=n='+str(audiocount)+':v=1:a=1[vout][aout]' if audiocount else ''
+#  print(f'audiostring={audiostring}\n videostring={videostring}')
+  print(f'audiostring={audiostring}')
+  self.libi.ffmpeg(self.beginstring+" -filter_complex \""+re.sub(r';$','',self.returnstring+audiostring)+"\" -map \"[vout]\" -ac 2 -q:a 4 -map \"[aout]\" -y "+self.libi.adddestdir("output.mp4" if not outputfile else outputfile))
+ 
  def push2socialmedia(self,socialmedia,jsondata=None):
   '''send data to socialmedia
    socialmedia - name of socialmedia,i.e youtube,facebook,linkedin,instagram,twitter

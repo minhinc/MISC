@@ -12,9 +12,9 @@ class utilc:
  '''1. Video editing functions
     2. Gif creation functions
     3. Image manipulation functions'''
- def __init__(self,debug=False,inputfile=None):
+ def __init__(self,debug=False,inputfile=None,libp=None):
   '''Enable debug True/False'''
-  self.libi=libm.libc(debug,inputfile=inputfile)
+  self.libi=libm.libc(debug,inputfile=inputfile) if not libp else libp
 
  def setvideo(self,inputfile):
   self.libi.setvideo(inputfile)
@@ -45,6 +45,7 @@ class utilc:
    duration - total duration of mov=None
    backcolor - background glass color
    outimagename - output mov name=<imagename>_<count>.mov'''
+  print(f'><utilc.image2gif imagename={imagename} filtermode={filtermode} duration={duration} backcolor={backcolor}')
   img=Image.new('RGBA',[int(i) for i in self.libi.videoattribute(imagename)[0]] if re.search('video',self.libi.exiftool(imagename,'MIME Type'),re.I) else Image.open(imagename).size,backcolor)
   img.save(self.libi.adddestdir('transparentpng.png'))
   img.close()
@@ -58,36 +59,51 @@ class utilc:
 #  self.libi.system("convert -loop 1 -dispose Background -delay 10 out*.png "+outimagename)
   return outimagename
 
- def text2image(self,text,textcolor='r',backcolor=(0,0,0,0),size=0.3,stroke=False,alignment='m',margin=10,outimagename=None):
-  '''Create text png image
-   text - text to draw=r'<text>:<size>:<textcolor>:<rectcolor>:<verticalmargin>,Sample\nText' or 'Sample\\nText'
-   textcolor - default color of text='red' see lib.palettecolor
-   backcolor - background color of text=(0,0,0,192)
-   size - width of textline/video width=0.4
-   stroke - Need stroke (True/False)=False
-   alignment - m:center l:left='m'
-   margin - inter line margin
-   outimagename - output image file name'''
+ def text2image(self,text,textcolor='r',backcolor=(0,0,0,0),size=0.3,stroke=False,alignment='m',linemargin=10,richtext=False,outimagename=None):
+  '''\
+  ------ richtext=True, Rich text properties for each line in Text ------
+  text - ='<text>:<textcolor>:<backcolor>:<size>:<stroke>:<alignment>:<linemargin>\n<text>:<textcolor>......\n<text>...'
+          'Hello World:r::0.5:::20\nHow are you::::::'
+         --------------------
+  ----- richtext=False, Common properties of all lines or default properties for separate line text properties (above) -----
+  text - multiline text separate by '\n', NO raw text = 'Hello\nWorld'
+  textcolor - default color of text = 'red' see lib.palettecolor
+  backcolor - background color of text = (0,0,0,192)
+  size - width of textline/video width = 0.4
+  stroke - Need stroke (True/False) = False
+  alignment - m:center l:left = 'm'
+  margin - inter line margin
+  outimagename - output image file name = To auto generated
+  ex. 'Hello World\nHow are Your,textcolor='g',backcolor=(255,0,0,128),size=0.4,stroke=True'
+            ----------------'''
   stringlist=[]
   offset=4
-  for i in re.split(r'\\n',text):
-#   if re.search(r'^\s*$',i): stringlist.append(i)
-#   else: [stringlist.append(x) for x in textwrap.wrap(i,width=40,drop_whitespace=False)]
-   stringlist.append(self.libi.split(i,('',size,textcolor,str(backcolor),margin)))
-  imagewidth=max([self.libi.getfont([stringlist[i][0]] if len(stringlist[i][0]) >= 20 else ['Q'*20],stringlist[i][1],'/home/minhinc/.fonts/Consolas.ttf').getsize(stringlist[i][0])[0]+offset for i in range(len(stringlist))])
-  imageheight=sum([self.libi.getfont([stringlist[i][0]] if len(stringlist[i][0]) >= 20 else ['Q'*20],stringlist[i][1],'/home/minhinc/.fonts/Consolas.ttf').getsize(stringlist[i][0])[1]+stringlist[i][4] for i in range(len(stringlist))])
-  print(f'{stringlist=} {imagewidth=} {imageheight=}')
+  yoffset=4
+  print(f'><utilc.text2image text={text}')
+  if richtext:
+   for i in re.split('\n',text):
+    stringlist.append(self.libi.split(i,('',textcolor,str(backcolor),size,stroke,alignment,linemargin)))
+  else:
+   stringlist.append((text,textcolor,str(backcolor),size,stroke,alignment,linemargin))
+#  imagewidth=max([self.libi.getfont([stringlist[i][0]] if len(stringlist[i][0]) >= 20 else ['Q'*20],stringlist[i][3],os.path.expanduser('~')+r'/.fonts/Consolas.ttf').getsize(stringlist[i][0])[0]+offset for i in range(len(stringlist))])
+  imagewidth=max([self.libi.getfont(re.split('\n',text[0]) if max([len(x) for x in re.split('\n',text[0])]) >= 20 else ['Q'*20],text[3] if richtext else size,os.path.expanduser('~')+r'/.fonts/Consolas.ttf').getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0]+offset for count,text in enumerate(stringlist)])
+#  imageheight=sum([self.libi.getfont([stringlist[i][0]] if len(stringlist[i][0]) >= 20 else ['Q'*20],stringlist[i][3],os.path.expanduser('~')+r'/.fonts/Consolas.ttf').getsize(stringlist[i][0])[1]+stringlist[i][6] for i in range(len(stringlist))])
+  imageheight=sum([self.libi.getfont([(text[0] if richtext else text) if len(text[0] if richtext else text) >= 20 else 'Q'*20],text[3] if richtext else size,os.path.expanduser('~')+r'/.fonts/Consolas.ttf').getsize(text[0] if richtext else text)[1]+(text[6]+yoffset if richtext else linemargin) for count,text in enumerate(stringlist if richtext else re.split('\n',text))])-(stringlist[-1][6] if richtext else linemargin-yoffset)
+  print(f'stringlist={stringlist} imagewidth={imagewidth} imageheight={imageheight}')
   img=Image.new('RGBA',(imagewidth,imageheight),(0,0,0,0))
   draw=ImageDraw.Draw(img)
-  bottommargin=0
-  for i in range(len(stringlist)):
-   fntl=self.libi.getfont([stringlist[i][0] if len(stringlist[i][0]) >=20 else 'Q'*20],float(stringlist[i][1]),'/home/minhinc/.fonts/Consolas.ttf')
-   bottommargin+=fntl.getsize(stringlist[i][0])[1]+stringlist[i][4]
-   draw.rectangle(((imagewidth-fntl.getsize(stringlist[i][0])[0])/2-offset/2,bottommargin-fntl.getsize(stringlist[i][0])[1]-stringlist[i][4],(imagewidth+fntl.getsize(stringlist[i][0])[0])/2+offset/2,bottommargin) if alignment=='m' else (offset/4,bottommargin-fntl.getsize(stringlist[i][0])[1]-stringlist[i][4],fntl.getsize(stringlist[i][0])[0]+offset,bottommargin),fill=self.libi.palette(stringlist[i][3]))
+  #bottommargin=0
+  for count,text in enumerate(stringlist):
+   fntl=self.libi.getfont(re.split('\n',text[0]) if max(len(x) for x in re.split('\n',text[0])) >=20 else ['Q'*20],float(text[3] if richtext else size),os.path.expanduser('~')+r'/.fonts/Consolas.ttf')
+#   bottommargin+=(fntl.getsize(text[0])[1] if richtext else sum(fntl.getsize(text)[1] for text in re.split('\n',text[0])))+(text[6] if richtext else linemargin)
+#   draw.rectangle(((imagewidth-fntl.getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0])/2-offset/2,bottommargin-(fntl.getsize(text[0])[1] if richtext else sum(fntl.getsize(text)[1] for text in re.split('\n',text[0])))-(text[6] if richtext else linemargin),(imagewidth+fntl.getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0])/2+offset/2,bottommargin) if alignment=='m' else (offset/4,bottommargin-fntl.getsize(text[0])[1]-(text[6] if richtext else linemargin),fntl.getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0]+offset,bottommargin),fill=self.libi.palette(text[2] if richtext else backcolor))
+   draw.rectangle(((imagewidth-fntl.getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0])/2-offset/2,sum([fntl.getsize(stringlist[i][0])[1]+stringlist[i][6]+yoffset for i in range(count)] or [0]) if richtext else 0,(imagewidth+fntl.getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0])/2+offset/2,sum([fntl.getsize(stringlist[i][0])[1]+stringlist[i][6]+yoffset for i in range(count)] or [0])+fntl.getsize(text[0])[1]+yoffset if richtext else imageheight) if alignment=='m' else (offset/4,sum([fntl.getsize(stringlist[i][0])[1]+stringlist[i][6]+yoffset for i in range(count)] or [0]) if richtext else 0,fntl.getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0]+offset,sum([fntl.getsize(stringlist[i][0])[1]+stringlist[i][6]+yoffset for i in range(count)] or [0])+fntl.getsize(text[0])[1]+yoffset if richtext else imageheight),fill=self.libi.palette(text[2] if richtext else backcolor))
    if stroke:
-    self.libi.drawtextstroke(draw,(imagewidth-fntl.getsize(stringlist[i][0])[0])/2 if re.search(r'm',alignment) else offset/2,bottommargin-fntl.getsize(stringlist[i][0])[1]-stringlist[i][4],stringlist[i][0],fntl,self.libi.palette(stringlist[i][2]))
+    self.libi.drawtextstroke(draw,(imagewidth-fntl.getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0])/2 if re.search(r'm',alignment) else offset/2,bottommargin-(fntl.getsize(text[0])[1] if richtext else sum(fntl.getsize(text)[1] for text in re.split('\n',text[0])))-(text[4] if richtext else linemargin),text,fntl,self.libi.palette(text[1] if richtext else textcolor))
    else:
-    draw.text(((imagewidth-fntl.getsize(stringlist[i][0])[0])/2 if re.search(r'm',alignment) else offset/2,bottommargin-fntl.getsize(stringlist[i][0])[1]-stringlist[i][4]/2),stringlist[i][0],font=fntl,fill=self.libi.palette(stringlist[i][2]))
+#    draw.text(((imagewidth-fntl.getsize(text[0] if richtext else 'Q'*max(len(x) for x in re.split('\n',text[0])))[0])/2 if re.search(r'm',alignment) else offset/2,sum([fntl.getsize(stringlist[i][0])[1]+stringlist[i][6]+yoffset for i in range(count)] or [yoffset/2]) if richtext else yoffset/2),text[0],font=fntl,fill=self.libi.palette(text[1] if richtext else textcolor))
+    [draw.text(((imagewidth-fntl.getsize(text)[0])/2 if re.search(r'm',alignment) else offset/2,sum([fntl.getsize(stringlist[i][0])[1]+stringlist[i][6]+yoffset for i in range(count)] or [yoffset/2]) if richtext else sum([fntl.getsize(re.split('\n',stringlist[count][0])[x])[1]+linemargin for x in range(lcount)] or [0])+yoffset/2),text,font=fntl,fill=self.libi.palette(stringlist[count][1] if richtext else textcolor)) for lcount,text in enumerate(re.split('\n',text[0]))]
+   print(f'linemargin+yofset{linemargin+yoffset}')
 #   if stroke:
 #    self.libi.drawtextstroke(drawmask,(imagewidth-fnt.getsize(stringlist[i])[0])/2 if re.search(r'm',alignment) else offset/2,i*textcellheight+(textcellheight-fnt.getsize(stringlist[i])[1])/2,stringlist[i],fntl,self.libi.palette(stringlist[i][2])[3])
 #   else:
@@ -104,9 +120,9 @@ class utilc:
    size - gif width/video width=0.4
    textdata=tuple of three words=('Minh, ','Inc.','A Software Research Firm')'''
   yoffset=10
-  font=self.libi.getfont([textdata[0]+textdata[1]],size,'/home/minhinc/.fonts/ufonts.com_tw-cen-mt.ttf')
-  font1=self.libi.getfont([textdata[0]+textdata[1]],size*0.8,'/home/minhinc/.fonts/ufonts.com_tw-cen-mt.ttf')
-  font2=self.libi.getfont([textdata[2]],size,'/home/minhinc/.fonts/ufonts.com_tw-cen-mt.ttf')
+  font=self.libi.getfont([textdata[0]+textdata[1]],size,os.path.expanduser('~')+r'/.fonts/ufonts.com_tw-cen-mt.ttf')
+  font1=self.libi.getfont([textdata[0]+textdata[1]],size*0.8,os.path.expanduser('~')+r'/.fonts/ufonts.com_tw-cen-mt.ttf')
+  font2=self.libi.getfont([textdata[2]],size,os.path.expanduser('~')+r'/.fonts/ufonts.com_tw-cen-mt.ttf')
   imagewidth=max(font.getsize(textdata[0]+textdata[1])[0],font2.getsize(textdata[2])[0])
   img=Image.new('RGBA',(imagewidth,int(font.getsize(textdata[0]+textdata[1])[1]+4*yoffset+font2.getsize(textdata[2])[1])),(0,0,0,0))
   draw=ImageDraw.Draw(img)
@@ -150,7 +166,7 @@ class utilc:
   diff=[]
   offset=10
   stringlist=re.split(r'\\n',text)
-  fnt=self.libi.getfont(stringlist if max([len(x) for x in stringlist]) >= 20 else ['a'*20],size,'/home/minhinc/.fonts/Consolas.ttf')
+  fnt=self.libi.getfont(stringlist if max([len(x) for x in stringlist]) >= 20 else ['a'*20],size,os.path.expanduser('~')+r'/.fonts/Consolas.ttf')
   textmaxindex=[len(i) for i in stringlist].index(max([len(i) for i in stringlist]))
   textcellheight=int(fnt.getsize(stringlist[textmaxindex])[1]+offset/4)
   stepcount=20
@@ -203,8 +219,8 @@ class utilc:
    backcolor - background color=(0,0,0,128)'''
   offset=10
   stringlist=[]
-  fnt=self.libi.getfont(re.split(r'\\n',text) if max([len(x) for x in re.split(r'\\n',text)]) >= 20 else ['Q'*20],float(size),'/home/minhinc/.fonts/Consolas.ttf')
-  fnts=self.libi.getfont(re.split(r'\\n',text) if max([len(x) for x in re.split(r'\\n',text)]) >= 20 else ['Q'*20],float(size)*0.5,'/home/minhinc/.fonts/Consolas.ttf')
+  fnt=self.libi.getfont(re.split(r'\\n',text) if max([len(x) for x in re.split(r'\\n',text)]) >= 20 else ['Q'*20],float(size),os.path.expanduser('~')+r'/.fonts/Consolas.ttf')
+  fnts=self.libi.getfont(re.split(r'\\n',text) if max([len(x) for x in re.split(r'\\n',text)]) >= 20 else ['Q'*20],float(size)*0.5,os.path.expanduser('~')+r'/.fonts/Consolas.ttf')
   for i in range(len(re.split(r'\\n',text))):
    if re.search(r'(^|\\n)><',text):
     stringlist.append([re.sub(r'><(.*)',r'\1',re.split(r'\\n',text)[i]),None,int(fnt.getsize(re.sub(r'><(.*)',r'\1',re.split(r'\\n',text)[i]))[1]+offset),fnt] if re.search(r'^><',re.split(r'\\n',text)[i]) else [re.split(r'\\n',text)[i],None,int(fnts.getsize(re.split(r'\\n',text)[i])[1]+offset/6),fnts])
@@ -315,7 +331,7 @@ class utilc:
    videofile - videos list ie. 'input1.mp4','><input2.mp4','<>input3.mp4','=input4.mp4'
     butterfly ><,<> signifies rotate PI/2 c/ac
     =videofile - refrence videofile'''
-  print(f'utic.addvideo {videofile=}')
+#  print(f'utic.addvideo {videofile=}')
   dimension=[]
   beginstring="ffmpeg "
   returnstring="-filter_complex \""
