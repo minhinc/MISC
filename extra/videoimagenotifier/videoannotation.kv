@@ -1,0 +1,36 @@
+#:kivy 2.1.0
+<BlinkImage>:
+ keep_ratio:True
+ kvbordercolor:[0,1,0,0]
+ canvas.before:
+  Color:
+   rgba:self.kvbordercolor
+  RoundedRectangle:
+#   size:(self.size[1]*self.get_image_ratio()+self.parent.spacing,self.size[1]+self.parent.spacing) if self.size[0]/self.get_image_ratio()>self.size[1] else (self.size[0]+self.parent.spacing,self.size[0]/self.get_image_ratio()+self.parent.spacing)
+#   pos:(self.pos[0]+(self.size[0]-self.size[1]*self.get_image_ratio())/2-self.parent.spacing/2,self.pos[1]-self.parent.spacing/2) if self.size[0]/self.get_image_ratio()>self.size[1] else (self.pos[0]-self.parent.spacing/2,self.pos[1]+(self.size[1]-self.size[0]/self.get_image_ratio())/2-self.parent.spacing/2)
+   size:(self.size[1]*self.image_ratio+self.parent.spacing,self.size[1]+self.parent.spacing) if self.size[0]/self.image_ratio>self.size[1] else (self.size[0]+self.parent.spacing,self.size[0]/self.image_ratio+self.parent.spacing)
+   pos:(self.pos[0]+(self.size[0]-self.size[1]*self.image_ratio)/2-self.parent.spacing/2,self.pos[1]-self.parent.spacing/2) if self.size[0]/self.image_ratio>self.size[1] else (self.pos[0]-self.parent.spacing/2,self.pos[1]+(self.size[1]-self.size[0]/self.image_ratio)/2-self.parent.spacing/2)
+# on_touch_up:print('BlinkImage size={} pos={}'.format(self.size,self.pos))
+<VideoPlayerImageAnnotation>:
+ orientation:'vertical'
+ spacing:16
+ pos_hint:{'right':0.9,'top':0.9}
+ size_hint:0.2,0.8
+# canvas:
+#  Color:
+#   rgba:0,0,1,1
+#  RoundedRectangle:
+#   size:self.size
+#   pos:self.pos
+# on_touch_up:print('VideoPlayerImageAnnotation size={} pos={}'.format(self.size,self.pos))
+ BlinkImage:
+  id:imageid1
+ BlinkImage:
+  id:imageid2
+# BlinkImage:
+#  id:imageid3
+#  anim_delay:1.0
+#  anim_loop:0
+ BlinkImage:
+  id:imageid4
+#  on_touch_up:print('Image size={} pos={} image_ratio={}'.format(self.size,self.pos,self.get_image_ratio()))

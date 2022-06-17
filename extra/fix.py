@@ -10,16 +10,16 @@ file=[]
 if len(sys.argv)==1:
  print(f'usage \npython3 fix <directory>\npython3 fix kivy/kivy/uix\npython3 fix kivy')
  sys.exit(-1)
-if re.search(r'[.]pyx$',sys.argv[1]):
+if re.search(r'[.](pyx|pxi)$',sys.argv[1]):
  file.extend(sys.argv[1:])
 else:
  for i in os.walk(sys.argv[1]):
   for j in i[2]:
-   file.append(i[0]+r'/'+j) if re.search(r'[.]pyx?$',j) else None
+   file.append(i[0]+r'/'+j) if re.search(r'[.](pyx|pxi)?$',j) else None
 for k in file:
  with open(k) as file:
-  filedata=re.sub(r'\n+',r'\n',re.sub(r'^\s*(#.*|)$',r'',(re.sub(DELIMITER,r"'''",re.sub(r'(?:^|\n)[ \t]*(\'\'\'|""").*?\1','',re.sub(r'((?:^|\n)[ \t]*\w+[^\n]*?)(?:\'\'\'|""")(.*?)(?:\'\'\'|""")',r'\1'+DELIMITER+r'\2'+DELIMITER,file.read(),flags=re.I|re.DOTALL),flags=re.I|re.DOTALL),flags=re.I|re.DOTALL) if re.search(r'[.]pyx$',k,flags=re.I) else file.read()),flags=re.I|re.M),flags=re.I|re.DOTALL)
- if re.search(r'.*[.]pyx$',k):
+  filedata=re.sub(r'\n+',r'\n',re.sub(r'^\s*(#.*|)$',r'',(re.sub(DELIMITER,r"'''",re.sub(r'(?:^|\n)[ \t]*(\'\'\'|""").*?\1','',re.sub(r'((?:^|\n)[ \t]*\w+[^\n]*?)(?:\'\'\'|""")(.*?)(?:\'\'\'|""")',r'\1'+DELIMITER+r'\2'+DELIMITER,file.read(),flags=re.I|re.DOTALL),flags=re.I|re.DOTALL),flags=re.I|re.DOTALL) if re.search(r'[.](pyx|pxi)$',k,flags=re.I) else file.read()),flags=re.I|re.M),flags=re.I|re.DOTALL)
+ if re.search(r'.*[.](pyx|pxi)$',k):
   for i in re.findall(r'(?:^|\n)([ \t]*(?:cp?)?def(?:[ \t]\w+)+[ \t]*\([^)]*?\)[^\n:]*?:)',filedata,flags=re.DOTALL):
    if not re.search(r'^\s*cp?def\s+class\s+',i):
     j=','.join(re.findall(r'('+(r'[*]*' if not re.search(r'^\s*cp?def\s+',i) else '')+r'\w+)(?:=.*?)?[),]',re.sub(r'\n+','',i,flags=re.DOTALL)))
@@ -50,7 +50,7 @@ for k in file:
     data+='class '+re.split(DELIMITER,base)[0]+r'('+re.split(DELIMITER,base)[3]+r',metaclass='+re.split(DELIMITER,base)[1]+r'):pass'+'\n'
    else:
     data+=i+'\n'
- with open(re.sub(r'^(.*[.])pyx$',r'\1'+'py',k),'w') as file:
+ with open(re.sub(r'^(.*[.])(pyx|pxi)$',r'\1'+'py',k),'w') as file:
   file.write(data)
  data=''
- print(k,re.sub(r'^(.*[.])pyx$',r'\1'+'py',k))
+ print(k,re.sub(r'^(.*[.])(pyx|pxi)$',r'\1'+'py',k))

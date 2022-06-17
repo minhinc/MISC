@@ -17,11 +17,15 @@ from databaserequest import databaserequest
 from machinelearningrequest import machinelearningrequest
 import MISC.utillib.requestm as requestm
 
+class YouTubeError(Exception):
+ pass
+
 class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
  def __init__(self):
   super(sendmail,self).__init__(True,'linkedin')
-  self.emailcount=3
-  self.MAXEMAIL=3
+  self.emailcount=2
+#  self.MAXEMAIL=3
+  self.MAXEMAIL=2
   self.smtp=smtplib.SMTP_SSL("smtp.gmail.com",465)
   time.sleep(2)
   self.smtp.ehlo()
@@ -36,9 +40,11 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
     try:
      print(f'logging in to tominhinc{self.emailcount}@gmail.com ..')
      time.sleep(5)
-     self.smtp.login('tominhinc'+str(self.emailcount)+'@gmail.com','pinku76minh')
+#     self.smtp.login('tominhinc'+str(self.emailcount)+'@gmail.com','pinku76minh')
+     self.smtp.login('tominhinc'+str(self.emailcount)+'@gmail.com',('nsbxmdsztbkydatl','roegsxqewlrydfao')[self.emailcount-1])
     except:
      print(f'login error - tominhinc{self.emailcount}@gmail.com')
+     self.smtp.close()
     else:
      print(f'successfully connected with tominhinc{self.emailcount}')
      break
@@ -74,6 +80,9 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
    sendmail.message.youtubetech[tech]=self.db.search2('tech','content','name','=',tech.lower(),mode='get')[0][0]
   if not tech in sendmail.message.techyoutubelist:
    sendmail.message.techyoutubelist[tech]=[(y[0],x) for x in self.getmatching(self.db.search2('tech','content','name','=',tech.lower(),mode='get')[0][0],*[x[1] for x in self.message.youtubehreftext],muteprint=True,percent=60) for y in self.message.youtubehreftext if x in y]
+   print(f'sendmail.message.techyoutubelist tech={tech} [tech]={sendmail.message.techyoutubelist[tech]}')
+  if not sendmail.message.techyoutubelist[tech]:
+   raise YouTubeError()
   randomnumber=random.randrange(0,len(sendmail.message.techyoutubelist[tech]),1)
   youtubeid=re.sub(r'^.*?\?v=(.*)$',r'\1',sendmail.message.techyoutubelist[tech][randomnumber][0])
   emailcontent=re.sub(r'youtubetech',self.message.youtubetech[tech],re.sub(r'youtubeimagewidth',str(requestm.youtubeimage(youtubeid)[1][0])+'px',re.sub(r'youtubeid',youtubeid,re.sub(r'youtubetitle',sendmail.message.techyoutubelist[tech][randomnumber][1],emailcontent,flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I))
@@ -104,14 +113,15 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
  def get(self,*url):
   """\
   get()
-  get(["abc company","qt","canada",abc@one.com,123@two.com],["def company","py","canada",456@abc.com,def@three.com])\
+  get(["qt",abc@one.com,123@two.com],["py",456@abc.com,def@three.com])\
   """
   print(f'{"################## sendmail.get ##################":^100}\n{url=!r:^100}')
   li=None
   if not (len(url)==3 and type(url[2])==int): # sending email when calling this module individually get(('comp pvt. ltd','qt','canada','pravinkumarsinha@gmail.com','tominhinc@gmail.com'),('ding dong pvt. ltd','cpp','india','tominhinc@gmail.com'))
    for i in url:
-    self.smtp.sendmail('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i[0],self.message('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i[0],self.getmatching(i[1],*[x[1] for x in self.db.get('tech')])[0]).as_string())
-    print(f' email sent - {i}')
+    for j in i[1:]:
+     self.smtp.sendmail('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',j,self.message('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',j,self.getmatching(i[0],*[x[1] for x in self.db.get('tech')])[0]).as_string())
+     print(f' email sent - {i}')
    if url:
     self.smtp.close()
     self.close(logout=False)
@@ -122,14 +132,18 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
      self.smtp.sendmail('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i,self.message('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i,self.db.search2('tech','name','id','=',self.db.search2('track','tech_id','email','=',i,mode='get')[0][0],mode='get')[0][0]).as_string())
 #     print(f"try block tech {self.db.search2('tech','name','id','=',self.db.search2('track','tech_id','email','=',i,mode='get')[0][0],mode='get')[0][0]}")
     except Exception as e:
-     emaillist.remove(i)
-     print(f'exception {type(e)=} {i} tominhinc{self.emailcount}@gmail.com')
-     if type(e)==smtplib.SMTPRecipientsRefused:
-      self.db.delete('track','email',i)
+     print(f'exception {type(e)=} tech={self.db.search2("tech","name","id","=",self.db.search2("track","tech_id","email","=",i,mode="get")[0][0],mode="get")[0][0]} {i} -> minhinc{self.emailcount}@gmail.com')
+     if type(e)==YouTubeError:
+      pass
      else:
-      self.emailcount+=1
-      if not self.connect():
-       break
+      emaillist.remove(i)
+      if type(e)==smtplib.SMTPRecipientsRefused:
+       self.db.delete('track','email',i)
+      else:
+       self.smtp.close()
+       self.emailcount+=1
+       if not self.connect():
+        break
     else:
      print(f"{count+1}/{len(emaillist)} email sent ({self.emailcount}) {i}")
      if not li:

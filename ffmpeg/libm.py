@@ -5,6 +5,7 @@ import re
 import shlex
 import subprocess
 from decimal import Decimal
+import copy
 class libc:
  '''library class to provide basic functions'''
  counti=-1
@@ -53,12 +54,27 @@ class libc:
    '12':r"overlay=x='min((W-w)/2,-w+t/1*W)':y='(H-h)/2'",#right
    '13':r"overlay=x='(W-w)/2':y='min((H-h)/2,-h+t/1*H)'",#bottom
    '14':r"overlay=x='max((W-w)/2,W-t/1*W)':y='(H-h)/2'",#left
-   '20':(r":yellow:black:0.5:::",('01',(0,0,0,0))), #yellow on black 0.5 size, blend curtain up, backcolor transparent
-   '21':(r":white:black:0.5:::",('01',(0,0,0,0))), #white on black 0.5 size, blend curtain up, backcolor transparent
-   '22':(r":red:(0,0,0,0):0.5:::",('12',(255,255,255,196))),
-   '23':(r":yellow:(0,0,0,196):0.5:::",('01',(0,0,0,0))),
-   '30':('01',(0,0,0,0)) #blend curtain up,background color 0000, duration=testcase or image
+
+   '20':('self.gifi.overlay',{'imagename':'$[0][0]','begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
+    '200':("self.filter['20']",("[1]['imagename']",'$[0]'),("[1]['begintime']",'$[2]'),("[1]['duration']",None)),
+    '201':("self.filter['20']",("[1]['imagename']",'$[0]')),
+    '202':("self.filter['20']",("[1]['begintime']",'$[2]'),("[1]['duration']",None)),
+    '203':("self.filter['20']"),
+
+   '21':('self.gifi.overlay',{'imagename':('self.gifi.utili.image2gif',{'imagename':'$[0][0]','duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'filtermode':"self.filter['01']"}),'begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
+    '210':("self.filter['21']",("[1]['imagename'][1]['imagename']",'$[0]'),("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
+    '211':("self.filter['21']",("[1]['imagename'][1]['imagename']",'$[0]')),
+    '212':("self.filter['21']",("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
+    '213':("self.filter['21']"),
+
+   '22':('self.gifi.overlay',{'imagename':('self.gifi.utili.image2gif',{'imagename':('self.gifi.utili.text2image',{'text':"$[0][0]+':yellow:black:0.5:::'",'richtext':True}),'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'filtermode':"self.filter['01']"}),'begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
+    '220':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:0.5:::'"),("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
+    '221':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:0.5:::'")),
+    '221_f':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:1.0:::'")),
+    '222':("self.filter['22']",("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
+    '223':("self.filter['22']"),
   }
+
   self.debugf=debug
   self.gifi=gifp
   if not os.path.isdir(destdir):
@@ -87,42 +103,30 @@ class libc:
 # def setvideo(self,inputfile,dimension=None):
  def setduration(self,durationP):
   print(f'><libc.setduration durationP={durationP}')
-  stroketuple=[]
-  try:
-   type(float(durationP))
-  except Exception as ec:
-   self.duration=sum(float(self.getsecond(re.split('-',x)[1]))-float(self.getsecond(re.split('-',x)[0])) for i in durationP if re.search(r'(^\d+$|^\d+:\d+:\d+-\d+:\d+:\d+,?)',i) for x in re.split(',',i))
-   self.duration+=sum(float(self.exiftool(re.sub(r'^=','',i),'Duration')) for count,i in enumerate(durationP) if not re.search(r'\s+',i) and not re.search(r'(^\d+$|^\d+:\d+:\d+-\d+:\d+:\d+,?)',i) and (count==len(durationP)-1 or not re.search(r'(^\d+$|^\d+:\d+:\d+-\d+:\d+:\d+,?)',durationP[count+1])))
-   stroketuple.extend([(i,) if count==len(durationP)-1 or not re.search(r'(^\d+$|^\d+:\d+:\d+-\d+:\d+:\d+,?)',durationP[count+1]) else (i,durationP[count+1]) if count!=len(durationP)-1 and re.search(r'(^\d+$|^\d+:\d+:\d+-\d+:\d+:\d+,?)',durationP[count+1]) else None for count,i in enumerate(durationP) if not re.search(r'\s+',i) and not re.search(r'(^\d+$|^\d+:\d+:\d+-\d+:\d+:\d+,?)',i)])
-   for i in stroketuple:
-    if not re.search(r'^=',i[0]) and re.search(r'[.]mp4$',i[0],flags=re.I):
-     self.setvideo(i[0])
-     break
-  else:
-   self.duration=float(durationP)
-  return stroketuple
+#  try:
+#   type(float(durationP))
+#  except Exception as ec:
+#   self.duration+=sum(float(self.getsecond(re.split('-',y)[1]))-float(self.getsecond(re.split('-',y)[0])) for x in durationP if len(x)==2 for y in (x[1] if type(x[1])==tuple else [x[1]]))+sum(float(self.exiftool(re.sub(r'^=','',x[0]),'Duration')) for x in durationP if len(x)==1)
+#   self.setvideo([re.sub(r'^=','',x[0]) for x in durationP if len(x)==1 and re.search(r'^=',x[0])][0])
+#  else:
+  self.duration=float(durationP)
+
  def setvideo(self,inputfile):
+  '''inputfile - [<videowidth>:<videoheight>] or videofilename'''
   print(f'><libc.setvideo {inputfile=}')
   if re.search(r'^\s*[\d]+\s*[-:x,]\s*[\d]+\s*$',inputfile):
    self.videowidth,self.videoheight=[int(x) for x in re.split('[-:,x]',inputfile)]
   else:
-#   self.inputfile=self.adddestdir(inputfile) if inputfile else None
    self.videowidth,self.videoheight=([int(x) for x in os.popen('ffmpeg -i '+inputfile+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]) if inputfile else (None,None)
   print(f'<>libc.setvideo {self.videowidth=} {self.videoheight=}')
 
  def videoattribute(self,videofile_p):
-  print("videofile_p {}".format(videofile_p))
-#  videowidth,videoheight=[int(x) for x in os.popen('ffmpeg -i input.mp4 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
-#  videodata=os.popen('ffmpeg -i '+videofile_p+' 2>&1').read()
+  '''videofile_p - name of video/audio file to be analyzed
+  returns - ((videowidth,videoheight),fps,samplerate,channeltype ie. mono/stereo)'''
+  print(f'><libc.videoattribute videofile_p={videofile_p}')
   videodata=os.popen('ffprobe -i '+videofile_p+' 2>&1').read()
-#  videowidth,videoheight=re.findall(r'\d+',os.popen('ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of default=nw=1'+inputfile).read(),re.I)
-#  fps=re.split(r'/',ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate'+inputfile)[0]
-  videowidth,videoheight=re.sub(r'.*,\s*?(\d+x\d+)\s*.*',r'\1',videodata,flags=re.I|re.DOTALL).split('x')
-  fps=re.sub(r'.*?(\d+)\s*fps\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL)
-  samplerate=re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL)
-  channel=re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL)
-  self.debug("libc::videoattribute><",videofile_p,(videowidth,videoheight),fps,samplerate,channel)
-  return ((videowidth,videoheight),fps,samplerate,channel)
+#  self.debug(f'><libc.videoattribute videofile_p={videofile_p} (videowidth,videoheight)={(videowidth,videoheight)} fps={fps} samplerate={samplerate} channel={channel}')
+  return (tuple(re.sub(r'.*,\s*?(\d+x\d+)\s*.*',r'\1',videodata,flags=re.I|re.DOTALL).split('x')),re.sub(r'.*?(\d+)\s*fps\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL)) if re.search(r'[.]mp4$',videofile_p,flags=re.I) else (re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL))
 
  def split(self,string_p,default_p=None,delim_p=':'):
   self.debug("libc::split><",string_p,delim_p)
@@ -141,9 +145,9 @@ class libc:
 
  def dimension(self,file_p):
 #  print(f'><libc.dimension {file_p=}')
-  if re.search(r'[.]mp4$',file_p,flags=re.I):
+  if re.search(r'[.](mp4|mov|webm)$',file_p,flags=re.I):
 #   return [int(x) for x in os.popen('ffmpeg -i "+self.inputfile+" 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
-   retval= [str(int(x)) for x in os.popen('ffmpeg -i '+file_p+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
+   retval= tuple([str(int(x)) for x in os.popen('ffmpeg -i '+file_p+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')])
 #   print(f'libc.dimension {retval=} {file_p=}')
    return retval
   else:
@@ -188,7 +192,7 @@ class libc:
   return time_p
 
  def system(self,commandstring_p):
-#  print(f'libc.system {commandstring_p=}')
+  print(f'libc.system {commandstring_p=}')
   if self.debugf:
    input("Press key to continue...")
 #  os.system(commandstring_p)
@@ -294,18 +298,23 @@ class libc:
     outimagename=re.sub('^(?P<id>[^.]*)(?P<id1>.*?)$',lambda m: m.group('id')+'_'+str(self.count())+m.group('id1'),imagename,re.I)
   return self.adddestdir(outimagename if not extension else re.sub(r'[.].*$',r'.{}'.format(extension),outimagename))
 
- @staticmethod
- def co(c):
+ def co(self,c,dimension=None):
   '''\
   get coordinate in W,H, c->should be int or converted to int otherwise returned unchanged
+  dimension is input and output -> ((600,400),(800,400))
     -------
     |1|2|3|
     |4|5|6|
     |7|8|9|
     -------
   '''
+  print(f'><libc.co c={c} dimension={dimension}')
   if not re.search(r'^\d+$',str(c)):
    return c
+  print(f'c={c} dimension={dimension}')
+  if type(dimension)==str and os.path.exists(dimension):
+   dimension=(tuple([int(x) for x in self.dimension(dimension)]),(self.videowidth,self.videoheight))
+   print(f'libc.co new dimension={dimension}')
   c=int(c)
   def wh(c=5,W=1,H=1):
    offsetx,offsety=0,0
@@ -313,7 +322,20 @@ class libc:
     offsetx,offsety=wh(str(c)[1:],W/3,H/3)
    return (int(Decimal(int(str(c)[0])-1)%3)-1)*W/3+offsetx,(int(int(int(str(c)[0])-1)/3)-1)*H/3+offsety
   a,b=wh(c)
-  return r'(W-w)/2'+('+' if a>=0 else '')+str(a)+r'*W,(H-h)/2'+('+' if b>=0 else '')+str(b)+r'*H'
+#  return r'(W-w)/2'+('+' if a>=0 else '')+str(a)+r'*W,(H-h)/2'+('+' if b>=0 else '')+str(b)+r'*H'
+  '''
+  if dimension:
+   print(f'dimension -> a={a} b={b}')
+   if (int(dimension[1][0])-int(dimension[0][0]))/2+a*int(dimension[1][0])<0:
+    a=(int(dimension[0][0])-int(dimension[1][0]))/(2*int(dimension[1][0]))
+   elif (int(dimension[1][0])-int(dimension[0][0]))/2+a*int(dimension[1][0])+int(dimension[0][0])>int(dimension[1][0]):
+    a=(int(dimension[1][0])-int(dimension[0][0]))/(2*int(dimension[1][0]))
+   if (int(dimension[1][1])-int(dimension[0][1]))/2+b*int(dimension[1][1])<0:
+    b=(int(dimension[0][1])-int(dimension[1][1]))/(2*int(dimension[1][1]))
+   elif (int(dimension[1][1])-int(dimension[0][1]))/2+b*int(dimension[1][1])+int(dimension[0][1])>int(dimension[1][1]):
+    b=(int(dimension[1][1])-int(dimension[0][1]))/(2*int(dimension[1][1]))
+  '''
+  return (r'(W-w)/2'+('+' if a>=0 else '')+str(a)+'*W' if not dimension else r'0' if (int(dimension[1][0])-int(dimension[0][0]))/2+a*int(dimension[1][0])<0 else r'(W-w)' if (int(dimension[1][0])-int(dimension[0][0]))/2+a*int(dimension[1][0])+int(dimension[0][0])>int(dimension[1][0]) else r'(W-w)/2'+('+' if a>=0 else '')+str(a)+'*W')+','+(r'(H-h)/2'+('+' if b>=0 else '')+str(b)+r'*H' if not dimension else '0' if (int(dimension[1][1])-int(dimension[0][1]))/2+b*int(dimension[1][1])<0 else 'H-h' if (int(dimension[1][1])-int(dimension[0][1]))/2+b*int(dimension[1][1])+int(dimension[0][1])>int(dimension[1][1]) else r'(H-h)/2'+('+' if b>=0 else '')+str(b)+r'*H')
 
  #00:06:45/345 or (3,00:00:05/05,00:40:00/2400)
  def getslotstamp(self,requestcount,begintime=None,endtime=None):
@@ -352,3 +374,59 @@ class libc:
    retarray.append(adjust(begintime+((endtime-begintime)*(i+1))/(requestcount+1)))
   print(f'<>getslotstamp slotarray={libc.getslotstamp.slotarray} retarray={retarray}')
   return [x for x in retarray if not x==None]
+
+ def tuple2funccal(self, a, b):
+  '''a->tuple b->list'''
+  print(f'><libc.tuple2funccal a={a} b={b}')
+  function=None
+  def get_tuple2funccal_str(self,a):
+   tmpfilter=None
+   print(f'><libc.tuple2funccal.get_tuple2funccal_str a={a} tmpfilter={tmpfilter} self.filter["21"]={self.filter["21"]}')
+   for i in a:
+    if type(i)==str and re.search(r'^self.filter\[',i):
+     tmpfilter=get_tuple2funccal_str(self,eval(i))
+    elif type(i)!=tuple:
+     return copy.deepcopy(a)
+    elif type(i)==tuple:
+     print(f'111 tmpfilter={tmpfilter} i={i}')
+     exec("tmpfilter"+i[0]+'='+('"'+i[1]+'"' if type(i[1])==str else str(i[1])))
+   print(f'<>libc.tuple2funccal.get_tuple2funccal_str tmpfilter={tmpfilter}')
+   return tmpfilter
+  if type(a)==tuple and type(a[0])==str and re.search(r'^self.filter\[',a[0]):
+   a=get_tuple2funccal_str(self,a)
+  print(f'<=>libc.tuple2funccal a={a}')
+  if type(a)==tuple:
+   for i in a:
+    if type(i)==str:
+#     function=getattr(self.utili,i)
+     function=eval(i)
+    elif type(i)==dict:
+     return function(**self.tuple2funccal(i,b))
+  elif type(a)==dict:
+   for i in a:
+#    print(f'i a i={i} a[i]={a[i]}')
+    a[i]=(eval(re.sub(r'\$(\[\d+\])','b'+r'\1',a[i])) if type(a[i])==str else a[i]) if not type(a[i])==tuple else self.tuple2funccal(a[i],b)
+   print(f'<>libc.tuple2funccal parameter={a} b={b}')
+   return a
+
+ def str2tuple(self,a):
+  print(f'><libc.str2tuple a={a}')
+  aa=[]
+  dd=[]
+  ii=0
+  a=re.sub(r'^\((.*)\)$',r'\1',a) if not re.search(r'(?<!\\)\(',re.sub(r'.*?(?<!\\)\)(.*)',r'\1',a)) else a
+  for count,i in enumerate(a):
+#   print(f'count={count} i={i} ii={ii} a={a}')
+   if i==r'(' and (a[count-1]!='\\' if count else True):
+#    print(f'pushing dd={dd} count={count}')
+    dd.append(count)
+   elif i==r')' and a[count-1]!='\\':
+    if len(dd)==1:
+     aa.extend([re.sub(r'\\([(,)])',r'\1',x) for x in re.split(r'(?<!\\),',a[ii:dd[0]]) if x])
+     aa.append(self.str2tuple(a[dd[0]:count+1]))
+     ii=count+1
+    dd.pop()
+  aa.extend([re.sub(r'\\([(,)])',r'\1',x) for x in re.split(r'(?<!\\),',a[ii:len(a)]) if x]) if ii!=len(a) else None
+  print(f'<>libc.str2tuple ii={ii} aa={aa} a[ii:len(a)]={a[ii:len(a)]}')
+#  return aa
+  return tuple(aa)

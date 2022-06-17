@@ -1,0 +1,27 @@
+#:kivy 2.1.0
+<LoadBoxLayout>:
+ orientation:'vertical'
+ BoxLayout:
+  cols:2
+  spacing:10
+  padding:10
+  FileChooserIconView:
+   id:filechooser
+   path:'./'
+   on_selection:root.load(self.path,self.selection,mode='selection')
+  Button:
+   id:button
+   size_hint:None,None
+   background_color:0,0,0,0
+   on_release:root.dropdown.open(self)
+ BoxLayout:
+  size_hint_y:None
+  height:40
+  size_hint_x:.6
+  pos_hint:{'center_x':0.5}
+  Button:
+   text:'Load'
+   on_release:root.load(filechooser.path,filechooser.selection,'load')
+  Button:
+   text:'Cancel'
+   on_release:root.cancel()

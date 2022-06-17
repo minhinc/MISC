@@ -1,0 +1,20 @@
+#:kivy 2.1.0
+<InplaceBoxLayout>:
+ orientation:'vertical'
+ spacing:10
+ padding:10
+ Label:
+  id:label
+  font_size:15
+  color:1,0,0,1
+  size_hint_y:None
+  height:10
+  pos_hint:{'x':0}
+
+ TextInput:
+  id:textinput
+  font_size:self.height/3
+  color:1,0,1,1
+
+<FuncGridLayout>:
+ cols:2

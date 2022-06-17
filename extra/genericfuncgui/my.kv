@@ -1,0 +1,33 @@
+#:kivy 2.1.0
+#:include load.kv
+#:include func.kv
+#:include term.kv
+
+<TopBoxLayout>:
+ canvas.before:
+  Color:
+   rgba:0.8,0.8,0.8,1
+  Rectangle:
+   pos:self.pos
+   size:self.size
+ padding:10
+ spacing:10
+ orientation:'vertical'
+ TextInput:
+  size_hint:0.8,None
+  height:40
+  font_size:self.height/2
+  halign:"center"
+  color:1,0,0,1
+  pos_hint:{'center_x':0.5}
+ TermBoxLayout:
+  id:termboxlayout
+ FuncGridLayout:
+  id:funcgridlayout
+ Button:
+  id:button
+  text:'Load'
+  on_release:root.filebutton()
+  size_hint:0.5,None
+  height:25
+  pos_hint:{'center_x':0.5}

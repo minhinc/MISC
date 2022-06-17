@@ -14,7 +14,7 @@ class naukri(seleniumrequest,databaserequest):
   if len(url)==3 and type(url[2])==int and re.search(r'^\s*india\s*$',url[1],flags=re.I):
    for i in range(url[2]):
     print(f'fetching page count {i}')
-    super(naukri,self).getlink(r'https://www.naukri.com/'+(re.sub(r'(c\+\+|cpp)','c-plus-plus',url[0],flags=re.I) if re.search(r'(c\+\+|cpp)',url[0],flags=re.I) else 'python' if url[0]=='py' else url[0])+'-jobs-in-'+url[1].lower()+('-'+str(i+1) if i else ''),'linkedin')
+    super(naukri,self).getlink(r'https://www.naukri.com/'+(re.sub(r'(c\+\+|cpp)','c-plus-plus',url[0],flags=re.I) if re.search(r'(c\+\+|cpp)',url[0],flags=re.I) else 'python' if url[0]=='py' else 'kivy' if url[0]=='kv' else url[0])+'-jobs-in-'+url[1].lower()+('-'+str(i+1) if i else ''),'linkedin')
     #open(url[0]+url[1]+'naukri.txt','w').write(self.webdriverdict['linkedin'].page_source)
     job=self.webdriverdict['linkedin'].find_elements_by_xpath("//div[@class='jobTupleHeader']/div[1]")
     for j in job:
