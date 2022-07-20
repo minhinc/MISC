@@ -4,9 +4,19 @@ from MISC.ffmpeg.gifm import gifc
 class ffmpeg_common:
  def __init__(self):
   if len(sys.argv)<=1 or not [x for x in sys.argv if re.search(r'--profile',x)]:
-   print('---all arguments in tuple format---')
-   print('usage ---\npython3 ffmpeg test.py --profile <minh|tech> [--offset <number>] "<title>" "(=<referencevideo.mp4>,(<timestamp1,timestamp2>)" "(<nonreferencevideo.mp4>,(<timestamp1,timestamp2>))" .... "<[gif|.mp4|.mov|.png|text]:<audio>:<volume> <filter:position>,(<timestamp1,timestamp2>)" ....')
-   print('python3 ffmpeg_common.py --profile minh --offset 10 "Syntax Highlighting Pyside6 QML Chain-Of-Responsibility" "=VID_20210910_180110.mp4,00:00:51-00:07:37" "syntax.mp4,(00:00:00-00:27:05,00:28:05-00:57:30,00:57:43-01:00:34)" syntax2.mp4 "xyz.gif,(21,5),(00:20:00,00:30:00)" "(logo.png,ting.mp3,0.1),(20,5),00:04:00-00:04:30" "Have a cup of Coffee,(22,52),00:31:47-00:34:20" "(Have a cup of Coffee...,cork.mp3,10),(22,52),00:31:47-00:34:20"')
+   if not [x for x in sys.argv if re.search(r'--profile',x)]:
+    print(f'---------- --profile missing -----------')
+   print('''\
+--- usage ---
+-all arguments in tuple format-
+Arguments in 2 categories
+(1)Videos to be concatenated. Tuple len=2. Video,(t1_begin-t1_end,t2_begin...)/((i1.png,i2.png..),audio),(filter,t_begin-t_end)
+ filters - 'gif' -> images to gif, 'gif01' -> images to gif and gif to mov with filter='01'
+(2)Annotations(visual+audio) over video. Tuple len=3. ((files..),(audio,volume)),(filter,position),(t1_begin-t1_end,t2_begin-t2_end..)
+   filter - stroke()-20, image2gif()->stroke()-21, text2image()->image2gif()->stroke()-22
+python3 ffmpeg_common.py --profile <minh|tech> [--offset <number>] "<title>" "(=<referencevideo.mp4>,(<timestamp1,timestamp2>)" "(<nonreferencevideo.mp4>,(<timestamp1,timestamp2>))" "((panzoomimage.png,panzoomimage2.png),audio.mp3),(<filtername>,<duration>)" .... "<[gif|.mp4|.mov|.png|text]:<audio>:<volume> <filter:position>,(<timestamp1,timestamp2>)" ....
+python3 ffmpeg_common.py --profile minh --offset 10 "Syntax Highlighting Pyside6 QML Chain-Of-Responsibility" "=VID_20210910_180110.mp4,00:00:51-00:07:37" "syntax.mp4,(00:00:00-00:27:05,00:28:05-00:57:30)" syntax2.mp4 "((bluegermanypanzoom.pngred.png,pink.png),t10.mp3),(gif01,0-20>)" "xyz.gif,(21,5),(00:20:00,00:30:00)" "(logo.png,ting.mp3,0.1),(20,5),00:04:00-00:04:30" "(Have a cup of Coffee...,cork.mp3,10),(22,52),00:31:47-00:34:20"\
+''')
    sys.exit(-1)
   self.offset=0
   if [x for x in sys.argv if re.search(r'--offset',x)]:
@@ -20,16 +30,29 @@ class ffmpeg_common:
   self.title=sys.argv[1]
   self.g=gifc()
   self.stroketuple=[self.g.libi.str2tuple(x) for x in sys.argv[2:]]
-  self.g.libi.setduration(sum(float(self.g.libi.getsecond(re.split('-',y)[1]))-float(self.g.libi.getsecond(re.split('-',y)[0])) for x in self.stroketuple if len(x)==2 for y in (x[1] if type(x[1])==tuple else [x[1]]))+sum(float(self.g.libi.exiftool(re.sub(r'^=','',x[0]),'Duration')) for x in self.stroketuple if len(x)==1))
-  self.g.libi.setvideo([re.sub(r'^=','',x[0]) for x in self.stroketuple if len(x)<=2 and re.search(r'^=',x[0])][0])
+  print(f'<=>ffmpeg_common.__init__ stroketuple={self.stroketuple}')
+  self.g.libi.setduration(sum(float(self.g.libi.getsecond(re.split('-',y)[1]))-float(self.g.libi.getsecond(re.split('-',y)[0])) for x in self.stroketuple if len(x)==2 for y in ((x[1] if not type(x[0])==tuple else [x[1][1]]) if type(x[1])==tuple else [x[1]]))+sum(float(self.g.libi.exiftool(re.sub(r'^=','',x[0]),'Duration')) for x in self.stroketuple if len(x)==1))
+  self.g.libi.setvideo([re.sub(r'^=','',x[0]) for x in self.stroketuple if len(x)<=2 and type(x[0])==str and re.search(r'^=',x[0])][0])
 #  self.g.libi.setduration(self.stroketuple)
   print(f'sys.argv={sys.argv} offset={self.offset} title={self.title} duration={self.g.libi.duration} stroketuple={self.stroketuple}')
+
+ def prepareannotationfile(self):
+  duration=0
+  afpstr='['
+  for i in [i for i in self.stroketuple if len(i)<=2]:
+   print(f'ffmpeg_common.prepareannotationfile i={i} len(i)={len(i)}')
+   afpstr+='\n{"source":"'+(self.g.utili.image2gif(re.sub(r'^=','',i[0]),filtername='gif',duration=10) if type(i[0])==str and re.search(r'[.]mp4$',i[0],flags=re.I) else self.g.utili.image2gif(i[0][0],filtername='gif',duration=min(10,float(re.split(r'-',i[1][1])[1])-float(re.split(r'-',i[1][1])[0])) if type(i[0])==tuple and type(i[0][0])==tuple else 10))+'","timestamp":"'+str(duration)+r'"},'
+   duration+= sum(float(self.g.libi.getsecond(re.split('-',y)[1]))-float(self.g.libi.getsecond(re.split('-',y)[0])) for y in ((i[1] if not type(i[0])==tuple else [i[1][1]]) if type(i[1])==tuple else [i[1]])) if len(i)==2 else float(self.g.libi.exiftool(re.sub(r'^=','',i[0]),'Duration'))
+  with open('annotation.jsa','w') as afp:
+   afp.write(re.sub(r',$','',afpstr,flags=re.DOTALL)+'\n]\n')
 
  def fixed(self):
   tempduration=None
   self.stroketuple.append(self.g.libi.str2tuple(('videologo_s.png' if re.search(r'^m',self.profile,flags=re.I) else 'techlogotext_t.png')+',(20,W-w\,h),'+str(self.offset+2)+'-'+str(self.g.libi.duration-2)))
-  self.stroketuple.append(self.g.libi.str2tuple((self.g.utili.logotext(size=0.3) if re.search(r'^[Mm]',self.profile) else self.g.utili.logotext(size=0.3,textdata=('Tech ','Awal','A Tech Research Firm'),textcolor=((255,85,0,255),(0,0,255,255),(200,200,200,255))))+',(20,5),'+str(self.offset)))
-  self.stroketuple.append(self.g.libi.str2tuple(self.g.utili.scalepad('waterripple.mov',targetdimension=self.g.libi.dimension(self.stroketuple[-1][0]),upscale=True,padcolor='0x00000000')+r',(20,5),'+str(self.offset+0.2)+'-'+str(self.offset+float(self.g.libi.exiftool(self.stroketuple[-1][0],'Duration'))-0.2)))
+  self.stroketuple.append(self.g.libi.str2tuple(self.g.utili.image2gif(self.g.utili.image2gif(None,'013_a',backcolor='0x004000ff',duration=1),'011_s',backcolor='0xffffffff',duration=1)+'(20,5),0-1'))
+  self.stroketuple.append(self.g.libi.str2tuple('frontlogo_minhinc.png'+',(20,5),0-4'))
+#  self.stroketuple.append(self.g.libi.str2tuple((self.g.utili.logotext(size=0.3) if re.search(r'^[Mm]',self.profile) else self.g.utili.logotext(size=0.3,textdata=('Tech ','Awal','A Tech Research Firm'),textcolor=((255,85,0,255),(0,0,255,255),(200,200,200,255))))+',(20,5),'+str(self.offset)))
+#  self.stroketuple.append(self.g.libi.str2tuple(self.g.utili.scalepad('waterripple.mov',targetdimension=self.g.libi.dimension(self.stroketuple[-1][0]),upscale=True,padcolor='0x00000000')+r',(20,5),'+str(self.offset+0.2)+'-'+str(self.offset+float(self.g.libi.exiftool(self.stroketuple[-1][0],'Duration'))-0.2)))
   #omni
   if not hasattr(self,'noomni'):
    tempduration=self.g.libi.getslotstamp(min(int(self.g.libi.duration/1800),2),begintime=self.offset)
@@ -38,7 +61,7 @@ class ffmpeg_common:
 
    #cracker
    tempduration=self.g.libi.getslotstamp(min(int(self.g.libi.duration/400),3),begintime=self.offset)
-   self.stroketuple.append(self.g.libi.str2tuple(self.g.utili.image2gif('contact.gif',filtermode=re.sub(r'T/\d+',r'T/24',self.g.libi.filter['09']),duration=10)+'(20,\(W-w\)/2\,\(H-h\)/2),('+','.join(str(x)+'-'+str(x+12) for x in tempduration)+')'))
+   self.stroketuple.append(self.g.libi.str2tuple(self.g.utili.image2gif('contact.gif',filtername=re.sub(r'T/\d+',r'T/24',self.g.libi.filter['09']),duration=10)+'(20,\(W-w\)/2\,\(H-h\)/2),('+','.join(str(x)+'-'+str(x+12) for x in tempduration)+')'))
    self.stroketuple.append(self.g.libi.str2tuple("(cracker.gif,cracker.mp3,0.1),(20,\(W-w-w/10\)/2\,\(H-h\)/2),("+','.join(str(x) for x in tempduration if x)+')'))
  
   #title
@@ -69,11 +92,12 @@ class ffmpeg_common:
     x[1]=tuple(tmp)
     self.stroketuple[count]=tuple(x)
 fc=ffmpeg_common()
+fc.prepareannotationfile()
 fc.fixed()
 fc.prune()
 print(f'######stroke tuple##### stroketuple={fc.stroketuple}')
 outputfile=re.sub(r'\s+','_',re.sub(r'[.]mp4','{0:%Y-%m-%d}'.format(datetime.datetime.now())+'.mp4',fc.title+'_'+re.sub(r'(.*)[.]py$',r'\1',sys.argv[0])+'_'+fc.profile+'_'+'.mp4',re.I))
 #fc.g.stroke2(*[x for x in fc.stroketuple if x[-1] or x[-1]==0],outputfile=outputfile)# final mp4 creation 
 fc.g.stroke2(*fc.stroketuple,outputfile=outputfile)# final mp4 creation 
-fc.g.libi.system('python3 ffmpeg_screenshot.py '+fc.g.libi.adddestdir(outputfile)+' ><'+str(fc.offset))
+#fc.g.libi.system('python3 ffmpeg_screenshot.py '+fc.g.libi.adddestdir(outputfile)+' ><'+str(fc.offset))
 print(f'###################\n##############\n######  outputfile={outputfile}  ########\n################\n##############')

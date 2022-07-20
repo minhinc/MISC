@@ -1,4 +1,6 @@
 import datetime
+from skimage.metrics import structural_similarity as compare_ssim
+import imutils,cv2
 import os
 import sys
 from PIL import Image,ImageDraw,ImageFont
@@ -36,32 +38,42 @@ class utilc:
    img.close()
   return outimagename
 
-# def image2gif(self,imagename,filter,mode,duration=None,backcolor=(0,0,0,0),outimagename=None):
- def image2gif(self,imagename,filtermode,duration=None,backcolor=(0,0,0,0),outimagename=None):
-  '''Create mov from png/gif/.mp4 image based on filter,mode libc.filter[filter][mode]
-   imangename - listof imagename for chimchim else str
-   filter - blend/overlay
-   mode - up/left/bottom/right.... see libc.filter
-   imagename - input png/gif/.mp4 image
-   duration - total duration of mov=None
-   backcolor - background glass color
-   outimagename - output mov name=<imagename>_<count>.mov'''
-  print(f'><utilc.image2gif imagename={imagename} type(imagename)={type(imagename)} filtermode={filtermode} duration={duration} backcolor={backcolor}')
-  filtermode=self.libi.filter[str(filtermode)] if re.search(r'^\d+$',str(filtermode)) else filtermode
-  img=Image.new('RGBA',[int(i) for i in self.libi.videoattribute(imagename)[0]] if re.search('video',self.libi.exiftool(imagename,'MIME Type'),re.I) else Image.open(imagename).size,backcolor) if not type(imagename)==tuple else Image.new('RGBA',Image.open(imagename[0]).size,backcolor)
-  img.save(self.libi.adddestdir('transparentpng.png'))
-  img.close()
-#  os.system('rm out*.png')
-#  self.libi.system("ffmpeg -i transparentpng.png"+(" -loop 1 -t "+str(duration) if not re.search(r'.(gif|mp4)$',imagename) else "")+" -i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',self.libi.filter[filter][mode]) else "")+self.libi.filter[filter][mode]+",split=2[b][f];[b]palettegen[b];[f][b]paletteuse,fps=10\" -vsync 0 out%0"+str(int(math.log10(duration*10))+1)+"d.png")
-  outimagename=self.libi.outimagename(imagename,outimagename,extension='mov') if not type(imagename)==tuple else self.libi.outimagename(re.sub(r'^(.*)[.].*',r'\1'+r'.gif',imagename[0]))
-#  self.libi.system("ffmpeg -i transparentpng.png"+(" -loop 1 -t "+str(duration) if not re.search(r'.(gif|mp4)$',imagename) else "")+" -i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',self.libi.filter[filter][mode]) else "")+self.libi.filter[filter][mode]+"\" -pix_fmt rgba -vcodec png "+outimagename)
-  if type(imagename)==tuple:
-   self.libi.system('convert -loop 0 -dispose Background -delay 20 '+' '.join(imagename[count%len(imagename)]+' '+self.libi.adddestdir('transparentpng.png') for count in range(len(imagename)))+' '+self.libi.adddestdir(outimagename))
+ def image2gif(self,imagename,filtername,duration=None,backcolor='0x00000000',reversefilter=False,outimagename=None):
+  '''---INPUT---
+  imagename - .png,.gif,.mp4 or list of .png or (400,200)<--imagesize of backcolor
+  filtername - filternumber or complete filter,i.e. '41' or 'blend=....' or 'gif' or 'gif41'
+  duration - total duration of mp4=None
+  backcolor - background glass color
+  reversefilter - if backcolor is to be put next, [imagename][backcolor]blend=....
+  outimagename - output mp4 name=<imagename>_<count>.mp4
+  ---OUTPUT---
+  gif/mov'''
+  print(f'><utilc.image2gif imagename={imagename} filtername={filtername} duration={duration} reversefilter={reversefilter} backcolor={backcolor}')
+  filtername=self.libi.filter[str(filtername)] if re.search(r'^\d+',str(filtername)) else filtername
+  imagename=(int(self.libi.videowidth),int(self.libi.videoheight)) if not imagename else imagename
+  outimagename=self.libi.outimagename(type(imagename)==tuple and type(imagename[0])==str and imagename[0] or type(imagename)==str and imagename or 'temp',outimagename,extension=re.search(r'^gif',filtername,flags=re.I) and 'gif' or 'mov')
+  imagesize=[(2*(int(x[0])//2),2*(int(x[1])//2)) for i in (imagename if type(imagename)==tuple else [imagename]) for x in ([self.libi.videoattribute(i)[0]] if re.search('video',self.libi.exiftool(i,'MIME Type'),flags=re.I) else [Image.open(i).size])] if type(imagename)==tuple and type(imagename[0])==str or type(imagename)==str else [imagename]
+  print(f'<=>utilc.image2gif imagesize={imagesize} outimagename={outimagename} imagename={imagename}')
+  returnstring='color=c='+backcolor+':size='+'x'.join(str(x) for x in sorted(imagesize,key=lambda m:m[0]*m[1])[-1])+':d='+str(duration)+r",format=rgba[black];"
+  if (type(imagename)==tuple and re.search(r'^gif',filtername)) or re.search('zoompan',filtername):
+   if re.search('zoompan',filtername):
+    for count,i in enumerate(imagename if type(imagename)==tuple else [imagename]):
+     returnstring+=r'['+str(count)+r":v]scale="+'x'.join(str(x*10) for x in imagesize[count])+','+filtername+":d=25*"+str(round(1+float(duration)/len(imagesize),3))+':s='+'x'.join(str(x) for x in imagesize[count])+r",fade=t=in:st=0:d=1:alpha=0,fade=t=out:st="+str(round(float(duration)/len(imagesize),3))+r":d=1:alpha=0,setpts=PTS-STARTPTS+"+str(count)+r"*"+str(round(float(duration)/len(imagesize),3))+r"/TB[v"+str(count)+r"];"
+    returnstring+=''.join((r'[black]' if x==0 else r'[ov'+str(x-1)+r']')+r'[v'+str(x)+r']overlay=(W-w)/2:(H-h)/2'+(r'[ov'+str(x)+r'];' if x!=(len(imagesize)-1) else ':shortest=1') for x in range(len(imagesize)))
+   else:
+    self.libi.system('convert -delay '+str(100*int(duration/len(imagename)))+' -dispose Background -loop 0 '+' '.join(imagename[count%len(imagename)] for count in range(len(imagename)-1))+' -delay '+str(100*(duration-int(duration/len(imagename))*(len(imagename)-1)))+' '+imagename[-1]+' '+self.libi.adddestdir(outimagename))
+    if re.search(r'^gif\d+',filtername):
+     return self.image2gif(outimagename,re.sub(r'^gif(\d+.*)',r'\1',filtername),duration,backcolor)
+    else:
+     return outimagename
+  elif re.search(r'^gif',filtername,flags=re.I):
+   self.libi.system(r'ffmpeg -ss 0 -to '+str(duration)+r' -r 4 -i '+imagename+r' -y '+outimagename)
+   return outimagename
   else:
-   self.libi.ffmpeg("ffmpeg -i "+self.libi.adddestdir('transparentpng.png')+" "+(("-loop 1 " if not re.search(r'[.](gif|mov|mp4)$',imagename) else "-ignore_loop 0 " if re.search(r'[.]gif$',imagename,re.I) else "")+"-t "+str(duration)+" " if duration else "")+"-i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',filtermode) else "")+filtermode+"\" -pix_fmt rgba -vcodec png -y "+outimagename)
-#  duration=duration if duration else float(self.libi.exiftool(imagename,'Duration')) if re.search(r'[.](gif|mov|mp4)$',imagename,re.I) else duration
-#  self.libi.ffmpeg("ffmpeg -loop 1 -t "+str(duration)+" -i transparentpng.png "+(("-ignore_loop 0 " if re.search(r'[.]gif$',imagename,re.I) else "")+"-t "+str(duration)+" " if duration and re.search(r'[.](gif|mov|mp4)$',imagename,re.I) else "")+"-i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',self.libi.filter[filter][mode]) else "")+self.libi.filter[filter][mode]+"\" -pix_fmt rgba -vcodec png -y "+outimagename)
-#  self.libi.system("convert -loop 1 -dispose Background -delay 10 out*.png "+outimagename)
+   returnstring+=(r'[0:v]'+self.libi.filter['41']+r'[ov];' if type(imagename)==str else '')+((r'[black][ov]' if not reversefilter else r'[ov][black]') if type(imagename)==str else r'[black]')+filtername
+#   self.libi.ffmpeg("ffmpeg -i "+self.libi.adddestdir('transparentpng.png')+" "+(("-loop 1 " if not re.search(r'[.](gif|mov|mp4)$',imagename) else "-ignore_loop 0 " if re.search(r'[.]gif$',imagename,re.I) else "")+"-t "+str(duration)+" " if duration else "")+"-i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',filtername) else "")+filtername+"\" -pix_fmt rgba -vcodec png -y "+outimagename)
+  print(f'<=>utilc.image2gif returnstring={returnstring}')
+  self.libi.ffmpeg("ffmpeg "+("-ignore_loop 0 -t "+str(duration) if type(imagename)==str and re.search(r'[.]gif$',imagename,flags=re.I) else '')+''.join(" -i "+x for x in type(imagename)==tuple and type(imagename[0])==str and imagename or type(imagename)==str and [imagename] or '')+" -filter_complex \""+returnstring+"\" -pix_fmt rgba -c:v png -y "+outimagename)
   return outimagename
 
  def text2image(self,text,textcolor='r',backcolor=(0,0,0,0),size=0.3,stroke=False,alignment='m',linemargin=10,richtext=False,outimagename=None):
@@ -134,8 +146,8 @@ class utilc:
   draw=ImageDraw.Draw(img)
   xoffset=(font2.getsize(textdata[2])[0]-(font.getsize(textdata[0])[0]+font1.getsize(textdata[1])[0]))/2
   if textdata[0]:draw.text((xoffset,-10),textdata[0],font=font,fill=textcolor[0])
-#  if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-10),textdata[1],font=font1,fill=textcolor[0])
-  if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-10),textdata[1],font=font1,fill=textcolor[1])
+#  if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-12),textdata[1],font=font1,fill=textcolor[0])
+  if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-14),textdata[1],font=font1,fill=textcolor[1])
 #  if textdata[2]:draw.text((int((imagewidth-font2.getsize(textdata[2])[0])/2),font.getsize(textdata[0])[1]+1.5*yoffset-10),textdata[2],font=font2,fill=textcolor[1])
   if textdata[2]:draw.text((int((imagewidth-font2.getsize(textdata[2])[0])/2),font.getsize(textdata[0])[1]+1.5*yoffset-10),textdata[2],font=font2,fill=textcolor[2])
   img.save(self.libi.adddestdir('frnt.png'))
@@ -146,7 +158,7 @@ class utilc:
     mask=Image.new(r'L',img.size,color=0)
     draw=ImageDraw.Draw(mask)
     if textdata[0]:draw.text((xoffset,-10),textdata[0],font=font,fill=255)
-    if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-10),textdata[1],font=font1,fill=255)
+    if textdata[1]:draw.text((xoffset+font.getsize(textdata[0])[0],font.getsize(textdata[0])[1]-font1.getsize(textdata[0])[1]-14),textdata[1],font=font1,fill=255)
     if textdata[2]:draw.text((int((imagewidth-font2.getsize(textdata[2])[0])/2),font.getsize(textdata[0])[1]+1.5*yoffset-10),textdata[2],font=font2,fill=255)
     if j==0:
      draw.polygon([(i,0),(0,i),(0,imagewidth*2),(imagewidth*2,0)],fill=0)
@@ -424,10 +436,10 @@ class utilc:
     raise FileNotFoundError
   return filename
 
- def screenshot(self,imagename,begintime=0.0,outimagename=None):
-  '''take screen shot at begintime'''
-  outimagename=self.libi.outimagename('screenshot.',extension='png')
-  self.libi.ffmpeg("ffmpeg -ss "+self.libi.getsecond(begintime)+" -i "+imagename+" -vframes 1 -q:v 2 "+outimagename)
+ def screenshot(self,imagename,begintime=0.0,endtime=0.0,singleframe=True,outimagename=None):
+  '''take screen shot(s) at begintime uptil endtime'''
+  outimagename=self.libi.outimagename('screenshot',extension='png',outimagename=outimagename)
+  self.libi.ffmpeg("ffmpeg -ss "+self.libi.getsecond(begintime)+(" -to "+str(endtime) if endtime else '')+" -i "+imagename+(" -vframes 1" if singleframe else "")+" "+outimagename)
   return outimagename
 
  def color2transparent(self,imagename,colorhex,similarity=0.3,blend=0.0,outimagename=None):
@@ -446,3 +458,25 @@ class utilc:
   factorstr=re.sub(r'^,','',','.join(['atempo=2.0' for x in range(int(math.log2(factor)))])+(',atempo='+str(factor/math.pow(2,int(math.log2(factor)))) if factor/math.pow(2,int(math.log2(factor))) != 1 else '') if factor>=1.0 else ','.join(['atempo=0.5' for x in range(int(math.log2(1/factor)))])+(',atempo='+str(factor*math.pow(2,int(math.log2(1/factor)))) if factor*math.pow(2,int(math.log2(1/factor))) != 1 else ''),flags=re.I)
   self.libi.ffmpeg("ffmpeg -i "+imagename+" -filter_complex \"[0:v]setpts="+str(float(1/factor))+"*PTS[v];[0:a]"+factorstr+"[a]\" -map \"[v]\" -map \"[a]\" -y "+outimagename)
   return outimagename
+ def silencenaudiolist(self,audiofilemp3,beginoffset=0,endoffset=0,filterdownaudiolevelbelow='-30dB',silenceduration=4):
+  audiolist=[[float(beginoffset),'-']]
+  for item in [item for item in re.findall(r'silence_start:\s+(.*?)\s+silence_end:\s+(.*?)\s+',self.libi.system(r'ffmpeg'+(' -ss'+str(beginoffset) if beginoffset else '')+(' -to'+str(endoffset) if endoffset else '')+' -i '+audiofilemp3+r' -af silencedetect=n='+filterdownaudiolevelbelow+':d='+str(silenceduration)+r" -f null -|& awk '/silencedetect/ {print $4,$5}'",popen=True),flags=re.I|re.DOTALL) if float(item[0])!=0]:
+   audiolist[-1][1]=beginoffset+float(item[0])
+   audiolist.append([beginoffset+float(item[1]),'-'])
+  return tuple(tuple(x) for x in audiolist)
+ def videocollidetimestamp(self,imagename,videoname,begintime=0,endtime=0):
+  print(f'><utilc.videocollidecollidepoint imagename={imagename} videoname={videoname} begintime={begintime} endtime={endtime}')
+  outputdir=self.libi.destdir+r'/snapshot2'
+  diff=0.0
+  if os.path.exists(outputdir):
+   [os.remove(outputdir+r'/'+i) for i in os.listdir(outputdir)]
+  else:
+   os.mkdir(outputdir)
+  self.screenshot(videoname,begintime=begintime,endtime=endtime,singleframe=False,outimagename=outputdir+r'/'+'out%04d.png')
+  for count,i in enumerate(sorted(os.listdir(outputdir),key=lambda m:int(re.sub(r'^.*?(\d+)[.]png$',r'\1',m)))):
+   diff=compare_ssim(cv2.cvtColor(cv2.imread(imagename),cv2.COLOR_BGR2GRAY),cv2.cvtColor(cv2.imread(outputdir+r'/'+i),cv2.COLOR_BGR2GRAY),full=True)[0]
+   print(f'<=>utilc.videocollidetimestamp count={count} i={i} diff={diff}')
+   if diff>0.5:
+    print(f"<=>utilc.videocollidetimestamp i={outputdir+r'/'+i} diff={diff} timestamp={begintime+count/float(self.libi.videoattribute(videoname)[1])}")
+    break
+  return begintime+count/float(self.libi.videoattribute(videoname)[1])

@@ -47,8 +47,11 @@ class libc:
    '08':r"",#horizontalclose
    '09':r"blend=all_expr='if(gte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(T/2*max(W,H))),A,B)'",#circleopen
    '010':r"blend=all_expr='if(lte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(max(W,H)-(T/1*max(W,H)))),A,B)'",#circleclose
-   '011':r"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2))*between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)'",#expandingwindow
-   '012':r"[1]fade=in:st=0:d=3:alpha=1",#fadein
+   '011':r"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2))*between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)':eof_action=pass",#expandingwindow
+    '011_s':r"blend=all_expr='if(between(X,(W*0.34-T/1*W*0.34),(W*0.66+T/1*W*0.34))*between(Y,(H*0.34-T/1*H*0.34),(H*0.66+T/1*H*0.34)),B,A)':eof_action=pass",#expandingwindow
+   '012':r"fade=in:st=0:d=1:alpha=0",#fadein
+   '013':r"fade=out:st=0:d=1:alpha=0",#fadeout
+    '013_a':r"fade=out:st=0:d=1:alpha=1",#fadeout alpha 1
    '10':r"overlay=x='(W-w)/2':y='(H-h)/2'",#normal
    '11':r"overlay=x='(W-w)/2':y='max((H-h)/2,H-t/1*H)'",#up
    '12':r"overlay=x='min((W-w)/2,-w+t/1*W)':y='(H-h)/2'",#right
@@ -61,18 +64,21 @@ class libc:
     '202':("self.filter['20']",("[1]['begintime']",'$[2]'),("[1]['duration']",None)),
     '203':("self.filter['20']"),
 
-   '21':('self.gifi.overlay',{'imagename':('self.gifi.utili.image2gif',{'imagename':'$[0][0]','duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'filtermode':"self.filter['01']"}),'begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
+   '21':('self.gifi.overlay',{'imagename':('self.gifi.utili.image2gif',{'imagename':'$[0][0]','duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'filtername':"self.filter['01']"}),'begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
     '210':("self.filter['21']",("[1]['imagename'][1]['imagename']",'$[0]'),("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
     '211':("self.filter['21']",("[1]['imagename'][1]['imagename']",'$[0]')),
     '212':("self.filter['21']",("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
     '213':("self.filter['21']"),
 
-   '22':('self.gifi.overlay',{'imagename':('self.gifi.utili.image2gif',{'imagename':('self.gifi.utili.text2image',{'text':"$[0][0]+':yellow:black:0.5:::'",'richtext':True}),'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'filtermode':"self.filter['01']"}),'begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
+   '22':('self.gifi.overlay',{'imagename':('self.gifi.utili.image2gif',{'imagename':('self.gifi.utili.text2image',{'text':"$[0][0]+':yellow:black:0.5:::'",'richtext':True}),'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'filtername':"self.filter['01']"}),'begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
     '220':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:0.5:::'"),("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
     '221':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:0.5:::'")),
     '221_f':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:1.0:::'")),
     '222':("self.filter['22']",("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
     '223':("self.filter['22']"),
+
+   '40':r"zoompan=z='min(zoom+0.0015,1.5)':x='if(gte(zoom,1.5),x-1/a,iw/2-iw/zoom/2)':y='if(gte(zoom,1.5),y,ih/2-ih/zoom/2)'",
+   '41':r"crop=w=2*floor(iw/2):h=2*floor(ih/2)",
   }
 
   self.debugf=debug
@@ -117,16 +123,25 @@ class libc:
   if re.search(r'^\s*[\d]+\s*[-:x,]\s*[\d]+\s*$',inputfile):
    self.videowidth,self.videoheight=[int(x) for x in re.split('[-:,x]',inputfile)]
   else:
-   self.videowidth,self.videoheight=([int(x) for x in os.popen('ffmpeg -i '+inputfile+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]) if inputfile else (None,None)
+#   self.videowidth,self.videoheight=([int(x) for x in os.popen('ffmpeg -i '+inputfile+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]) if inputfile else (None,None)
+   self.videowidth,self.videoheight=[int(x) for x in self.videoattribute(inputfile)[0]]
   print(f'<>libc.setvideo {self.videowidth=} {self.videoheight=}')
 
  def videoattribute(self,videofile_p):
-  '''videofile_p - name of video/audio file to be analyzed
-  returns - ((videowidth,videoheight),fps,samplerate,channeltype ie. mono/stereo)'''
+  '''---INPUT---
+    videofile_p=.mp4/.mov/.mp3 or any media file
+   ---OUTPUT---
+   ((videowidth,videoheight),fps,samplerate,channeltype)'''
   print(f'><libc.videoattribute videofile_p={videofile_p}')
-  videodata=os.popen('ffprobe -i '+videofile_p+' 2>&1').read()
+#  videodata=os.popen('ffprobe -i '+videofile_p+' 2>&1').read()
+  videodata=self.system('ffprobe -i '+videofile_p+' 2>&1',popen=True)
 #  self.debug(f'><libc.videoattribute videofile_p={videofile_p} (videowidth,videoheight)={(videowidth,videoheight)} fps={fps} samplerate={samplerate} channel={channel}')
-  return (tuple(re.sub(r'.*,\s*?(\d+x\d+)\s*.*',r'\1',videodata,flags=re.I|re.DOTALL).split('x')),re.sub(r'.*?(\d+)\s*fps\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL)) if re.search(r'[.]mp4$',videofile_p,flags=re.I) else (re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL))
+  if re.search(r'[.]mp4$',videofile_p,flags=re.I):
+   return (tuple(re.sub(r'.*,\s*?(\d+x\d+)\s*.*',r'\1',videodata,flags=re.I|re.DOTALL).split('x')),re.sub(r'.*?(\d+)\s*fps\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL))
+  elif re.search(r'[.]mov$',videofile_p,flags=re.I):
+   return (tuple(re.sub(r'.*,\s*?(\d+x\d+)\s*.*',r'\1',videodata,flags=re.I|re.DOTALL).split('x')),re.sub(r'.*?(\d+)\s*fps\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL))
+  elif re.search(r'[.](mp3|webm)$',videofile_p,flags=re.I):
+   return (re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL))
 
  def split(self,string_p,default_p=None,delim_p=':'):
   self.debug("libc::split><",string_p,delim_p)
@@ -191,12 +206,20 @@ class libc:
    return str(hour)+":"+str(minute)+":"+str(second)
   return time_p
 
- def system(self,commandstring_p):
+ def system(self,commandstring_p,popen=False):
+  '''--- ARGUMENTS---
+commandstring_p - command in single string ,i.e. "ffmpeg -i abc.mp4 -af \"....
+popen - command to be executed through (shell - /bin/bash) subprocess.check_output otherwise subprocess.call
+--- RETURN ---
+command executed shell('/bin/bash') output if popen=True else None'''
   print(f'libc.system {commandstring_p=}')
   if self.debugf:
    input("Press key to continue...")
 #  os.system(commandstring_p)
-  subprocess.call(shlex.split(commandstring_p))
+  if not popen:
+   subprocess.call(shlex.split(commandstring_p))
+  else:
+   return subprocess.check_output(commandstring_p,shell=True,executable=r'/bin/bash').decode()
 
  def stepvalue(self,initial_p,last_p,step_p=2):
   '''min step_p=2. that is 0 and 1. For step_p=1 initial_p would return'''
@@ -254,7 +277,7 @@ class libc:
   return filter
 
  def exiftool(self,imagename,query):
-  self.debug('><libc::exiftool - '+imagename+' '+query)
+  print(f'><libc.exiftool imagename={imagename} query={query}')
   if re.search(r'Duration$',query,re.I):
    return re.sub(r'\n$','',os.popen('ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 '+imagename).read())
   else:
@@ -292,11 +315,14 @@ class libc:
 
  def outimagename(self,imagename,outimagename=None,extension=None):
   '''new imagename as imagename<self.count()>.<extension>'''
+  print(f'><libc.outimagename imagename={imagename} outimagename={outimagename} extension={extension}')
   if not outimagename:
-   outimagename=re.sub('^(?P<id>[^.]*)(?P<id1>.*?)$',lambda m: m.group('id')+'_'+str(self.count())+m.group('id1'),imagename,re.I)
+   outimagename=re.sub('^(?P<id>[^.]*)(?P<id1>.*?)$',lambda m: m.group('id')+'_'+str(self.count())+(m.group('id1') if m.group('id1') else '.'),imagename,re.I)
    while os.path.isfile(outimagename):
     outimagename=re.sub('^(?P<id>[^.]*)(?P<id1>.*?)$',lambda m: m.group('id')+'_'+str(self.count())+m.group('id1'),imagename,re.I)
-  return self.adddestdir(outimagename if not extension else re.sub(r'[.].*$',r'.{}'.format(extension),outimagename))
+   return self.adddestdir(outimagename if not extension else re.sub(r'[.].*$',r'.{}'.format(extension),outimagename))
+  else:
+   return outimagename
 
  def co(self,c,dimension=None):
   '''\
@@ -411,22 +437,18 @@ class libc:
 
  def str2tuple(self,a):
   print(f'><libc.str2tuple a={a}')
-  aa=[]
-  dd=[]
-  ii=0
-  a=re.sub(r'^\((.*)\)$',r'\1',a) if not re.search(r'(?<!\\)\(',re.sub(r'.*?(?<!\\)\)(.*)',r'\1',a)) else a
+  aa=[] #result string
+  dd=[] #list of '(' indexes
+  ii=0 #last ')' brace index
   for count,i in enumerate(a):
-#   print(f'count={count} i={i} ii={ii} a={a}')
    if i==r'(' and (a[count-1]!='\\' if count else True):
-#    print(f'pushing dd={dd} count={count}')
     dd.append(count)
    elif i==r')' and a[count-1]!='\\':
     if len(dd)==1:
      aa.extend([re.sub(r'\\([(,)])',r'\1',x) for x in re.split(r'(?<!\\),',a[ii:dd[0]]) if x])
-     aa.append(self.str2tuple(a[dd[0]:count+1]))
+     aa.extend(self.str2tuple(a[dd[0]+1:count])) if dd[0]==0 and count==(len(a)-1) else aa.append(self.str2tuple(a[dd[0]+1:count]))
      ii=count+1
     dd.pop()
-  aa.extend([re.sub(r'\\([(,)])',r'\1',x) for x in re.split(r'(?<!\\),',a[ii:len(a)]) if x]) if ii!=len(a) else None
+  aa.extend([re.sub(r'\\([(,)])',r'\1',x) for x in re.split(r'(?<!\\),',a[ii:len(a)]) if x])
   print(f'<>libc.str2tuple ii={ii} aa={aa} a[ii:len(a)]={a[ii:len(a)]}')
-#  return aa
   return tuple(aa)
