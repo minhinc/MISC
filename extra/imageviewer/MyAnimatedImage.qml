@@ -121,4 +121,20 @@ AnimatedImage {
  FileIO {
  id:fileioid
  }
+ function tabchanged(selfcompp) {
+  for (var i=0;i<persistent.length;i++) {
+   if (selfcompp==persistent[i][2]) {
+    if (persistent[(i+1)%persistent.length][0]!=fileindex && persistent[(i+1)%persistent.length][1]==false) {
+     for (var j=(i+1)%persistent.length;j!=i;j=(j+1)%persistent.length) {
+      if (persistent[j][0]==fileindex || persistent[j][1]==true) {
+       persistent[j][2].forceActiveFocus()
+       break;
+      }
+     }
+    } else 
+     persistent[(i+1)%persistent.length][2].forceActiveFocus()
+    break
+   }
+  }
+ }
 }

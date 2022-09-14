@@ -5,7 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.filechooser import FileChooserIconView
 from kivy.uix.button import Button
 from kivy.app import App
-from debugwrite import print
+from MISC.extra.debugwrite import print
 
 class LoadBoxLayout(BoxLayout):
  dropdown=DropDown()

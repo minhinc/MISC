@@ -6,7 +6,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.properties import ListProperty
 from kivy.app import App
-from debugwrite import print
+from MISC.extra.debugwrite import print
 
 class TermBoxLayout(BoxLayout):
  def __init__(self,*arg,**kwarg):

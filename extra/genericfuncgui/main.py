@@ -1,13 +1,15 @@
-import re
+import re,os
+import sys;sys.path.append(os.path.expanduser('~')+r'/tmp/')
 import kivy;kivy.require('2.1.0')
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
+import MISC.extra.disablemultitouch
 from load import LoadBoxLayout
 from func import InplaceBoxLayout,FuncGridLayout
 from term import TermBoxLayout
-from debugwrite import print
+from MISC.extra.debugwrite import print
 
 class TopBoxLayout(BoxLayout):
  def __init__(self,*arg,**kwarg):

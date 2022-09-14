@@ -1,4 +1,5 @@
-import re
+import re,os,sys
+import sys;sys.path.append(os.path.expanduser(r'~')+r'/tmp/')
 import kivy;kivy.require('2.1.0')
 import kivy.uix.textinput
 from kivy.lang import Builder
@@ -7,6 +8,7 @@ from kivy.app import App
 from kivy.core.window import Window
 import threading
 import Levenshtein
+from MISC.extra.debugwrite import print
 from contextmenu import ContextMenu
 import disablemultitouch
 
@@ -15,7 +17,7 @@ class LevenshteinDemo(kivy.uix.textinput.TextInput):
  def __init__(self,*arg,**kwarg):
   super(LevenshteinDemo,self).__init__(*arg,**kwarg)
   self.focus=True
-  self.font_size=82
+  self.font_size=62
   self.contextmenu=ContextMenu(self,self.on_slot,mode='external')
   self.knnlist={}
   self.redwordlist=[]
@@ -55,7 +57,7 @@ class LevenshteinDemo(kivy.uix.textinput.TextInput):
   maxi=min(len(markedsentence),len(text))
   mini=0
   while (maxi-mini)>1:
-   print(f'mini={mini} maxi={maxi}')
+#   print(f'mini={mini} maxi={maxi}')
    if markedsentence[mini:mini+(maxi-mini)//2]==text[mini:mini+(maxi-mini)//2]:
     mini=mini+(maxi-mini)//2
    else:
@@ -150,7 +152,6 @@ class LevenshteinDemo(kivy.uix.textinput.TextInput):
    if self.text[index]=='\n':
     index+=1
   index+=col
-  print(f'_xy2index index={index}')
   return index
  def _index2xy(self,index):
   print(f'><_index2xy index={index} self.text={self.text}')
@@ -170,13 +171,11 @@ class LevenshteinDemo(kivy.uix.textinput.TextInput):
   # return the current cursor x/y from the row/col
 #  col,row=self.get_cursor_from_index(index)
   _index=len(re.sub('\n','',self.text[:index]))
-  print(f'--TEST _index2xy _index={index}')
   for i in range(len(self._lines)):
    if _index<(len(self._lines[i])-1):
     break
    _index-=len(self._lines[i])
   col,row=_index,i
-  print(f'TEST--- col,row={(col,row)}')
   dy = self.line_height + self.line_spacing
   padding_left = self.padding[0]
   padding_top = self.padding[1]

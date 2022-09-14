@@ -45,6 +45,8 @@ property int rulersSize: 18
   } else if (event.key == Qt.Key_Up && !(event.modifiers & Qt.ControlModifier)) {
    selComp.y=Math.max(selComp.y-10,0)
    event.accepted=true
+  } else if (event.key == Qt.Key_Tab){
+   parent.tabchanged(selComp);
   }
  }
  MouseArea {     // drag mouse area

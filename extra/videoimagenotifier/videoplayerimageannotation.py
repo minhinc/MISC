@@ -20,14 +20,16 @@ class VideoPlayerImageAnnotation(BoxLayout):
  def __init__(self,*arg,**kwarg):
   super(VideoPlayerImageAnnotation,self).__init__(*arg,**kwarg)
   libi=libc()
-  self.COLORTHRESHOLD=10 #second
+#  self.COLORTHRESHOLD=10 #second
+  self.COLORTHRESHOLD=5 #second
   self.colormap=[(1,0,0,1),(1,1,0,1),(0,1,0,1),(0,0,0,0)]
   self.childpointer=0
   self.imagepointer=0
   self.imagelist=sorted(json.loads(open('annotation.jsa').read()),key=lambda m:float(libi.getsecond(m['timestamp'])))
   for i in self.imagelist:
    i['timestamp']=float(libi.getsecond(i['timestamp']))
-  self.flag=[-1]*len(self.children)
+#  self.flag=[-1]*len(self.children)
+  self.flag=[-2]*len(self.children)
   print(f'<=>VideoPlayerImageAnnoation.__init__ self.imagelist={self.imagelist}  self.ids={len(self.ids)}')
 
 class BlinkImage(Image):
@@ -98,29 +100,13 @@ class VideoPlayer2(VideoPlayer):
   print(f'><VideoPlayer2.seek duration={self.duration} percent={percent} precise={precise}')
   value=self.duration*percent
   self.vpia.imagepointer=self.adjustimagepointer(self.duration*percent)
-  self.vpia.flag=[-1]*len(self.vpia.children)
+#  self.vpia.flag=[-1]*len(self.vpia.children)
+  self.vpia.flag=[-2]*len(self.vpia.children)
   self.vpia.childpointer=0
   for i in range(len(self.vpia.children)):
    self.vpia.children[i].source=''
    self.vpia.children[i].opacity=0
   print(f'<=>VideoPlayer2.seek imagepointer={self.vpia.imagepointer}')
-  '''
-   if tmpimagepoiner>self.vpia.imagepointer:
-    self.vpia.childpointer+=(self.tmpimagepointer-self.vpia.imagepointer)%len(self.vpia.children)
-    for i in range((self.tmpimagepointer-self.vpia.imagepointer)%len(self.vpia.children)):
-     if len(self.vpia.imagelist)-self.vpia.tmpimagepoiner>=len(self.vpia.children)+i:
-      self.vpia.children[(self.childpointer+1)%len(self.vpia.children)].source=self.vpia.imagelist[tmpimagepointer+i].source
-     else:
-      self.vpia.children[i].opacity=0
-    self.vpia.childpointer=(self.tmpimagepointer-self.vpia.imagepointer)%len(self.vpia.children)
-   elif tmpimagepointer<self.vpia.imagepointer:
-    for i in range((self.vpia.imagepointer-tmpimagepointer)%len(self.vpia.children)):
-     if (self.vpia.imagepointer+(tmpimagepointer-i)%len(self.vpia.children))>len(self.vpia.imagelist):
-      self.vpia.children[(self.vpia.childpointer-i)%len(self.vpia.children)].opacity=0
-     else:
-      self.vpia.children[(self.vpia.childpointer-i)%len(self.vpia.children)].source=(self.vpia.imagelist[(self.vpia.imagepointer+(tmpimagepointer-i)%len(self.vpia.children)].source
-     if len(self.vpia.imagelist
-  '''
  def adjustimagepointer(self,timestamp):
   mini=0;maxi=len(self.vpia.imagelist)
   i=int(mini+(maxi-mini)/2)
@@ -141,26 +127,6 @@ class VideoPlayer2(VideoPlayer):
   count=0
   if self.vpia.parent==None:
    self.container.add_widget(self.vpia)
-  '''
-  if value<self.vpia.colorthresholdbegin or value > self.vpia.colorthresholdbegin+self.vpia.COLORTHRESHOLD:
-   tmpimagepointer=self.vpia.imagepointer
-   self.vpia.imagepointer=adjustimagepointer(value)
-   tmpimagepointer=tmpimagepointer-self.vpia.imagepointer
-   if tmpimagepoiner>self.vpia.imagepointer:
-    for i in range((self.tmpimagepointer-self.vpia.imagepointer)%len(self.vpia.children)):
-     if len(self.vpia.imagelist)-self.vpia.imagepoiner>len(self.vpia.children)+i:
-      self.vpia.children[i].source=self.vpia.imagelist[self.vpia.imagepoiner+len(self.vpia.children)+i].source
-     else:
-      self.vpia.children[i].opacity=0
-    self.vpia.childpointer=(self.tmpimagepointer-self.vpia.imagepointer)%len(self.vpia.children)
-   elif tmpimagepointer<self.vpia.imagepointer:
-    for i in range((self.vpia.imagepointer-tmpimagepointer)%len(self.vpia.children)):
-     if (self.vpia.imagepointer+(tmpimagepointer-i)%len(self.vpia.children))>len(self.vpia.imagelist):
-      self.vpia.children[(self.vpia.childpointer-i)%len(self.vpia.children)].opacity=0
-     else:
-      self.vpia.children[(self.vpia.childpointer-i)%len(self.vpia.children)].source=(self.vpia.imagelist[(self.vpia.imagepointer+(tmpimagepointer-i)%len(self.vpia.children)].source
-     if len(self.vpia.imagelist
-  '''
   for i in [i for i in range(min(len(self.vpia.imagelist)-self.vpia.imagepointer,len(self.vpia.children))) if (self.vpia.imagelist[self.vpia.imagepointer+i]['timestamp']-value) < self.vpia.COLORTHRESHOLD*3 and max((self.vpia.imagelist[self.vpia.imagepointer+i]['timestamp']-value)//self.vpia.COLORTHRESHOLD,-1) != self.vpia.flag[i]]:
    print(f'<=>VideoPlayer2.on_position i={i} imagepointer={self.vpia.imagepointer} value={value} flag={self.vpia.flag}')
    self.vpia.flag[i]=max((self.vpia.imagelist[self.vpia.imagepointer+i]['timestamp']-value)//self.vpia.COLORTHRESHOLD,-1)
@@ -173,21 +139,12 @@ class VideoPlayer2(VideoPlayer):
     print(f'<=>VideoPlayer.on_position i={i} imagepointer={self.vpia.imagepointer} childpointer={self.vpia.childpointer} count={count} value={value} imagelist={self.vpia.imagelist}')
     self.vpia.children[(self.vpia.childpointer+i)%len(self.vpia.children)].source=''
     self.vpia.children[(self.vpia.childpointer+i)%len(self.vpia.children)].opacity=0
-    '''
-     self.vpia.children[(self.vpia.childpointer+i)%len(self.vpia.children)].source=self.vpia.imagelist[self.vpia.imagepointer+len(self.vpia.children)+count]['source']
-    if count+len(self.vpia.children) < (len(self.vpia.imagelist)-self.vpia.imagepointer):
-     self.vpia.children[(self.vpia.childpointer+i)%len(self.vpia.children)].source=self.vpia.imagelist[self.vpia.imagepointer+len(self.vpia.children)+count]['source']
-     self.vpia.children[(self.vpia.childpointer+i)%len(self.vpia.children)].opacity=1
-     self.vpia.children[(self.vpia.childpointer+i)%len(self.vpia.children)].kvbordercolor=[x/2 for x in self.vpia.colormap[min(int((self.vpia.imagelist[self.vpia.imagepointer+count+len(self.vpia.children)]['timestamp']-value)/self.vpia.COLORTHRESHOLD),3)]]
-    else:
-     self.vpia.children[(self.vpia.childpointer+i)%len(self.vpia.children)].opacity=0
-     self.vpia.children[(self.vpia.childpointer+i)%len(self.vpia.children)].source=''
-    '''
     count+=1
 #  self.vpia.imagelist[0:count]=''
   if count:
 #   [self.vpia.flag.append(self.vpia.flag.pop(0)) for i in range(count)]
-   self.vpia.flag=[-1]*len(self.vpia.children)
+#   self.vpia.flag=[-1]*len(self.vpia.children)
+   self.vpia.flag=[-2]*len(self.vpia.children)
    self.vpia.childpointer=(self.vpia.childpointer+count)%len(self.vpia.children)
    self.vpia.imagepointer=self.vpia.imagepointer+count
    self.on_position(self,value)

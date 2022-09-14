@@ -60,7 +60,7 @@ class FileChooserIconViewCustom(FileChooserIconView):
   print(f'><FileChooserIconViewCustom.on_slot arg={arg} self.path={self.path}')
   if arg[0]==self.contextmenu:
    if re.search(r'^a',arg[1],flags=re.I):
-    self.selection=[self.path+r'/'+x for x in os.listdir(self.path) if not os.path.isdir(self.path+r'/'+x)]
+    self.selection=[self.path+r'/'+x for x in os.listdir(self.path) if not os.path.isdir(self.path+r'/'+x) and re.search(r'[.](png|jpeg|jpg|giff)$',self.path+r'/'+x,flags=re.I)]
    elif re.search(r'^n',arg[1],flags=re.I):
     self.selection=[]
 class ClickImage(Image):

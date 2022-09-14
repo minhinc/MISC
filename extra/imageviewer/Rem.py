@@ -53,3 +53,8 @@ class Re(QObject):
  def newfilename(self,path):
 #  print('Rem.newfilename',path)
   return path+'/example'+str(max([int(re.sub(r'^\w+?(?P<id>\d+).*',lambda m:str(int(m.group('id'))+1),i) if re.search(r'\d+[.]py$',i,flags=re.I) else 1) for i in os.listdir(path) if os.path.isfile(path+r'/'+i) and re.search(r'example(\d+)?[.]py',i,flags=re.I)] or ['']))+'.py'
+
+ @Slot(list,result=list)
+ def sortfile(self,filelist):
+  return sorted([x.toString() for x in filelist],key=lambda m:0 if not re.search(r'^.*\d+[.].*$',m) else int(re.sub(r'^.*(\d+)[.].*$',r'\1',m)))
+  return filelist

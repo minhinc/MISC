@@ -6,7 +6,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.properties import ListProperty
 from kivy.app import App
-from debugwrite import print
+from MISC.extra.debugwrite import print
 
 class InplaceBoxLayout(BoxLayout):
  pass
