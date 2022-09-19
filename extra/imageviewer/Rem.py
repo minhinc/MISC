@@ -56,5 +56,5 @@ class Re(QObject):
 
  @Slot(list,result=list)
  def sortfile(self,filelist):
-  return sorted([x.toString() for x in filelist],key=lambda m:0 if not re.search(r'^.*\d+[.].*$',m) else int(re.sub(r'^.*(\d+)[.].*$',r'\1',m)))
+  return sorted([x.toString() for x in filelist],key=lambda m:0.0 if not re.search(r'^.*?[\d+.]+[.][^.]+$',m) else float(re.sub(r'^.*?([\d+.]+)[.][^.]+$',r'\1',m)))
   return filelist

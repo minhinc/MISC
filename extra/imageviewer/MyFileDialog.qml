@@ -12,9 +12,18 @@ property var lastfolder:undefined
   currentFile=newfilename
   }
  }
+ function createobject(currentindexp,qmlfilep,filesp) {
+  var component=Qt.createComponent(qmlfilep)
+  if (component.status == Component.Ready) {
+   var object=component.createObject(splitviewid)
+   object.files=filesp
+   object.fileindex=0
+   splitviewid.insertItem(currentindexp,object)
+  }
+ }
  onAccepted: {
 // var currentindex=splitviewid.count
- var files=filedialogid.files
+ var files=re.sortfile(filedialogid.files)
  let qmlfile='Ding'
  filedialogid.lastfolder=filedialogid.folder
   if (re.search('^image',re.filetype(re.sub('^file://','',files[0],re.I)),re.I))
@@ -23,7 +32,8 @@ property var lastfolder:undefined
   qmlfile='MyTextEdit.qml'
   if (filedialogid.mode=="replace") {
   let lastwidth=splitviewid.itemAt(splitviewid.currentIndex).width
-  splitviewid.insertItem(splitviewid.currentIndex,Qt.createComponent(qmlfile).createObject(splitviewid,{files:files.concat(),fileindex:0}));
+//  splitviewid.insertItem(splitviewid.currentIndex,Qt.createComponent(qmlfile).createObject(splitviewid,{files:files.concat(),fileindex:0}));
+  createobject(splitviewid.currentIndex,qmlfile,files)
   splitviewid.removeItem(splitviewid.takeItem(splitviewid.currentIndex))
   splitviewid.itemAt(splitviewid.currentIndex).SplitView.preferredWidth=lastwidth
   }else if (filedialogid.mode == "new") {
@@ -33,7 +43,8 @@ property var lastfolder:undefined
     freewidth+=splitviewid.itemAt(i).width/2
     splitviewid.itemAt(i).SplitView.preferredWidth=splitviewid.itemAt(i).width/2
     }
-  splitviewid.insertItem(splitviewid.currentIndex+1,Qt.createComponent(qmlfile).createObject(splitviewid,{files:files.concat(),fileindex:0}));
+//  splitviewid.insertItem(splitviewid.currentIndex+1,Qt.createComponent(qmlfile).createObject(splitviewid,{files:files.concat(),fileindex:0}));
+   createobject(splitviewid.currentIndex+1,qmlfile,files)
    if (splitviewid.count>1) {
    splitviewid.itemAt(splitviewid.currentIndex).SplitView.preferredWidth=(splitviewid.width-freewidth)/2
    splitviewid.itemAt(splitviewid.currentIndex+1).SplitView.preferredWidth=(splitviewid.width-freewidth)/2

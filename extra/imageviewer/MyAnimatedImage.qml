@@ -122,6 +122,7 @@ AnimatedImage {
  id:fileioid
  }
  function tabchanged(selfcompp) {
+  console.log('tabchanged',persistent)
   for (var i=0;i<persistent.length;i++) {
    if (selfcompp==persistent[i][2]) {
     if (persistent[(i+1)%persistent.length][0]!=fileindex && persistent[(i+1)%persistent.length][1]==false) {
@@ -136,5 +137,15 @@ AnimatedImage {
     break
    }
   }
+ }
+ function destroying(selfcompp) {
+  var j=0;
+  for (var i=0;i<persistent.length;i++) {
+   if (selfcompp!=persistent[i][2] && (persistent[i][0]==fileindex || persistent[i][1]==true))
+    persistent[i][2].forceActiveFocus()
+   else if (selfcompp==persistent[i][2] && (persistent[i][0]==fileindex || persistent[i][1]==true))
+    j=i
+  }
+  persistent.splice(j,1)
  }
 }

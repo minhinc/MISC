@@ -12,6 +12,7 @@ class TermBoxLayout(BoxLayout):
  def __init__(self,*arg,**kwarg):
   super(TermBoxLayout,self).__init__(*arg,**kwarg)
   print(f'><TermBoxLayout.__init__ arg={arg} kwarg={kwarg}')
+
  def set(self,*arg):
 #  print(f'><TermBoxLayout.set arg={arg}')
   print(f'TermBoxLayout.set arg={arg}')
@@ -24,6 +25,7 @@ class TermBoxLayout(BoxLayout):
 #  self.ids['textinput'].text='\n'.join(' >>>'+x for x in re.split('\n',re.sub(r'^(.*?)\s*$',r'\1',tmpvar2.getvalue(),flags=re.I|re.DOTALL)))
   self.ids['textinput'].text='\n'.join(' '+x for x in re.split('\n',re.sub(r'^(.*?)\s*$',r'\1',tmpvar2.getvalue(),flags=re.I|re.DOTALL)))
   self.ids['label'].text=arg[0]+'.'+arg[1]+'()'
+
  def get(self):
   return self.ids['textinput'].text
 

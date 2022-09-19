@@ -26,6 +26,8 @@ class TopBoxLayout(BoxLayout):
    self._popup = Popup(title="Load file", content=self.loadboxlayout,size_hint=(0.9, 0.9)) if not self._popup else self._popup
    self._popup.open()
   elif re.search(r'^ok$',self.ids['button'].text,flags=re.I):
+   self.ids['termboxlayout'].size_hint_y=0.7
+   self.ids['funcgridlayout'].size_hint_y=0.1
    self.modulefuncarg[2:]=self.ids['funcgridlayout'].get()
    self.ids['termboxlayout'].set(*self.modulefuncarg)
    self.ids['button'].text='Quit'
@@ -40,6 +42,8 @@ class TopBoxLayout(BoxLayout):
     self.modulefuncarg[0:2]=value
     self.ids['funcgridlayout'].set(*value)
   elif instance==self.ids['funcgridlayout']:
+   self.ids['termboxlayout'].size_hint_y=1
+   self.ids['funcgridlayout'].size_hint_y=1
    if value and not re.search(r'^\s*$',value):
     self.ids['button'].text='Ok'
    else:

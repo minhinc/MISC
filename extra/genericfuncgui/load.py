@@ -1,4 +1,4 @@
-import re,importlib
+import re,importlib,sys
 import kivy;kivy.require('2.1.0')
 from kivy.uix.dropdown import DropDown
 from kivy.uix.boxlayout import BoxLayout
@@ -20,6 +20,8 @@ class LoadBoxLayout(BoxLayout):
  def load(self,path,filename,mode):
   print(f'><LoadBoxLayout.load path={path} filename={filename} mode={mode} self={self}')
   if len(filename) and re.search(r'[.]py$',filename[0]) and re.search(r'^selection$',mode,flags=re.I):
+   if not re.sub(r'^(.*)/.*$',r'\1',filename[0]) in sys.path:
+    sys.path[0:0]=[re.sub(r'^(.*)/.*$',r'\1',filename[0])]
    self.modulename=re.sub(r'.*/(.*)[.]\w+$',r'\1',filename[0])
    print(f'<=>modulename={self.modulename}')
    self.ids['button'].height=40

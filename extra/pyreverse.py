@@ -99,6 +99,7 @@ class modify:
     return re.findall(r'^class\s+('+hint+r')\b.*:\s*$',open(filename).read(),flags=re.I|re.M)
   if re.search(r'[.]py$',sys.argv[1]):
    if len(sys.argv)==3 and not re.search(r'[.]py$',sys.argv[2]):
+    os.remove(r'./'+re.sub(r'/+',r'.',re.sub(r'(.*?)(?:/*__init__)?[.]py$',r'\1',sys.argv[1]))+r'.'+sys.argv[2]+'.dot') if os.path.exists(r'./'+re.sub(r'/+',r'.',re.sub(r'(.*?)(?:/*__init__)?[.]py$',r'\1',sys.argv[1]))+r'.'+sys.argv[2]+'.dot') else None
     file=[(sys.argv[1],sys.argv[2])] if sys.argv[2]!='=' else [(sys.argv[1],classname(sys.argv[1],re.sub(r'.*/(.*?)[.]py$',r'\1',sys.argv[1]))[0])]
    else:
     for i in sys.argv[1:]:
@@ -110,16 +111,17 @@ class modify:
      for k in classname(i[0]+r'/'+j,re.sub(r'(.*?)[.]py$',r'\1',j) if len(sys.argv)==3 and sys.argv[2]=='=' else None):
       file.append((i[0]+r'/'+j,k))
   filek=file
-  file=[i for i in file if not os.path.exists(r'./'+re.sub(r'/+',r'.',re.sub(r'(.*?)(?:/?__init__)?[.]py$',r'\1',i[0]))+r'.'+i[1]+'.dot')]
+  file=[i for i in file if not os.path.exists(r'./'+self.dirpathtopackage(i)+'.dot')]
   print(f'list of file,class to be processed (.dot file do not exists)={file}')
   for count,i in enumerate(file):
    print(fr'file,class={i} {count+1}/{len(file)}')
-   if subprocess.call(shlex.split('pyreverse3 -f ALL '+i[0]+r' -ASmy -c '+i[1])):
+#   if subprocess.call(shlex.split('pyreverse3 -f ALL '+i[0]+r' -ASmy -c '+i[1])):
+   if subprocess.call(shlex.split('pyreverse -f ALL '+i[0]+r' -ASmy -c '+i[1])):
     wrongfile.write(rf'{i}'+'\n');wrongfile.flush()
     continue 
    data=open(i[1]+r'.dot').read()
-   classdata=re.sub(r'.*label="{('+re.sub(r'/+',r'.',re.sub(r'(?:/?__init__)?[.]py$','',i[0]))+r'.'+i[1]+r'\b.*?)}".*',r'\1',data,flags=re.I|re.DOTALL)
-  # classnumber=re.sub(r'.*\n("\d+")\s+\[label="{'+re.sub(r'/+',r'.',re.sub(r'(?:/?__init__)?[.]py$','',i[0]))+r'.'+i[1]+r'\b.*',r'\1',data,flags=re.I|re.DOTALL)
+   classdata=re.sub(r'.*label="{('+re.sub(r'/+',r'.',re.sub(r'(?:/*__init__)?[.]py$','',i[0]))+r'.'+i[1]+r'\b.*?)}".*',r'\1',data,flags=re.I|re.DOTALL)
+  # classnumber=re.sub(r'.*\n("\d+")\s+\[label="{'+re.sub(r'/+',r'.',re.sub(r'(?:/*__init__)?[.]py$','',i[0]))+r'.'+i[1]+r'\b.*',r'\1',data,flags=re.I|re.DOTALL)
   # print(f'classnumber={classnumber}')
   # data=re.sub('\n+','\n',re.sub(r'^\s*"\d+"\s*->\s*'+classnumber+r'\s*\[arrowhead="empty".*$',r'',data,flags=re.I|re.M),flags=re.DOTALL)
    data=re.sub(r'^(.*label="){(.*?)\|.*}(".*)',r'\1\2\3',data,flags=re.I|re.M)
@@ -132,7 +134,7 @@ class modify:
      data=re.sub(r'\n+','\n',re.sub(fr'^(|.*?\s+->)\s*{property}.*$',r'',data,flags=re.I|re.M),flags=re.I|re.DOTALL)
    open(i[1]+'.dot','w').write('\n'.join(list(OrderedDict.fromkeys(re.split('\n',data)))))
   # os.rename(i[1]+'.dot',re.sub(r'/+',r'.',re.sub(r'(.*)[.]py$',r'\1',i[0]))+r'.'+i[1]+'.dot')
-   os.rename(i[1]+'.dot',re.sub(r'/+',r'.',re.sub(r'(.*?)(?:/?__init__)?[.]py$',r'\1',i[0]))+r'.'+i[1]+'.dot')
+   os.rename(i[1]+'.dot',self.dirpathtopackage(i)+'.dot')
   wrongfile.close()
   def fixderiveclass(package):
    nonlocal deriveclass
@@ -152,7 +154,7 @@ class modify:
   for count,i in enumerate(filek):
    print(f'fixing subclass i={i} {count+1}/{len(filek)}')
   # package=re.sub(r'/+',r'.',re.sub(r'(.*)[.]py$',r'\1',i[0]))+r'.'+i[1]
-   package=re.sub(r'/+',r'.',re.sub(r'(.*?)(?:/?__init__)?[.]py$',r'\1',i[0]))+r'.'+i[1]
+   package=self.dirpathtopackage(i)
    tarray=[]
    datak=''
    fixderiveclass(package)
@@ -166,7 +168,7 @@ class modify:
    return derivestring
   for count,i in enumerate(filek):
   # package=re.sub(r'/+',r'.',re.sub(r'(.*)[.]py$',r'\1',i[0]))+r'.'+i[1]
-   package=re.sub(r'/+',r'.',re.sub(r'(.*?)(?:/?__init__)?[.]py$',r'\1',i[0]))+r'.'+i[1]
+   package=self.dirpathtopackage(i)
    if not os.path.exists(r'./'+package+r'.dot'):
     continue
    print(fr'writing to file {package}.dot_ {count+1}/{len(filek)}')
@@ -182,5 +184,7 @@ class modify:
     fp.write(data)
    subprocess.call(shlex.split(r'dot -Tpdf '+package+'.dot_ -o '+package+'.pdf'))
   print(f'---- MODIFY FINISHED dir={sys.argv[1:]}')
+ def dirpathtopackage(self,i):#/tkinter/filedialog/FileDialog -> tkinter.filedialog.FileDialog
+  return re.sub(r'/+',r'.',re.sub(r'(.*?)(?:/*__init__)?[.]py$',r'\1',i[0]))+r'.'+i[1]
 fix() if fixarg else None
 modify() if modifyarg else None

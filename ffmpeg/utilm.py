@@ -1,6 +1,6 @@
 import datetime
 from skimage.metrics import structural_similarity as compare_ssim
-import imutils,cv2
+import cv2
 import os
 import sys
 from PIL import Image,ImageDraw,ImageFont

@@ -71,6 +71,7 @@ property int rulersSize: 18
    }
   }
   onDoubleClicked: {
+  parent.parent.destroying(selComp)
   parent.destroy()        // destroy component
   }
   hoverEnabled:true
@@ -108,7 +109,10 @@ property int rulersSize: 18
      mouse.accepted=true
      }
     }
-    onDoubleClicked: selComp.destroy()
+    onDoubleClicked: {
+     selComp.parent.destroying(selComp)
+     selComp.destroy()
+    }
    }
   }
  }
