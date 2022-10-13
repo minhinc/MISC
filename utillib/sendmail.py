@@ -23,7 +23,7 @@ class YouTubeError(Exception):
 class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
  def __init__(self):
   super(sendmail,self).__init__(True,'linkedin')
-  self.emailcount=2
+  self.emailcount=1
 #  self.MAXEMAIL=3
   self.MAXEMAIL=2
   self.smtp=smtplib.SMTP_SSL("smtp.gmail.com",465)
@@ -80,7 +80,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
    sendmail.message.youtubetech[tech]=self.db.search2('tech','content','name','=',tech.lower(),mode='get')[0][0]
   if not tech in sendmail.message.techyoutubelist:
    sendmail.message.techyoutubelist[tech]=[(y[0],x) for x in self.getmatching(self.db.search2('tech','content','name','=',tech.lower(),mode='get')[0][0],*[x[1] for x in self.message.youtubehreftext],muteprint=True,percent=60) for y in self.message.youtubehreftext if x in y]
-   print(f'sendmail.message.techyoutubelist tech={tech} [tech]={sendmail.message.techyoutubelist[tech]}')
+   print(f'<=>sendmail.message.techyoutubelist tech={tech} [tech]={sendmail.message.techyoutubelist[tech]}')
   if not sendmail.message.techyoutubelist[tech]:
    raise YouTubeError()
   randomnumber=random.randrange(0,len(sendmail.message.techyoutubelist[tech]),1)
@@ -112,27 +112,19 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
 
  def get(self,*url):
   """\
-  get()
-  get(["qt",abc@one.com,123@two.com],["py",456@abc.com,def@three.com])\
+  get()\
+  get('abc@one.com','123@two.com')\
   """
   print(f'{"################## sendmail.get ##################":^100}\n{url=!r:^100}')
   li=None
   if not (len(url)==3 and type(url[2])==int): # sending email when calling this module individually get(('comp pvt. ltd','qt','canada','pravinkumarsinha@gmail.com','tominhinc@gmail.com'),('ding dong pvt. ltd','cpp','india','tominhinc@gmail.com'))
-   for i in url:
-    for j in i[1:]:
-     self.smtp.sendmail('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',j,self.message('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',j,self.getmatching(i[0],*[x[1] for x in self.db.get('tech')])[0]).as_string())
-     print(f' email sent - {i}')
-   if url:
-    self.smtp.close()
-    self.close(logout=False)
-    return
-   emaillist=[x[0] for x in self.db.search2('track','*','expire','<',re.sub('-','',(datetime.date.today()-datetime.timedelta(days=50)).isoformat()),'status','<',2,mode='get')]
+   emaillist=[x[0] for x in self.db.search2('track','*','expire','<',re.sub('-','',(datetime.date.today()-datetime.timedelta(days=50)).isoformat()),'status','<',2,mode='get') if url and x[0] in url or not url]
    for count,i in enumerate(emaillist[:]):
     try:
      self.smtp.sendmail('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i,self.message('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i,self.db.search2('tech','name','id','=',self.db.search2('track','tech_id','email','=',i,mode='get')[0][0],mode='get')[0][0]).as_string())
 #     print(f"try block tech {self.db.search2('tech','name','id','=',self.db.search2('track','tech_id','email','=',i,mode='get')[0][0],mode='get')[0][0]}")
     except Exception as e:
-     print(f'exception {type(e)=} tech={self.db.search2("tech","name","id","=",self.db.search2("track","tech_id","email","=",i,mode="get")[0][0],mode="get")[0][0]} {i} -> minhinc{self.emailcount}@gmail.com')
+     print(f'<=>sendmail.get exception {type(e)=} tech={self.db.search2("tech","name","id","=",self.db.search2("track","tech_id","email","=",i,mode="get")[0][0],mode="get")[0][0]} {i} -> minhinc{self.emailcount}@gmail.com')
      if type(e)==YouTubeError:
       pass
      else:

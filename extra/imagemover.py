@@ -49,7 +49,7 @@ class FileChooserBoxLayout(BoxLayout):
 class FileChooserIconViewCustom(FileChooserIconView):
  def __init__(self,*arg,**kwarg):
   super(FileChooserIconViewCustom,self).__init__(*arg,**kwarg)
-  self.contextmenu=ContextMenu(self,self.on_slot,None,"All","None")
+  self.contextmenu=ContextMenu(self,self.on_slot,"All","None")
  def on_touch_down(self,touch):
   print(f'><FileChooserIconViewCustom.on_touch_down touch={touch} pos={self.pos} size={self.size}')
   super(FileChooserIconViewCustom,self).on_touch_down(touch)
@@ -71,7 +71,7 @@ class ClickImage(Image):
   self.source=''
   self.imagepointer=0
   self._keyboard=None
-  self.contextmenu=ContextMenu(self,self.on_slot,None,"Open")
+  self.contextmenu=ContextMenu(self,self.on_slot,"Open")
   self.filechooserboxlayout=FileChooserBoxLayout()
   self._popup=Popup(title="Load image(s)",content=self.filechooserboxlayout,size_hint=(0.8,0.8))
   self.filechooserboxlayout.ids['buttonid'].bind(on_release=self.on_slot)

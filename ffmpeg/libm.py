@@ -1,4 +1,4 @@
-import os
+import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp')
 import math
 from PIL import Image,ImageDraw,ImageFont
 import re
@@ -7,6 +7,7 @@ import subprocess
 from decimal import Decimal
 import copy
 import configparser
+#from MISC.extra.debugwrite import print
 class libc:
  '''library class to provide basic functions'''
  counti=-1
@@ -62,30 +63,18 @@ class libc:
    '14':r"overlay=x='max((W-w)/2,W-t/1*W)':y='(H-h)/2'",#left
 
    '20':('self.gifi.overlay',{'imagename':'$[0][0]','begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
-#    '200':("self.filter['20']",("[1]['imagename']",'$[0]'),("[1]['begintime']",'$[2]'),("[1]['duration']",None)),
-#    '201':("self.filter['20']",("[1]['imagename']",'$[0]')),
     '202':("self.filter['20']",("[1]['begintime']",'$[2]'),("[1]['duration']",None)),
-#    '203':("self.filter['20']"),
     '203':("self.filter['20']",),
-#    '20_':("self.filter['20']"),
 
    '21':('self.gifi.overlay',{'imagename':('self.gifi.utili.image2gif',{'imagename':'$[0][0]','duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'filtername':"self.filter['01']"}),'begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
-#    '210':("self.filter['21']",("[1]['imagename'][1]['imagename']",'$[0]'),("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
-#    '211':("self.filter['21']",("[1]['imagename'][1]['imagename']",'$[0]')),
     '212':("self.filter['21']",("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
-#    '213':("self.filter['21']"),
     '213':("self.filter['21']",),
-#    '21_':("self.filter['21']"),
 
    '22':('self.gifi.overlay',{'imagename':('self.gifi.utili.image2gif',{'imagename':('self.gifi.utili.text2image',{'text':"$[0][0]+':yellow:black:0.5:::'",'richtext':True}),'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'filtername':"self.filter['01']"}),'begintime':"re.split('-',$[2])[0]",'duration':"float(self.getsecond(re.split('-',$[2])[1]))-float(self.getsecond(re.split('-',$[2])[0]))",'position':'$[1][1]'}),
-#    '220':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:0.5:::'"),("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
-#    '221':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:0.5:::'")),
-    '223_f':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0][0]+':yellow:black:1.0:::'")),
-#    '22_f':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0]+':yellow:black:1.0:::'")),
-    '223_redonyellow':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0][0]"),("[1]['imagename'][1]['imagename'][1]['backcolor']","\'yellow\'"),("[1]['imagename'][1]['imagename'][1]['richtext']",False)),
     '222':("self.filter['22']",("[1]['begintime']",'$[2]'),("[1]['imagename'][1]['duration']",None),("[1]['duration']",None)),
-#    '223':("self.filter['22']"),
     '223':("self.filter['22']",),
+    '223_whiteonblack':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0][0]"),("[1]['imagename'][1]['imagename'][1]['textcolor']","\'white\'"),("[1]['imagename'][1]['imagename'][1]['backcolor']","\'black\'"),("[1]['imagename'][1]['imagename'][1]['size']",0.7),("[1]['imagename'][1]['imagename'][1]['richtext']",False),("[1]['imagename'][1]['filtername']","self.filter['03']")),
+    '223_redonyellow':("self.filter['22']",("[1]['imagename'][1]['imagename'][1]['text']","$[0][0]"),("[1]['imagename'][1]['imagename'][1]['backcolor']","\'yellow\'"),("[1]['imagename'][1]['imagename'][1]['richtext']",False)),
 
    '40':r"zoompan=z='min(zoom+0.0015,1.5)':x='if(gte(zoom,1.5),x-1/a,iw/2-iw/zoom/2)':y='if(gte(zoom,1.5),y,ih/2-ih/zoom/2)'",
     '40_82_pan':r"zoompan=z='if(lte(on,1),zoom+0.4,zoom)':x=(iw/2-iw/zoom/2):y='if(lte(on,2),ih-ih/zoom,y-(ih-ih/zoom)/(25*))'",
@@ -146,7 +135,7 @@ class libc:
 #   self.duration+=sum(float(self.getsecond(re.split('-',y)[1]))-float(self.getsecond(re.split('-',y)[0])) for x in durationP if len(x)==2 for y in (x[1] if type(x[1])==tuple else [x[1]]))+sum(float(self.exiftool(re.sub(r'^=','',x[0]),'Duration')) for x in durationP if len(x)==1)
 #   self.setvideo([re.sub(r'^=','',x[0]) for x in durationP if len(x)==1 and re.search(r'^=',x[0])][0])
 #  else:
-  self.duration=float(durationP)
+  self.duration=float(self.getsecond(durationP))
 
  def setvideo(self,inputfile):
   '''---------
@@ -210,20 +199,37 @@ class libc:
   print(f'><libc.getfontsize stringlist_p={stringlist_p} screenratio_p={screenratio_p} fontfamily_p={fontfamily_p} lineheight={lineheight}')
   size=[]
   font=self.getfont(stringlist_p,screenratio_p,fontfamily_p)
-  for i in re.split('\n',stringlist_p):
+  for i in re.split(r'(?:\n|\\n)',stringlist_p):
    size.append(font.getsize(i))
   print(f'<>libc.getfontsize size={size}')
   return (max(x[0] for x in size),sum(x[1] for x in size)+(len(size)-1)*lineheight)
- def getfont(self,stringlist_p,screenratio_p=0.8,fontfamily_p=os.path.expanduser('~')+r'/.fonts/ufonts.com_tw-cen-mt.ttf'):
-#  print(f'><libc.getfont {self.videowidth=} {self.videoheight=} {stringlist_p} {screenratio_p} {fontfamily_p}')
-  print(f'><libc.getfont self.videowidth={self.videowidth} self.videoheight={self.videoheight} stringlist_p={stringlist_p} screenratio_p={screenratio_p} fontfamily_p={fontfamily_p}')
-  self.debug("libc::getfont><",stringlist_p,screenratio_p)
+
+ def getfont(self,stringlist_p,screenratio_p=0.8,fontfamily_p=os.path.expanduser('~')+r'/.fonts/ufonts.com_tw-cen-mt.ttf',widthheight=False,setvideo=None):
+  '''\
+  stringlist_p - tuple/list of string'''
+  print(f'><libc.getfont self.videowidth={self.videowidth} self.videoheight={self.videoheight} stringlist_p={stringlist_p} screenratio_p={screenratio_p} fontfamily_p={fontfamily_p},{widthheight=}')
+  width,height=(0,0)
+  maxindex=None
+  if setvideo:
+   self.setvideo(setvideo)
   i=10
-  stringlist_p=[y for x in stringlist_p for y in re.split('\n',x)]
-  stringlist_p.append('Q'*20) # in order to force calculation for 20 characters minimum
-  maxindex=[len(j) for j in stringlist_p].index(max(len(j) for j in stringlist_p))
-  #while (ImageFont.truetype(fontfamily_p,i).getsize('a')[0]*(max([len(j) for j in stringlist_p]) if max([len(j) for j in stringlist_p])>10 else 10))<(self.videowidth*screenratio_p): i=i+1
-  while ImageFont.truetype(fontfamily_p,i).getsize(stringlist_p[maxindex])[0] < float(self.videowidth)*screenratio_p: i=i+1
+  stringlist_p=[y for x in (stringlist_p if type(stringlist_p)==tuple or type(stringlist_p)==list else (stringlist_p,)) for y in re.split(r'(?:\n|\\n)',x)]
+  if widthheight:
+   while width<float(self.videowidth)*screenratio_p and height<float(self.videoheight)*screenratio_p:
+    width,height=(0,0)
+    for j in [k for j in stringlist_p for k in re.split(r'(?:\n|\\n)',j)]:
+     width=max(width,ImageFont.truetype(fontfamily_p,i).getsize(j)[0])
+#     height+=ImageFont.truetype(fontfamily_p,i).getsize(j)[1]+(widthheight if type(widthheight)==int else 0)
+     height+=ImageFont.truetype(fontfamily_p,i).getmask(j).getbbox()[3]+(widthheight if type(widthheight)==int else 0)
+    height-=widthheight if type(widthheight)==int else 0
+    i+=1
+   i-=2
+  else:
+   stringlist_p.append('Q'*10) # in order to force calculation for 20 characters minimum
+   maxindex=[len(j) for j in stringlist_p].index(max(len(j) for j in stringlist_p))
+   while ImageFont.truetype(fontfamily_p,i).getsize(stringlist_p[maxindex])[0] < float(self.videowidth)*screenratio_p: i=i+1
+   i-=1
+  print(f'<>libc.getfont {maxindex=} {i=}')
   return ImageFont.truetype(fontfamily_p,i)
  
  '''
@@ -419,6 +425,39 @@ command executed shell('/bin/bash') output if popen=True else None'''
   return (r'(W-w)/2'+('+' if a>=0 else '')+str(a)+'*W' if not dimension else r'0' if (int(dimension[1][0])-int(dimension[0][0]))/2+a*int(dimension[1][0])<0 else r'(W-w)' if (int(dimension[1][0])-int(dimension[0][0]))/2+a*int(dimension[1][0])+int(dimension[0][0])>int(dimension[1][0]) else r'(W-w)/2'+('+' if a>=0 else '')+str(a)+'*W')+','+(r'(H-h)/2'+('+' if b>=0 else '')+str(b)+r'*H' if not dimension else '0' if (int(dimension[1][1])-int(dimension[0][1]))/2+b*int(dimension[1][1])<0 else 'H-h' if (int(dimension[1][1])-int(dimension[0][1]))/2+b*int(dimension[1][1])+int(dimension[0][1])>int(dimension[1][1]) else r'(H-h)/2'+('+' if b>=0 else '')+str(b)+r'*H')
 
  #00:06:45/345 or (3,00:00:05/05,00:40:00/2400)
+ def getslotstamp(self,slotname,gaptime,requestcount=None,begintime=None,endtime=None):
+  '''\
+    slotname - name of the slot i.e 'bigbanner'
+    gaptime - duration betweeen two slots,i.e. 30*60 =30 minutes
+    requestcount - how many slot times, i.e 4, None=len(slots)
+    begintime - begintime for calculations
+    endtime - endtime for calculation\
+  '''
+  print(f'><libc.getslotstamp {slotname=} {gaptime=} {requestcount=} {begintime=} {endtime=}')
+  filledslot=None
+  timestamp=[]
+  if not hasattr(libc.getslotstamp,'slots'):
+   libc.getslotstamp.slots=[[] for x in range(min(10,int(self.duration//(5*60))))]
+  durationgap=self.duration//min(10,self.duration//(5*60))
+  requestcount=len(libc.getslotstamp.slots)-1 if requestcount==None else requestcount
+  slotjumpcount=max(1,len(libc.getslotstamp.slots)//(requestcount+1))
+  print(f'<=>libc.getslotstamp {slotjumpcount=}')
+  for j in range(slotjumpcount,len(libc.getslotstamp.slots)+slotjumpcount,slotjumpcount):
+   if j>=len(libc.getslotstamp.slots):
+    j=len(libc.getslotstamp.slots)-1
+   for i in range(j,-1,-1):
+    print(f'{j=} {i=}')
+    if (i*durationgap-([count for count in range(i,-1,-1) if libc.getslotstamp.slots[count] and libc.getslotstamp.slots[count][0]==slotname] or [0])[0]*durationgap)>=gaptime and (([count for count in range(i,len(libc.getslotstamp.slots)) if libc.getslotstamp.slots[count] and libc.getslotstamp.slots[count][0]==slotname] or [len(libc.getslotstamp.slots)-1])[0]*durationgap-i*durationgap)>=gaptime and not libc.getslotstamp.slots[i]:
+     libc.getslotstamp.slots[i]=(slotname,gaptime)
+     timestamp.append(i*durationgap)
+     break
+    elif libc.getslotstamp.slots[i] and libc.getslotstamp.slots[i][0]==slotname:
+     requestcount-=1
+     break
+   if len(timestamp)==requestcount:
+    break
+  return timestamp
+ """
  def getslotstamp(self,requestcount,begintime=None,endtime=None):
   '''\
   requestcount - number of slots (within begintime - endtime) else timestamp (slot at this timestamp)
@@ -455,6 +494,7 @@ command executed shell('/bin/bash') output if popen=True else None'''
    retarray.append(adjust(begintime+((endtime-begintime)*(i+1))/(requestcount+1)))
   print(f'<>getslotstamp slotarray={libc.getslotstamp.slotarray} retarray={retarray}')
   return [x for x in retarray if not x==None]
+ """
 
  def tuple2funccal(self, a, b):
   '''a->tuple b->list'''

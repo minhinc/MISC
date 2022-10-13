@@ -44,6 +44,7 @@ class databasec:
   crsr.execute("CREATE TABLE IF NOT EXISTS ldd (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80), lab VARCHAR(580), content TEXT, UNIQUE(id))")
   crsr.execute("CREATE TABLE IF NOT EXISTS dp (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80), lab VARCHAR(580), content TEXT, UNIQUE(id))")
   crsr.execute("CREATE TABLE IF NOT EXISTS ai (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80), lab VARCHAR(580), content TEXT, UNIQUE(id))")
+  crsr.execute("CREATE TABLE IF NOT EXISTS ml (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80), lab VARCHAR(580), content TEXT, UNIQUE(id))")
 
 #data in html
   crsr.execute("CREATE TABLE IF NOT EXISTS headername (id INT NOT NULL DEFAULT 0 PRIMARY KEY, name VARCHAR(80), content VARCHAR(16000), UNIQUE(name))")

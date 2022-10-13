@@ -7,14 +7,13 @@ from kivy.uix.image import Image
 from kivy.uix.videoplayer import VideoPlayer
 #from kivy.graphics import Color,Rectangle
 from kivy.app import App
-from kivy.uix.filechooser import FileChooserIconView
-from kivy.uix.button import Button
-from kivy.uix.dropdown import DropDown
-from kivy.uix.popup import Popup
 import json
+import PIL
 from MISC.ffmpeg.libm import libc
-Config.set('input','mouse','mouse,disable_multitouch')
-Config.remove_option('input',r'%(name)s')
+from MISC.extra.debugwrite import print
+import MISC.extra.disablemultitouch
+from MISC.extra.contextmenu import ContextMenu
+from MISC.extra.filepopup import FilePopup
 
 class VideoPlayerImageAnnotation(BoxLayout):
  def __init__(self,*arg,**kwarg):
@@ -35,66 +34,38 @@ class VideoPlayerImageAnnotation(BoxLayout):
 class BlinkImage(Image):
  pass
 
-class FileDialogFileChooserIconView(FileChooserIconView):
- def __init__(self,*arg,**kwarg):
-  super(FileDialogFileChooserIconView,self).__init__(*arg,**kwarg)
-  self.path=r'./'
-  self.filters=['*.webm','*.mp4','*.mp3','*.wav']
-  self._popup=Popup(title="Load video file",content=self,size_hint=(0.8,0.8))
- def openclose(self,*arg):
-  print(f'><FileDialogFileChooserIconView.openclose arg={arg}')
-  self._popup.open() if arg else self._popup.dismiss()
-
-class ContextMenu(DropDown):
- def __init__(self,*arg,**kwarg):
-  super(ContextMenu,self).__init__(*arg,**kwarg)
-  self.button=Button(text='dingdong',size_hint=(None,None),width=200,height=40)
-  self.button.opacity=0
-  self.button.disabled=True
-  self.touch=None
- def open(self,pos):
-  print(f'><ContextMenu.open self={self} pos={pos}')
-  self.button.pos=pos
-  super(ContextMenu,self).open(self.button)
- def on_touch_down(self,touch):
-  print(f'><ContextMenu.on_touch_down touch={touch}')
-  if touch.button=='right':
-   if not self.collide_point(*touch.pos):
-    self.touch=touch
-   else:
-    self.touch=None
-  return super(ContextMenu,self).on_touch_down(touch)
- def on_dismiss(self):
-  print(f'><ContextMenu.on_dismiss self.touch={self.touch}')
-  if self.touch:
-   self.open(self.touch.pos)
-   self.touch=None
-
 class VideoPlayer2(VideoPlayer):
  def __init__(self,*arg,**kwarg):
   super(VideoPlayer2,self).__init__(*arg,**kwarg)
   self.libi=MISC.ffmpeg.libm.libc()
   self.vpia=VideoPlayerImageAnnotation()
-  self._popup=FileDialogFileChooserIconView()
-  self._popup.bind(on_submit=self.on_submit)
-  self.contextmenu=ContextMenu()
-  self.contextmenu.bind(on_select=self._popup.openclose)
-  button=Button(text='Open',size_hint=(None,None),width=200,height=40)
-  button.bind(on_release=lambda btn:self.contextmenu.select(btn.text))
-  self.contextmenu.add_widget(button)
+  self.contextmenu=ContextMenu(self,self.on_slot)
+
+ def on_slot(self,*arg):
+  print(f'><VideoPlayer2.on_slot')
+  if arg[0]==FilePopup:
+   self.source=arg[1][0]
+   self.state='play'
+  elif arg[0]==self.contextmenu:
+   if arg[1]=='open':
+    FilePopup.get(self.on_slot,filters=('*.webm','*.mp4','*.mp3','*.wav'))
+   elif arg[1]=='close':
+    self.state='stop'
+    if not os.path.exists('black.png'):
+     PIL.Image.new('RGBA',(400,300),(0,0,0,255)).save('black.png')
+    self._video.set_texture_from_resource('black.png')
+    self.source=''
+   elif arg[1]=='play' or arg[1]=='resume':
+    self.state='play'
+   elif arg[1]=='pause':
+    self.state='pause'
+
  def on_touch_down(self,touch):
   print(f'><VideoPlayer2.on_touch_down rightclick touch={touch}')
   if touch.button=='right':
-   if self.contextmenu.button.parent==None:
-    self.container.add_widget(self.contextmenu.button)
-   self.contextmenu.open(touch.pos)
+   self.contextmenu.open(touch.pos,*(('open',) if not self.source else ('open','pause','close') if self.state=='play' else ('open','resume','close')))
   super(VideoPlayer2,self).on_touch_down(touch)
- def on_submit(self,*arg):
-  print(f'><VideoPlayer2.on_selection arg={arg}')
-  self._popup.openclose()
-  if re.search('(video|audio)',self.libi.exiftool(arg[1][0],'MIME Type'),flags=re.I):
-   self.source=arg[1][0]
-   self.state='play'
+
  def seek(self,percent,precise=True):
   super(VideoPlayer2,self).seek(percent,precise)
   print(f'><VideoPlayer2.seek duration={self.duration} percent={percent} precise={precise}')

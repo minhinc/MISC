@@ -1,6 +1,8 @@
 import os,datetime,random,re,sys
 sys.path.append(os.path.expanduser('~')+r'/tmp')
 from MISC.ffmpeg.gifm import gifc
+from MISC.ffmpeg.test.ffmpeg_advertisement import focusin,focusout,advertise
+
 class ffmpeg_common:
  def __init__(self):
   if len(sys.argv)<=1 or not [x for x in sys.argv if re.search(r'--profile',x)]:
@@ -20,12 +22,13 @@ python3 ffmpeg_common.py --profile minh --offset 10 "Syntax Highlighting Pyside6
 ''')
    sys.exit(-1)
   self.offset=0
+  self.omni=False
   if [x for x in sys.argv if re.search(r'--offset',x)]:
    self.offset=int(sys.argv[sys.argv.index(r'--offset')+1])
    sys.argv[sys.argv.index(r'--offset'):sys.argv.index(r'--offset')+2]=''
-  if [x for x in sys.argv if re.search(r'--noomni',x)]:
-   self.noomni=True
-   sys.argv[sys.argv.index(r'--noomni'):sys.argv.index(r'--noomni')+1]=''
+  if [x for x in sys.argv if re.search(r'--omni',x)]:
+   self.omni=True
+   sys.argv[sys.argv.index(r'--omni'):sys.argv.index(r'--omni')+1]=''
   self.profile=sys.argv[sys.argv.index(r'--profile')+1]
   sys.argv[sys.argv.index(r'--profile'):sys.argv.index(r'--profile')+2]=''
   self.title=sys.argv[1]
@@ -33,8 +36,26 @@ python3 ffmpeg_common.py --profile minh --offset 10 "Syntax Highlighting Pyside6
   self.stroketuple=[]
   [self.g.libi.prune2(x,setvideo=True,stroketuple=self.stroketuple) for x in sys.argv[2:]]
   self.g.libi.setduration(sum(float(self.g.libi.getsecond(x[1])) if not x[1]==None else float(self.g.libi.exiftool(x[0][0],'Duration')) for x in self.stroketuple if len(x)==2))
-  print(f'sys.argv={sys.argv} {self.profile=} offset={self.offset} title={self.title} duration={self.g.libi.duration} stroketuple={self.stroketuple}')
-
+  if self.omni:
+   advertise(self)
+  self.g.libi.setduration(sum(float(self.g.libi.getsecond(x[1])) if not x[1]==None else float(self.g.libi.exiftool(x[0][0],'Duration')) for x in self.stroketuple if len(x)==2))
+  #settle three tuple overlappings
+  duration=durationt=0
+  stroketuplet=[]
+  for count,x in enumerate(self.stroketuple):
+   if len(x)==2:
+    if len(self.stroketuple[count and count-1 or 0])==3 or self.stroketuple[count][0][0]!=self.stroketuple[count and count-1 or 0][0][0]:
+     print(f' --- resetting duration {duration=} {durationt=}')
+     duration+=durationt
+     durationt=0
+    durationt+=float(self.g.libi.getsecond(x[1])) if not x[1]==None else float(self.g.libi.exiftool(x[0][0],'Duration'))
+   elif len(x)==3 and [y for y in self.stroketuple[count+1:] if len(y)==2]:
+    print(f'{x=}')
+    stroketuplet=list(self.stroketuple[count])
+    stroketuplet[2]=re.sub(r'(?P<id>([\d+.:]+))',lambda m:str(float(self.g.libi.getsecond(m.group('id')))+duration),x[2])
+    self.stroketuple[count]=tuple(stroketuplet)
+    print(f'{x[2]=} {duration=} {stroketuplet=} {self.stroketuple=}')
+  print(f'<>ffmpeg_common.__init__ sys.argv={sys.argv} {self.profile=} offset={self.offset} title={self.title} duration={self.g.libi.duration} stroketuple={self.stroketuple}')
 
  def prepareannotationfile(self):
   duration=0
@@ -46,76 +67,34 @@ python3 ffmpeg_common.py --profile minh --offset 10 "Syntax Highlighting Pyside6
   with open('annotation.jsa','w') as afp:
    afp.write(re.sub(r',$','',afpstr,flags=re.DOTALL)+'\n]\n')
 
- def focusout(self,begintime=0,duration_p=1,backcolor_p='0x004000ff',squareoverlay=True):
-  if squareoverlay:
-   self.g.libi.prune2(self.g.utili.image2gif(self.g.utili.image2gif(None,re.sub(r':d=\d+',':d='+str(duration_p),self.g.libi.filter['013_a']),backcolor=backcolor_p,duration=duration_p),re.sub(r'T/\d+',r'T/'+str(duration_p),self.g.libi.filter['011_s']),backcolor='0xffffffff',duration=duration_p)+'(20,5),'+str(begintime)+'-'+str(begintime+duration_p),stroketuple=self.stroketuple)
-  else:
-   self.g.libi.prune2(self.g.utili.image2gif(None,re.sub(r':d=\d+',':d='+str(duration_p),self.g.libi.filter['013_a']),backcolor=backcolor_p,duration=duration_p)+'(20,5),'+str(begintime)+'-'+str(begintime+duration_p),stroketuple=self.stroketuple)
-#  self.stroketuple.append(self.g.libi.prune2((os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+('minhincfront.png' if re.search('^minh',self.profile,flags=re.I) else 'techawalfront.png' if re.search(r'^tech',self.profile,flags=re.I) else 'missmandovifront.png'))+',(20,5),'+str(begintime)+'-'+str(begintime+duration_p-1)))
-  self.g.libi.prune2(self.g.utili.addalpha(os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+('minhincfront.png' if re.search(r'^minh',self.profile,flags=re.I) else 'techawalfront.png' if re.search(r'^tech',self.profile,flags=re.I) else 'missmandovifront.png'),re.sub(r':d=\d+',':d='+str(duration_p),self.g.libi.filter['013_a']))+',(20,5),'+str(begintime==None and float(self.g.libi.duration)-duration_p or begintime),stroketuple=self.stroketuple)
- def focusin(self,begintime=None,duration_p=4):
-  self.g.libi.prune2(self.g.utili.image2gif(None,re.sub(r':d=\d+',':d='+str(duration_p),self.g.libi.filter['012_a']),backcolor='0xffffffff',duration=duration_p)+',(20,5),'+str(begintime==None and float(self.g.libi.duration)-duration_p or begintime),stroketuple=self.stroketuple)
-  self.g.libi.prune2(self.g.utili.addalpha(os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+('minhincfront.png' if re.search(r'^minh',self.profile,flags=re.I) else 'techawalfront.png' if re.search(r'^tech',self.profile,flags=re.I) else 'missmandovifront.png'),re.sub(r':d=\d+',':d='+str(duration_p),self.g.libi.filter['012_a']))+',(20,5),'+str(begintime==None and float(self.g.libi.duration)-duration_p or begintime),stroketuple=self.stroketuple)
-
  def fixed(self):
+  print(f'><ffmpeg_common.fixed {self.stroketuple=}')
   tempduration=None
-  self.focusout()
-  self.focusin()
+  tduration=0
+  focusout(self)
+  focusin(self)
   self.g.libi.prune2((os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+('minhinctoprightlogo.png' if re.search(r'^minh',self.profile,flags=re.I) else 'techawaltoprightlogo.png' if re.search(r'^tech',self.profile,flags=re.I) else 'missmandovitoprightlogo.png'))+',(20,W-w\,h),'+str(self.offset+2)+'-'+str(self.g.libi.duration-2),stroketuple=self.stroketuple)
-  if not hasattr(self,'noomni'):
-  #omni
-#   tempduration=self.g.libi.getslotstamp(min(int(self.g.libi.duration/1800),2),begintime=self.offset)
-   tempduration=[]
-   self.g.libi.prune2(self.g.utili.omnitext(re.sub(r'\s',r'\\n',self.title),size=max(0.6,1.0-len(re.split(r'\s',self.title))*0.1),duration=6)+',(20,'+str(566)+'),('+','.join(str(x) for x in ([6+self.offset] if self.g.libi.duration>300 else [])+tempduration if x)+')',stroketuple=self.stroketuple)
-   self.g.libi.prune2(os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+'cork.mp3'+',None,('+','.join(str(x+1.0) for x in ([6+self.offset] if self.g.libi.duration>300 else [])+tempduration if x)+')',stroketuple=self.stroketuple)
-   tempduration=self.g.libi.getslotstamp(min(int(self.g.libi.duration/1800),2),begintime=self.offset)
-   for i in tempduration:
-    self.focusin(i-1,1)
-    self.focusout(i,1,backcolor_p='0xffffffff',squareoverlay=False)
-
+  if self.omni:
+   #omni
+#   self.g.libi.prune2(self.g.utili.omnitext(re.sub(r'\s',r'\\n',self.title),size=max(0.6,1.0-len(re.split(r'\s',self.title))*0.1),duration=6)+',(20,'+str(566)+'),('+','.join(str(x) for x in ([6+self.offset] if self.g.libi.duration>300 else [])+tempduration if x)+')',stroketuple=self.stroketuple)
+   self.g.libi.prune2(self.g.utili.omnitext(re.sub(r'\s',r'\\n',self.title),size=max(0.6,1.0-len(re.split(r'\s',self.title))*0.1),duration=6)+',(20,'+str(566)+'),'+str(6+self.offset),stroketuple=self.stroketuple) if self.g.libi.duration>300 else None
+#   self.g.libi.prune2(os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+'cork.mp3'+',None,('+','.join(str(x+1.0) for x in ([6+self.offset] if self.g.libi.duration>300 else [])+tempduration if x)+')',stroketuple=self.stroketuple)
+   self.g.libi.prune2(os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+'cork.mp3'+',None,'+str(1+6+self.offset),stroketuple=self.stroketuple) if self.g.libi.duration>300 else None
    #cracker
-   tempduration=self.g.libi.getslotstamp(min(int(self.g.libi.duration/400),3),begintime=self.offset)
+#   tempduration=self.g.libi.getslotstamp(min(int(self.g.libi.duration/400),3),begintime=self.offset)
+   tempduration=self.g.libi.getslotstamp('cracker',int(self.g.libi.duration/400),3)
    self.g.libi.prune2(self.g.utili.image2gif(os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+'contact.gif',filtername=re.sub(r'T/\d+',r'T/24',self.g.libi.filter['09']),duration=10)+'(20,\(W-1.05*w\)\,h*1.5),('+','.join(str(x)+'-'+str(x+12) for x in tempduration)+')',stroketuple=self.stroketuple)
    self.g.libi.prune2("("+os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+"cracker.gif,"+os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+"cracker.mp3,0.1),(20,\(W-w*1.16\)\,h*0.39),("+','.join(str(x) for x in tempduration if x)+')',stroketuple=self.stroketuple)
  
-  #title
-   self.g.libi.prune2(self.title+',(22,8),('+','.join(str(x)+'-'+str(x+8) for x in self.g.libi.getslotstamp(int(self.g.libi.duration/180),begintime=0) if x)+')',stroketuple=self.stroketuple)
+   #title
+#   self.g.libi.prune2(self.title+',(22,8),('+','.join(str(x)+'-'+str(x+8) for x in self.g.libi.getslotstamp(int(self.g.libi.duration/180),begintime=0) if x)+')',stroketuple=self.stroketuple)
+   self.g.libi.prune2(self.title+',(22,8),('+','.join(str(x)+'-'+str(x+8) for x in self.g.libi.getslotstamp('title',int(self.g.libi.duration/180)) if x)+')',stroketuple=self.stroketuple)
 
 
- def prune(self):
-  tmp=None
-  self.stroketuple=[x for x in self.stroketuple if x[-1] or x[-1]==0]
-  print(f'><ffmpeg_common.prune self.stroketuple={self.stroketuple}')
-  for x in self.stroketuple[:]:
-   '''#timeduration is no more tuple i.e 00:00:30-00:01:03
-   if len(x)>2 and type(x[-1])==tuple:
-    self.stroketuple[self.stroketuple.index(x):self.stroketuple.index(x)+1]=[tuple(list(x[:-1])+[y]) for y in x[-1]]
-   '''
-  for count,x in enumerate(self.stroketuple[:]):
-   print(f'ffmpeg_common.prune {count=} {x=}')
-   if len(x)>2 and type(x[1])==tuple:
-    tmp=list(x[1])
-    if type(x[0])==tuple:
-     if re.search('-',x[-1]):
-      tmp[0]=re.sub(r'^(?P<id>.*?)(?P<id2>_.*)$',lambda m:m.group('id')+'3'+m.group('id2'),x[1][0]) if re.search(r'_',x[1][0]) else x[1][0]+'3'
-     else:
-      tmp[0]=re.sub(r'^(?P<id>.*?)(?P<id2>_.*)$',lambda m:m.group('id')+'2'+m.group('id2'),x[1][0]) if re.search(r'_',x[1][0]) else x[1][0]+'2'
-    else:
-     if re.search('-',x[-1]):
-      tmp[0]=re.sub(r'^(?P<id>.*?)(?P<id2>_.*)$',lambda m:m.group('id')+'1'+m.group('id2'),x[1][0]) if re.search(r'_',x[1][0]) else x[1][0]+'1'
-     else:
-      tmp[0]=re.sub(r'^(?P<id>.*?)(?P<id2>_.*)$',lambda m:m.group('id')+'0'+m.group('id2'),x[1][0]) if re.search(r'_',x[1][0]) else x[1][0]+'0'
-    x=list(x)
-    x[1]=tuple(tmp)
-    self.stroketuple[count]=tuple(x)
 fc=ffmpeg_common()
 fc.prepareannotationfile()
 fc.fixed()
-#fc.prune()
-#fc.prune2()
 print(f'######stroke tuple##### stroketuple={fc.stroketuple}')
 outputfile=re.sub(r'\s+','_',re.sub(r'[.]mp4','{0:%Y-%m-%d}'.format(datetime.datetime.now())+'.mp4',fc.title+'_'+re.sub(r'.*/?(.*)[.]py$',r'\1',sys.argv[0])+'_'+fc.profile+'_'+'.mp4',re.I))
-#fc.g.stroke2(*[x for x in fc.stroketuple if x[-1] or x[-1]==0],outputfile=outputfile)# final mp4 creation 
 fc.g.stroke2(*fc.stroketuple,outputfile=outputfile)# final mp4 creation 
-#fc.g.libi.system('python3 ffmpeg_screenshot.py '+fc.g.libi.adddestdir(outputfile)+' ><'+str(fc.offset))
 print(f'###################\n##############\n######  outputfile={outputfile}  ########\n################\n##############')

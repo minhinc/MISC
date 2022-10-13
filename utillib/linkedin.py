@@ -37,14 +37,15 @@ class linkedin(seleniumrequest,databaserequest,machinelearningrequest):
   fetchstr_l=[]
   href=''
   if len(url)==3 and type(url[2])==int:
-   #super(linkedin,self).getlink('https://www.linkedin.com/jobs/search/?keywords='+('C%2B%2B' if url[0]=='cpp' else url[0])+'&location='+re.sub(r'\s','%20',url[1])+'&locationId='+self.getcode(url[1])+'%3A0&start=0','linkedin')
    for i in range(url[2]):
-#    super(linkedin,self).getlink('https://www.linkedin.com/jobs/search/?keywords='+('C%2B%2B' if url[0]=='cpp' else 'python' if url[0]=='py' else 'kivy' if url[0]=='kv' else url[0])+'&location='+re.sub(r'\s','%20',url[1])+'&locationId='+self.getcode(self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open('data/country.txt').read(),flags=re.M),muteprint=True)[0])+'%3A0&start='+str(i*25),'linkedin')
-    super(linkedin,self).getlink('https://www.linkedin.com/jobs/search/?keywords='+('C%2B%2B' if url[0]=='cpp' else 'python' if url[0]=='py' else 'kivy' if url[0]=='kv' else url[0])+'&location='+re.sub(r'\s','%20',self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open(r'data/country.txt').read(),flags=re.M),muteprint=True)[0])+'&locationId='+self.getcode(self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open(r'data/country.txt').read(),flags=re.M),muteprint=True)[0])+'%3A0&start='+str(i*25),'linkedin')
+    super(linkedin,self).getlink('https://www.linkedin.com/jobs/search/?keywords='+('C%2B%2B' if url[0]=='cpp' else 'python' if url[0]=='py' else 'kivy' if url[0]=='kv' else 'Machine%20Learning' if url[0]=='ml' else url[0])+'&location='+re.sub(r'\s','%20',self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open(r'data/country.txt').read(),flags=re.M),muteprint=True)[0])+'&locationId='+self.getcode(self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open(r'data/country.txt').read(),flags=re.M),muteprint=True)[0])+'%3A0&start='+str(i*25),'linkedin')
     print(f'fetching page count {i+1} {i*25} -> {(i+1)*25}')
-#    [self.webdriverdict['linkedin'].execute_script('arguments[0].scrollTop = arguments[0].scrollHeight*'+str(float(i/25)), self.webdriverdict['linkedin'].find_element_by_xpath("//div[@class='jobs-search-results display-flex flex-column']")) for i in range(1,26) if not time.sleep(0.25)]
     [self.webdriverdict['linkedin'].execute_script('arguments[0].scrollTop = arguments[0].scrollHeight*'+str(float(i/25)), self.webdriverdict['linkedin'].find_element_by_css_selector("div.jobs-search-results-list")) for i in range(1,26) if not time.sleep(0.25)]
-    for count,i in enumerate(self.webdriverdict['linkedin'].find_elements_by_xpath("//a[@data-control-name='job_card_company_link']")):
+    '''
+    with open('test.html','w') as f:
+     f.write(self.webdriverdict['linkedin'].page_source)
+    '''
+    for count,i in enumerate(self.webdriverdict['linkedin'].find_elements_by_xpath("//a[@class='job-card-container__link job-card-container__company-name ember-view']")):
      companyname=self.pruneline(i.text)+self.DELIMITER+url[0]+self.DELIMITER+url[1] if i.text and not re.search(r'^\s+$',i.text) else ''
      try:
       href=i.get_attribute('href')
