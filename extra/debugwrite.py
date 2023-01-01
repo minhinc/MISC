@@ -2,6 +2,12 @@ import builtins
 import os,re
 import configparser
 #write to config file 'minh.ini' as
+'''
+######## minh.ini ########
+[debug]
+ level=0
+#######
+'''
 config=configparser.ConfigParser()
 if not os.path.exists(os.path.expanduser('~')+r'/minh.ini'):
  config.add_section('debug');config['debug']['level']='1'

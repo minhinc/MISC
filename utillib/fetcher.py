@@ -38,7 +38,8 @@ class fetcher(seleniumrequest,databaserequest,machinelearningrequest):
   self.threadcondition.acquire()
   self.linkupdatebulk(list([self.googlelink(re.split(self.DELIMITER,i[0])[0])])+i[1:])
   email.extend(set(self.linkedinemail))
-  email=[x for x in self.getmatching(re.split(self.DELIMITER,i[0])[0],*email,email=True,percent=self.EXPIREDAY) if not self.db.search2('track','email','=',x,mode='search')] if len(email) else []
+#  email=[x for x in self.getmatching(re.split(self.DELIMITER,i[0])[0],*email,email=True,percent=self.EXPIREDAY) if not self.db.search2('track','email','=',x,mode='search')] if len(email) else []
+  email=[x for x in self.getmatching(re.split(self.DELIMITER,i[0])[0],*email,email=True,percent=60) if not self.db.search2('track','email','=',x,mode='search')] if len(email) else []
   file.write(' '.join(re.split(self.DELIMITER,i[0]))+' '+' '.join(email[:4])+' #'+' '.join(email[4:])+'\n')
   file.flush()
   print(f'fetcher.get <>{email[:4]}')

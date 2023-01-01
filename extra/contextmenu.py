@@ -1,6 +1,7 @@
 import kivy;kivy.require('2.1.0')
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
+from debugwrite import print
 
 class ContextMenu(DropDown):
  BUTTONWIDTHHEIGHT=(150,40)
@@ -38,13 +39,14 @@ class ContextMenu(DropDown):
    i.height=0
    i.opacity=0
    i.disabled=True
-   print(f'<=>push {i.text=}')
+   print(f'<=>push {i.text}')
 
  def open(self,pos,*arg):
   if arg:
    self.push(*arg)
   print(f'><ContextMenu.open self={self} pos={pos}')
-  self.button.pos=tuple([x-self.button.parent.pos[count] for count,x in enumerate(pos)])
+#  self.button.pos=tuple([x-self.button.parent.pos[count] for count,x in enumerate(pos)])
+  self.button.pos=pos
   if not self.parent==None:
    self.dismiss()
   else:

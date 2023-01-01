@@ -23,9 +23,9 @@ class YouTubeError(Exception):
 class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
  def __init__(self):
   super(sendmail,self).__init__(True,'linkedin')
-  self.emailcount=1
 #  self.MAXEMAIL=3
   self.MAXEMAIL=2
+  self.emailcount=int(open(r'logdir/emailcount.txt','r').read() if os.path.exists(r'logdir/emailcount.txt') else 1)%self.MAXEMAIL+1
   self.smtp=smtplib.SMTP_SSL("smtp.gmail.com",465)
   time.sleep(2)
   self.smtp.ehlo()
@@ -71,7 +71,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
    requestm.syncyoutube(*[x[0] for x in sendmail.message.youtubehreftext])
    setattr(sendmail.message,'youtubetech',dict())
    setattr(sendmail.message,'techyoutubelist',dict())
-   setattr(sendmail.message,'subject',re.split('\n',self.db.search2('tech','content','name','=','all',mode='get')[0][0]))
+   setattr(sendmail.message,'subject',re.split(r'(?:\n|\\n)',self.db.search2('tech','content','name','=','all',mode='get')[0][0]))
 #  emailcontent=re.sub(r'\\n','\n',open(r'data/marketingemailtext.txt').read())
   emailcontent=open(r'data/marketingemailtext.txt').read()
   tech=self.db.search2('tech','name','id','=',self.db.search2('track','tech_id','email','=',strTo,mode='get')[0][0],mode='get')[0][0] if tech==None else tech
@@ -113,12 +113,14 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
  def get(self,*url):
   """\
   get()\
+  get(10)#ten emails only\
   get('abc@one.com','123@two.com')\
   """
   print(f'{"################## sendmail.get ##################":^100}\n{url=!r:^100}')
   li=None
   if not (len(url)==3 and type(url[2])==int): # sending email when calling this module individually get(('comp pvt. ltd','qt','canada','pravinkumarsinha@gmail.com','tominhinc@gmail.com'),('ding dong pvt. ltd','cpp','india','tominhinc@gmail.com'))
-   emaillist=[x[0] for x in self.db.search2('track','*','expire','<',re.sub('-','',(datetime.date.today()-datetime.timedelta(days=50)).isoformat()),'status','<',2,mode='get') if url and x[0] in url or not url]
+   emaillist=[x[0] for count,x in enumerate(self.db.search2('track','*','expire','<',re.sub('-','',(datetime.date.today()-datetime.timedelta(days=50)).isoformat()),'status','<',2,mode='get')) if len(url)==1 and type(url[0])==int and count<url[0] or url and x[0] in url or not url]
+   print(f'<=>sendmail.get {emaillist=}')
    for count,i in enumerate(emaillist[:]):
     try:
      self.smtp.sendmail('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i,self.message('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i,self.db.search2('tech','name','id','=',self.db.search2('track','tech_id','email','=',i,mode='get')[0][0],mode='get')[0][0]).as_string())
@@ -153,9 +155,12 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
    print(f'******  ALL EMAIL SENT  *******\n{url=!r:^100}\n***************************')
    if not os.path.isdir('logdir'):
     os.mkdir('logdir')
-   os.system(r'python3 ../gc/seed.py print track > t.txt')
-   os.system(r'python3 ../gc/seed.py print company >> t.txt')
-   os.system(r'mv t.txt logdir/'+re.sub(r':','-',datetime.datetime.now().isoformat())+'.txt')
-   toretain=sorted([re.sub(r'-','',re.sub(r'(.*?)T.*$',r'\1',x)) for x in os.listdir('logdir')],key=lambda x:int(x))[-10:]
-   [os.remove(r'logdir/'+x) for x in os.listdir('logdir') if not re.sub(r'-','',re.sub(r'(.*?)T.*$',r'\1',x)) in toretain]
+   os.system(r'python3 ../gc/seed.py print > dbbackup.txt')
+   os.system(r'rm dbbackup.7z')
+   os.system(r'7z a dbbackup.7z dbbackup.txt')
+   os.system(r'~/tmp/ftp.sh mput misc dbbackup.7z')
+   os.system(r'mv dbbackup.txt logdir/'+re.sub(r':','-',datetime.datetime.now().isoformat())+'.txt')
+   toretain=sorted([re.sub(r'-','',re.sub(r'(.*?)T.*$',r'\1',x)) for x in os.listdir('logdir') if re.search(r'\d+[.]txt$',x)],key=lambda x:int(x))[-10:]
+   [os.remove(r'logdir/'+x) for x in os.listdir('logdir') if re.search(r'\d+[.]txt$',x) and not re.sub(r'-','',re.sub(r'(.*?)T.*$',r'\1',x)) in toretain]
+   open(r'logdir/emailcount.txt','w').write(str(self.emailcount))
    self.close(logout=False)

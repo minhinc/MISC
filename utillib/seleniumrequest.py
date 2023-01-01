@@ -104,9 +104,13 @@ class seleniumrequest:
    print(f'seleniumrequest youtubevideolink wait {i=}')
    self.webdriverdict['linkedin'].execute_script("window.scrollBy(0,2500)")
    time.sleep(2)
-  links=self.webdriverdict[drivername].find_elements_by_xpath('//*[@id="video-title"]')
-  for count,link in enumerate(links):
-   print(str(count)+'  '+link.get_attribute("href")+'  '+link.get_attribute("title"))
+#  links=self.webdriverdict[drivername].find_elements_by_xpath('//*[@id="video-title"]')
+  links=self.webdriverdict[drivername].find_elements_by_xpath('//*[@id="video-title-link"]')
+  for count,link in enumerate(links[:]):
+   try:
+    print(str(count)+'  '+link.get_attribute("href")+'  '+link.get_attribute("title"))
+   except:
+    links.remove(link)
   return [(link.get_attribute("href"),link.get_attribute("title")) for link in links]
 
  def htmltotext(self,html):

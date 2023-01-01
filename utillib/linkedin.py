@@ -38,7 +38,7 @@ class linkedin(seleniumrequest,databaserequest,machinelearningrequest):
   href=''
   if len(url)==3 and type(url[2])==int:
    for i in range(url[2]):
-    super(linkedin,self).getlink('https://www.linkedin.com/jobs/search/?keywords='+('C%2B%2B' if url[0]=='cpp' else 'python' if url[0]=='py' else 'kivy' if url[0]=='kv' else 'Machine%20Learning' if url[0]=='ml' else url[0])+'&location='+re.sub(r'\s','%20',self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open(r'data/country.txt').read(),flags=re.M),muteprint=True)[0])+'&locationId='+self.getcode(self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open(r'data/country.txt').read(),flags=re.M),muteprint=True)[0])+'%3A0&start='+str(i*25),'linkedin')
+    super(linkedin,self).getlink('https://www.linkedin.com/jobs/search/?keywords='+('C%2B%2B' if url[0]=='cpp' else 'python' if url[0]=='py' else 'opengl' if url[0]=='gl' else 'kivy' if url[0]=='kv' else 'Machine%20Learning' if url[0]=='ml' else url[0])+'&location='+re.sub(r'\s','%20',self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open(r'data/country.txt').read(),flags=re.M),muteprint=True)[0])+'&locationId='+self.getcode(self.getmatching(url[1],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open(r'data/country.txt').read(),flags=re.M),muteprint=True)[0])+'%3A0&start='+str(i*25),'linkedin')
     print(f'fetching page count {i+1} {i*25} -> {(i+1)*25}')
     [self.webdriverdict['linkedin'].execute_script('arguments[0].scrollTop = arguments[0].scrollHeight*'+str(float(i/25)), self.webdriverdict['linkedin'].find_element_by_css_selector("div.jobs-search-results-list")) for i in range(1,26) if not time.sleep(0.25)]
     '''
@@ -56,5 +56,8 @@ class linkedin(seleniumrequest,databaserequest,machinelearningrequest):
      if companyname:
       companyhref[companyname+':'+href]=None
      fetchstr_l[-1].pop() if fetchstr_l and not fetchstr_l[-1][-1] else None
+    print(f'<=>linkedin {count=}')
+    if count==0:
+     break
   print(f'{len(fetchstr_l)=}')
   return [list(tup1) for tup1 in {tuple(item) for item in fetchstr_l }]

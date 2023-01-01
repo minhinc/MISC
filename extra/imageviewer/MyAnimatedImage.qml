@@ -36,14 +36,22 @@ AnimatedImage {
   }
  }
  Keys.onPressed : function(event) {
+  var activefocusfound=false;
   if ((event.modifiers & Qt.ControlModifier) && (event.modifiers & Qt.AltModifier))
-  fillMode=(fillMode==Image.PreserveAspectFit?Image.Pad:Image.PreserveAspectFit)
+   fillMode=(fillMode==Image.PreserveAspectFit?Image.Pad:Image.PreserveAspectFit)
+  else if (event.key==Qt.Key_Tab) {
+   for (var i=0;i<persistent.length;i++)
+    if ((persistent[i][0]==fileindex || persistent[i][1]==true) && persistent[i][2].activeFocus==true)
+     activefocusfound=true
+   if (activefocusfound==false)
+    persistent[0][2].forceActiveFocus();
+  }
  }
  Label {
  id:labelid
- anchors {top:parent.top;right:parent.right;rightMargin:parent.width/40;topMargin:parent.width/40}
+ anchors {top:parent.top;right:parent.right;rightMargin:parent.width/60;topMargin:parent.width/60}
  color:"#aaaaaa"
- font.pixelSize:parent.width/40
+ font.pixelSize:parent.width/80
  text:re.sub('^.*/','',String(parent.files[parent.fileindex]))
   MouseArea {
   anchors.fill:parent
@@ -122,7 +130,7 @@ AnimatedImage {
  id:fileioid
  }
  function tabchanged(selfcompp) {
-  console.log('tabchanged',persistent)
+//  console.log('tabchanged',persistent)
   for (var i=0;i<persistent.length;i++) {
    if (selfcompp==persistent[i][2]) {
     if (persistent[(i+1)%persistent.length][0]!=fileindex && persistent[(i+1)%persistent.length][1]==false) {
