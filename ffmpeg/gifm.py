@@ -94,7 +94,8 @@ class gifc:
    audiostring+='[vout'+str(i)+'][aout'+str(i)+']'
   audiostring+='concat=n='+str(audiocount)+':v=1:a=1[vout][aout]' if audiocount else ''
   print(f'<=>gifc.stroke2 {audiostring=}')
-  self.libi.system(self.beginstring+" -filter_complex \""+re.sub(r';$','',self.returnstring+audiostring)+"\""+self.libi.vformat('mp4')+" -map \"[vout]\" -ac 2 -map \"[aout]\" -vsync 2 -y "+self.libi.adddestdir("output.mp4" if not outputfile else outputfile))
+#  self.libi.system(self.beginstring+" -filter_complex \""+re.sub(r';$','',self.returnstring+audiostring)+"\""+self.libi.vformat('mp4')+" -map \"[vout]\" -ac 2 -map \"[aout]\" -vsync 2 -y "+self.libi.adddestdir("output.mp4" if not outputfile else outputfile))
+  self.libi.system(self.beginstring+" -filter_complex \""+re.sub(r';$','',self.returnstring+audiostring)+"\""+self.libi.vformat('mp4')+" -map \"[vout]\" -map \"[aout]\" -vsync 2 -y "+self.libi.adddestdir("output.mp4" if not outputfile else outputfile))
 
  def push2socialmedia(self,socialmedia,jsondata=None):
   '''send data to socialmedia

@@ -1,6 +1,6 @@
 if [[ $# -eq 0 ]]; then
 echo "--usage--"
-echo "./arg.sh <[m|d]> <[agenda|php|pdf]> <[qt|c|cpp|gl|li|ldd|dp|[Aa]ll> <[comment]>"
+echo "./arg.sh <[qt|c|cpp|gl|li|ldd|dp|[Aa]ll> <[companyname]>"
 exit
 fi
 
@@ -24,40 +24,57 @@ alltech[ldd]=ldd[@]
 dp=("1 2 3 4:L" "5:L" "6:L" "7:L")
 alltech[dp]=dp[@]
 
-backend=''
-if [ -z "$4" ]; then
-under=''
-else
-under=$4
-fi
+#backend=''
+#if [ -z "$4" ]; then
+#under=''
+#else
+#under=$4
+#fi
 
-if [ $1 == 'm' ]; then
- echo $'---- Mobile backend ----'
- backend='_m'
-else
- echo $'---- Desktop backend ----'
-fi
+#if [ $1 == 'm' ]; then
+# echo $'---- Mobile backend ----'
+# backend='_m'
+#else
+# echo $'---- Desktop backend ----'
+#fi
 
 for i in "${!alltech[@]}"; do
- if [ $3 == ${i} ] || echo ${3}|egrep '^[Aa]ll'; then
+ if [ $1 == ${i} ] || echo ${1}|egrep '^[Aa]ll'; then
   value=${alltech[$i]}
-  python3 agenda.py $1 $2 $i "$under" "${!value}"
-  if [ $2 == "php" ]; then
-   read -p "Press (y/n) to send advance-${i}-slides${backend}.txt to the server ... " yorno
-   if [ $yorno == "y" ]; then
-#    ~/tmp/ftp.sh put training/${i} advance-${i}-slides${backend}.txt
-    argstr="advance-${i}-slides${backend}.txt"
+#  python3 agenda.py $1 $2 $i "$under" "${!value}"
+  if [ ! -z "$2" ]; then
+   echo "---> python3 agenda.py --tech $1 --company $2 ${!value}"
+   python3 agenda.py --tech $1 --company $2 "${!value}"
+  else
+   echo "---> python3 agenda.py --tech $1 ${!value}"
+   python3 agenda.py --tech $1 "${!value}"
+   python3 agenda.py --browser firefox --tech $1 "${!value}"
+  fi
+#  if [ $2 == "php" ]; then
+#   read -p "Press (y/n) to send advance-${i}-slides${backend}.txt to the server ... " yorno
+#   if [ $yorno == "y" ]; then
+##    ~/tmp/ftp.sh put training/${i} advance-${i}-slides${backend}.txt
+#    argstr="advance-${i}-slides${backend}.txt"
+    count=0
     for ii in "${!value}"; do
      ii=`echo ${ii}|sed 's/:/ /g'`
      for j in $ii; do
       if [ "$j" -eq "$j" ] 2>/dev/null; then
-       argstr="${argstr} advance-${i}-slides-chap${j}${backend}.txt"
+#       argstr="${argstr} advance-${i}-slides-chap${j}${backend}.txt"
+       if [[ $count -eq 0 ]]; then
+        argstr="${argstr} advance-${i}-slides.txt"
+       else
+        argstr="${argstr} advance-${i}-slides-chap${j}.txt"
+       fi
       fi
-    done
+      count=$((count+1))
+     done
     done
     echo $argstr
-    ~/tmp/ftp.sh mput training/${i} $argstr
-   fi
-  fi
+    cd logdir
+    ~/tmp/ftp.sh mput training/${i} $argstr `echo ${argstr}|sed 's/\(.txt\)/_m\1/g'` `echo ${argstr}|sed 's/\(.txt\)/_f\1/g'`
+#    ~/tmp/ftp.sh mput training/${i} `echo ${argstr}|sed 's/\(.txt\)/_m\1/g'`
+#   fi
+#  fi
  fi
 done

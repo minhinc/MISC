@@ -18,7 +18,7 @@ class HTMLFilter(HTMLParser):
   self.text += data
 
 class seleniumrequest:
- delay=5
+ delay=10
  webdriverdict={}
  htmlparser = HTMLFilter()
  def __init__(self,display=True,*drivers):

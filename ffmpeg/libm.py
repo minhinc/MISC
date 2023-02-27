@@ -7,7 +7,7 @@ import subprocess
 from decimal import Decimal
 import copy
 import configparser
-#from MISC.extra.debugwrite import print
+from MISC.extra.debugwrite import print
 class libc:
  '''library class to provide basic functions'''
  counti=-1
@@ -141,7 +141,9 @@ class libc:
   '''---------
     inputfile - [<videowidth>[-:x,]<videoheight>] or videofilename'''
   print(f'><libc.setvideo {inputfile=}')
-  if re.search(r'^\s*[\d]+\s*[-:x,]\s*[\d]+\s*$',inputfile):
+  if type(inputfile)==tuple:
+   self.videowidth,self.videoheight=tuple([int(x) for x in inputfile])
+  elif re.search(r'^\s*[\d]+\s*[-:x,]\s*[\d]+\s*$',inputfile):
    self.videowidth,self.videoheight=[int(x) for x in re.split('[-:,x]',inputfile)]
   else:
 #   self.videowidth,self.videoheight=([int(x) for x in os.popen('ffmpeg -i '+inputfile+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]) if inputfile else (None,None)
@@ -157,7 +159,7 @@ class libc:
 #  videodata=os.popen('ffprobe -i '+videofile_p+' 2>&1').read()
   videodata=self.system('ffprobe -i '+videofile_p+' 2>&1',popen=True)
 #  self.debug(f'><libc.videoattribute videofile_p={videofile_p} (videowidth,videoheight)={(videowidth,videoheight)} fps={fps} samplerate={samplerate} channel={channel}')
-  if re.search(r'[.]mp4$',videofile_p,flags=re.I):
+  if re.search(r'[.](mp4|mkv)$',videofile_p,flags=re.I):
    return (tuple(re.sub(r'.*,\s*?(\d+x\d+)\s*.*',r'\1',videodata,flags=re.I|re.DOTALL).split('x')),re.sub(r'.*?(\d+)\s*fps\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*?(\d+)\s*Hz\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*\d+\s*Hz\s*,\s*([^ ]*)\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL),re.sub(r'.*Duration\s*:\s+(\S+),.*',r'\1',videodata,flags=re.I|re.DOTALL))
   elif re.search(r'[.]mov$',videofile_p,flags=re.I):
    return (tuple(re.sub(r'.*,\s*?(\d+x\d+)\s*.*',r'\1',videodata,flags=re.I|re.DOTALL).split('x')),re.sub(r'.*?(\d+)\s*fps\s*,.*',r'\1',videodata,flags=re.I|re.DOTALL))
@@ -181,7 +183,7 @@ class libc:
 
  def dimension(self,file_p):
 #  print(f'><libc.dimension {file_p=}')
-  if re.search(r'[.](mp4|mov|webm)$',file_p,flags=re.I):
+  if re.search(r'[.](mp4|mov|webm|mkv)$',file_p,flags=re.I):
 #   return [int(x) for x in os.popen('ffmpeg -i "+self.inputfile+" 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
    retval= tuple([str(int(x)) for x in os.popen('ffmpeg -i '+file_p+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')])
 #   print(f'libc.dimension {retval=} {file_p=}')
@@ -529,7 +531,7 @@ command executed shell('/bin/bash') output if popen=True else None'''
 #   print(f'<>libc.tuple2funccal parameter={a} b={b}')
    return a
 
- def str2tuple(self,a):
+ def str2tuple(self,a,resultformat='tuple'):
 #  print(f'><libc.str2tuple a={a}')
   aa=[] #result string
   dd=[] #list of '(' indexes
@@ -540,12 +542,13 @@ command executed shell('/bin/bash') output if popen=True else None'''
    elif i==r')' and a[count-1]!='\\':
     if len(dd)==1:
      aa.extend([re.sub(r'\\([(,)])',r'\1',x) for x in re.split(r'(?<!\\),',a[ii:dd[0]]) if x])
-     aa.extend(self.str2tuple(a[dd[0]+1:count])) if dd[0]==0 and count==(len(a)-1) else aa.append(self.str2tuple(a[dd[0]+1:count]))
+     aa.extend(self.str2tuple(a[dd[0]+1:count],resultformat)) if dd[0]==0 and count==(len(a)-1) else aa.append(self.str2tuple(a[dd[0]+1:count],resultformat))
      ii=count+1
     dd.pop()
   aa.extend([re.sub(r'\\([(,)])',r'\1',x) for x in re.split(r'(?<!\\),',a[ii:len(a)]) if x])
 #  print(f'<>libc.str2tuple ii={ii} aa={aa} a[ii:len(a)]={a[ii:len(a)]}')
-  return tuple(aa)
+  return tuple(aa) if resultformat=='tuple' else aa
+
  def getvideo(self,i):
 #  print(f'><libc.getvideo i={i}')
 #  return len(i)==2 and type(i[0])==tuple and type(i[0][0])==str and re.search('video',self.exiftool(re.sub(r'^=','',i[0][0]),'MIME Type'),flags=re.I) and i[0][0] or len(i)==1 and type(i[0])==tuple and i[0][0] or len(i)==1 and type(i[0])==str and i[0]

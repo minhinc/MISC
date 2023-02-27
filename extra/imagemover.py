@@ -19,7 +19,7 @@ kvstring='''
   size:self.texture_size
   font_size:'18sp'
   pos:[root.width*0.9-self.width,root.height-2*self.height]
-  text:'[color=#444444]'+(root.source[root.source.rindex(r'/')+1:] if root.source and root.source.count(r'/') else root.source if root.source else '')+'[/color]'
+  text:'[color=#666666]'+(root.source[root.source.rindex(r'/')+1:] if root.source and root.source.count(r'/') else root.source if root.source else '')+'[/color]'
   markup:True
 '''
 Builder.load_string(kvstring)

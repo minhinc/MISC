@@ -11,6 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email import encoders
 import smtplib
+import subprocess,shlex
 
 from seleniumrequest import seleniumrequest
 from databaserequest import databaserequest
@@ -21,11 +22,15 @@ class YouTubeError(Exception):
  pass
 
 class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
- def __init__(self):
+ def __init__(self,subprocess=False):
   super(sendmail,self).__init__(True,'linkedin')
-#  self.MAXEMAIL=3
-  self.MAXEMAIL=2
-  self.emailcount=int(open(r'logdir/emailcount.txt','r').read() if os.path.exists(r'logdir/emailcount.txt') else 1)%self.MAXEMAIL+1
+  self.MAXEMAIL=3
+  self.emailcount=int(re.sub(r'^.*(\d+)$',r'\1',open(r'logdir/emailcount.txt','r').read()) if os.path.exists(r'logdir/emailcount.txt') else 1)%self.MAXEMAIL+1 
+  if not subprocess:
+#   os.remove(r'logdir/seleniumdump.html') if os.path.exists(r'logdir/seleniumdump.html') else None
+   open(r'logdir/emailcount.txt','w').write(str(self.emailcount))
+  else:
+   open(r'logdir/emailcount.txt','a').write(f' {self.emailcount}')
   self.smtp=smtplib.SMTP_SSL("smtp.gmail.com",465)
   time.sleep(2)
   self.smtp.ehlo()
@@ -41,7 +46,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
      print(f'logging in to tominhinc{self.emailcount}@gmail.com ..')
      time.sleep(5)
 #     self.smtp.login('tominhinc'+str(self.emailcount)+'@gmail.com','pinku76minh')
-     self.smtp.login('tominhinc'+str(self.emailcount)+'@gmail.com',('nsbxmdsztbkydatl','roegsxqewlrydfao')[self.emailcount-1])
+     self.smtp.login('tominhinc'+str(self.emailcount)+'@gmail.com',('nsbxmdsztbkydatl','roegsxqewlrydfao','qwawwvdkiaxsacib')[self.emailcount-1])
     except:
      print(f'login error - tominhinc{self.emailcount}@gmail.com')
      self.smtp.close()
@@ -67,7 +72,9 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
   if not hasattr(sendmail.message,'youtubehreftext'):
    if not os.path.exists(r'data/marketingemailtext.txt'):
     open(r'data/marketingemailtext.txt','w').write(requestm.get(r'https://witheveryone.angelfire.com/marketingemailtext.txt',get=True))
-   setattr(sendmail.message,'youtubehreftext',self.youtubevideolink())
+#   setattr(sendmail.message,'youtubehreftext',self.youtubevideolink(r'file://'+os.path.abspath('.')+r'/logdir/seleniumdump.html' if os.path.exists(r'logdir/seleniumdump.html') else r'https://youtube.com/@minhinc/videos'))
+   setattr(sendmail.message,'youtubehreftext',self.youtubevideolink(r'https://youtube.com/@minhinc/videos'))
+#   open(r'logdir/seleniumdump.html','w').write(self.webdriverdict['linkedin'].page_source) if not os.path.exists(r'logdir/seleniumdump.html') else None
    requestm.syncyoutube(*[x[0] for x in sendmail.message.youtubehreftext])
    setattr(sendmail.message,'youtubetech',dict())
    setattr(sendmail.message,'techyoutubelist',dict())
@@ -117,7 +124,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
   get('abc@one.com','123@two.com')\
   """
   print(f'{"################## sendmail.get ##################":^100}\n{url=!r:^100}')
-  li=None
+  lc=0
   if not (len(url)==3 and type(url[2])==int): # sending email when calling this module individually get(('comp pvt. ltd','qt','canada','pravinkumarsinha@gmail.com','tominhinc@gmail.com'),('ding dong pvt. ltd','cpp','india','tominhinc@gmail.com'))
    emaillist=[x[0] for count,x in enumerate(self.db.search2('track','*','expire','<',re.sub('-','',(datetime.date.today()-datetime.timedelta(days=50)).isoformat()),'status','<',2,mode='get')) if len(url)==1 and type(url[0])==int and count<url[0] or url and x[0] in url or not url]
    print(f'<=>sendmail.get {emaillist=}')
@@ -126,7 +133,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
      self.smtp.sendmail('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i,self.message('Minh Inc <tominhinc'+str(self.emailcount)+'@gmail.com>',i,self.db.search2('tech','name','id','=',self.db.search2('track','tech_id','email','=',i,mode='get')[0][0],mode='get')[0][0]).as_string())
 #     print(f"try block tech {self.db.search2('tech','name','id','=',self.db.search2('track','tech_id','email','=',i,mode='get')[0][0],mode='get')[0][0]}")
     except Exception as e:
-     print(f'<=>sendmail.get exception {type(e)=} tech={self.db.search2("tech","name","id","=",self.db.search2("track","tech_id","email","=",i,mode="get")[0][0],mode="get")[0][0]} {i} -> minhinc{self.emailcount}@gmail.com')
+     print(f'<=>sendmail.get exception {e=} {type(e)=} tech={self.db.search2("tech","name","id","=",self.db.search2("track","tech_id","email","=",i,mode="get")[0][0],mode="get")[0][0]} {i} -> minhinc{self.emailcount}@gmail.com')
      if type(e)==YouTubeError:
       pass
      else:
@@ -135,32 +142,33 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
        self.db.delete('track','email',i)
       else:
        self.smtp.close()
-       self.emailcount+=1
-       if not self.connect():
-        break
+       self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count]],mode='updatebulk')
+#       if not self.emailcount==self.MAXEMAIL:
+       if not len(re.findall(r'\d+',open(r'logdir/emailcount.txt').read()))==self.MAXEMAIL:
+        subprocess.call(shlex.split(r'python3 -c "import os,sys;sys.path.append(os.path.expanduser(\"~\")+r\"/tmp/\");import MISC.utillib.sendmail as sendmail;s=sendmail.sendmail(subprocess=True);s.get()"'))
+       break
     else:
      print(f"{count+1}/{len(emaillist)} email sent ({self.emailcount}) {i}")
-     if not li:
-      li=i
      if not (count+1)%10:
-      print(f'database updating... mid {count=} {li=} {i=} {emaillist.index(li)=} {emaillist.index(i)=}')
-      self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[emaillist.index(li):emaillist.index(i)]],mode='updatebulk')
-      li=i
+      print(f'database updating... {lc} -> {count}')
+      self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count+1]],mode='updatebulk')
+      lc=count+1
+     elif count==len(emaillist)-1:
+      print(f'--- ALL MAIL SENT({len(emaillist)}) ---')
+      self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count+1]],mode='updatebulk')
 #     self.db.search2('track','expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',i[0],mode='update')
    self.smtp.close()
-   print(f'database updating... roughly {li=} {i=} {emaillist.index(li)=} {emaillist.index(i)=}')
-#   self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in (emaillist[0:emaillist.index(i)+1] if i in emaillist else emaillist)],mode='updatebulk')
-   self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[emaillist.index(li):emaillist.index(i)+1]],mode='updatebulk') if li else None
    print(f'database updated')
    print(f'******  ALL EMAIL SENT  *******\n{url=!r:^100}\n***************************')
    if not os.path.isdir('logdir'):
     os.mkdir('logdir')
-   os.system(r'python3 ../gc/seed.py print > dbbackup.txt')
-   os.system(r'rm dbbackup.7z')
-   os.system(r'7z a dbbackup.7z dbbackup.txt')
-   os.system(r'~/tmp/ftp.sh mput misc dbbackup.7z')
-   os.system(r'mv dbbackup.txt logdir/'+re.sub(r':','-',datetime.datetime.now().isoformat())+'.txt')
+   if self.emailcount==self.MAXEMAIL:
+    os.system(r'python3 ../gc/seed.py print > dbbackup.txt')
+    os.system(r'rm dbbackup.7z')
+    os.system(r'7z a dbbackup.7z dbbackup.txt')
+    os.system(r'~/tmp/ftp.sh mput misc dbbackup.7z')
+    os.system(r'mv dbbackup.txt logdir/'+re.sub(r':','-',datetime.datetime.now().isoformat())+'.txt')
    toretain=sorted([re.sub(r'-','',re.sub(r'(.*?)T.*$',r'\1',x)) for x in os.listdir('logdir') if re.search(r'\d+[.]txt$',x)],key=lambda x:int(x))[-10:]
    [os.remove(r'logdir/'+x) for x in os.listdir('logdir') if re.search(r'\d+[.]txt$',x) and not re.sub(r'-','',re.sub(r'(.*?)T.*$',r'\1',x)) in toretain]
-   open(r'logdir/emailcount.txt','w').write(str(self.emailcount))
+#   open(r'logdir/emailcount.txt','w').write(str(self.emailcount))
    self.close(logout=False)
