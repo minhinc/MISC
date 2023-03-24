@@ -16,8 +16,8 @@ div.pg span.dot2 {height:6px;width:6px;border-radius:50%;vertical-align:middle;d
 div.pg pre.title{text-align:center;font-size:24pt;font-weight:bold;}
 div.pg pre.subtitle{text-align:center;font-size:18pt;}
 div.pg pre.company{text-align:center;font-size:16pt;color:#004000;font-family:mytwcenmt}
-div.pg div.headerleft{float:left;background-color:#c9c6ff;height:100%;width:24.9%;font-weight:bold;font-size:16pt;}
-div.pg div.headerright{float:right;background-color:#eaebff;height:100%;width:74.9%;}
+div.pg div.headerleft{float:left;background-color:#c9c6ff;width:24.9%;font-weight:bold;font-size:16pt;}
+div.pg div.headerright{float:right;background-color:#eaebff;width:74.9%;}
 div.pg div.headerleft > pre{font-size:13pt;padding:10 0 0 10;font-family:mytwcenmt}
 div.pg div.headerright > pre{padding:10 0 0 10;font-family:mytwcenmt}
 
@@ -48,6 +48,9 @@ div.pg ul.daycontent li{margin-left:20px;font-size:11pt;list-style:disc}
 div.pg ul.daycontent li pre{font-size:9pt;font-family:mytwcenmt}
 div.pg ul.daycontent li a{color:#000000;font-size:9pt;display:block;font-family:mytwcenmt}
 div.pg ul.daycontent li a:hover {background-color:#ffaa00}
+div.pg ul.daycontent li a.y pre{color:#004000;}
+div.pg ul.daycontent li a.o pre{color:#662500;}
+div.pg ul.daycontent li a.r pre{color:#ff0000;}
 
 div.pg pre.slidetitle {text-align:center;margin-top:40px;font-family:mytwcenmt;font-size:24pt;color:#004000}
 div.pg pre.slidesubtitle {text-align:center;font-family:mytwcenmt;font-size:8pt;color:#004000}
@@ -77,7 +80,7 @@ div.pg pre.codeb span {font-size:7pt;font-family:myconsolas;}
 div.pg pre.codei,div.pg pre.codei span {font-size:7pt;font-family:myconsolas;display:inline}
 div.pg pre.codec,div.pg pre.codec span {clear:both;font-size:4pt;font-family:myconsolas}
 div.pg pre.codeci,div.pg pre.codec span {font-size:4pt;font-family:myconsolas;display:inline}
-div.pg pre.codes{font-size:4pt;width:49%;font-family:myconsolas; -webkit-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); -moz-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); padding: 5px 0 0 2px; background: #eee; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;}
+div.pg pre.codes{float:left;font-size:4pt;width:49%;font-family:myconsolas; -webkit-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); -moz-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); padding: 5px 0 0 2px; background: #eee; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;}
 div.pg pre.slidecontent b{font-family:mytwcenmt}
 div.pg b{font-family:mytwcenmt}
 div.pg pre.blue{color:#447777;font-weight:bold;display:inline;}

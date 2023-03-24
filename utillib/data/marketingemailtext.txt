@@ -21,7 +21,7 @@
 <tr><td height="250"></td></tr>
 <tr>
  <td  align="center">
- <pre style="text-align:center;margin-top:5px"><a href="http://minhinc.42web.io/about/unsubscribe_wn.php?email=XXX" target="_blank" style="color:#4444ff;font-weight:bold;font-family:arial,helvetica,sans-serif;font-size:9pt;">Unsubscribe</a></pre>
+ <pre style="text-align:center;margin-top:5px"><a href="http://minhinc.42web.io/unsubscribe/index.php?email=XXX" target="_blank" style="color:#4444ff;font-weight:bold;font-family:arial,helvetica,sans-serif;font-size:9pt;">Unsubscribe</a></pre>
  </td>
 </tr>
 </table>

@@ -20,7 +20,31 @@ function draw($util){
  <div style="margin:10px 0" class="g-recaptcha" data-callback="imNotARobot" data-sitekey="'.preg_replace('/^(.*)\\n.*/m','$1',file_get_contents($util->level.'/donotdelete/captchav2/sitecaptchav2.key')).'"></div>
  <div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold enable"><iframe name="myIframe" frameborder="0" scrolling="no" class="l" style="width:400px" id="iframeid"></iframe></div>
  </form>
- <div style="width:400px;float:right;"><py>requestm.adsensepaste(400,500,backend="desktop",factor=0.0)</py></div>
+ <div style="width:400px;float:right;"><div style="width:400px;height:500px;position:relative;" align="center"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- fixed_200_200 -->
+<ins class="adsbygoogle"
+     style="position:absolute;left:0px;top:6px;display:inline-block;width:200px;height:200px"
+     data-ad-client="ca-pub-8488699542117607"
+     data-ad-slot="2697807187"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- fixed_200_200 -->
+<ins class="adsbygoogle"
+     style="position:absolute;left:200px;top:6px;display:inline-block;width:200px;height:200px"
+     data-ad-client="ca-pub-8488699542117607"
+     data-ad-slot="2697807187"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- fixed_336_280 -->
+<ins class="adsbygoogle"
+     style="position:absolute;left:0px;top:212px;display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-8488699542117607"
+     data-ad-slot="3234005567"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></div>
  <div style="clear:both"></div>
  <script>
 var imNotARobot = function() {

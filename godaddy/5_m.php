@@ -10,7 +10,7 @@ $item=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',
 if($left){
 echo '<li class="light"><div class="l"><img class="ll" src="'.$util->level.'/image/'.$key.'.png"/><div class="rr"><pre>'.$item['title'].' - '.$item['description'].'</pre><a class="red italic" href="'.$util->level.'/service/'.$key.'">...read more</a></div></div>';
 }else{
-echo '<div class="r"><img class="ll" src="'.$util->level.'/image/'.$key.'.png"/><div class="rr"><pre>'.$item['title'].' - '.$item['description'].'</pre><a class="red italic" href="'.$util->level.'/service/'.$key.'">...read more</a></div></div></li>';
+echo '<div class="right"><img class="ll" src="'.$util->level.'/image/'.$key.'.png"/><div class="rr"><pre>'.$item['title'].' - '.$item['description'].'</pre><a class="red italic" href="'.$util->level.'/service/'.$key.'">...read more</a></div></div></li>';
 }
 $left=!$left;
 }

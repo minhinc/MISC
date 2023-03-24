@@ -20,9 +20,17 @@ var marker=new google.maps.Marker({ position:uluru, map:map });
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCypT5QJIhCg6kqW808Rsn-mXl-dJVtw0M&callback=initMap">
 </script>
-<div class="r"><pre class="name" style="margin-left:10%">Minh, Inc.</pre><pre class="f10" style="margin-left:10%;">#85<br>5th Main<br>P&T Colony<br>SanjayNagar<br>Bangalore-94</pre><pre class="phone f10 bold" style="margin-left:10%">+91 9483160610 <img src="'.$util->level.'/image/whatsapp.png" width="20px" height="20px"></pre><pre class="f10 bold" style="margin-top:8px;margin-left:10%;color:#4080ff;"><a href="mailto:sales@minhinc.com">sales@minhinc.com</a></pre></div>
+<div class="right"><pre class="name" style="margin-left:10%">Minh, Inc.</pre><pre class="f10" style="margin-left:10%;">#85<br>5th Main<br>P&T Colony<br>SanjayNagar<br>Bangalore-94</pre><pre class="phone f10 bold" style="margin-left:10%">+91 9483160610 <img src="'.$util->level.'/image/whatsapp.png" width="20px" height="20px"></pre><pre class="f10 bold" style="margin-top:8px;margin-left:10%;color:#4080ff;"><a href="mailto:tominhinc@gmail.com">tominhinc@gmail.com</a></pre></div>
 </li>
-<div class="clr"></div><li class="adsense100"><py>requestm.adsensepaste(0,100,backend="mobile")</py></li>
+<div class="clr"></div><li class="adsense100"><div align="center" style="width:100%;height:100px;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- responsive-square -->
+<ins class="adsbygoogle adslot_1"
+     style="display:inline-block;height:100px;"
+     data-ad-client="ca-pub-8488699542117607"
+     data-ad-slot="8189130995"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>
 <li class="form">
 <form class="online" action="'.$util->level.'/php/send_form_email.php" method="post" target="myIframe">
 <h1>Reach Out To Us</h1>
@@ -38,8 +46,8 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCypT5QJIhCg6kqW808Rsn-mXl
 <div class="clr"></div>
 <script>
 var imNotARobot = function() {
- document.getElementById("iframeid").contentWindow.document.write("");
-};
+  document.getElementById("iframeid").contentWindow.document.write("");
+  };
 document.getElementById("iframeid").onload=function(){
  var framecontent=document.getElementById("iframeid").contentWindow.document.body.innerHTML;
   if (framecontent.match(/40/gi)){

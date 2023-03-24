@@ -2,7 +2,10 @@
 require_once('Utilbm.php');
 class Utilc extends Utilbc{
 public function drawscript(){
-echo file_get_contents($this->script.$this->chap.'.txt');
+ if (strlen(strstr($_SERVER['HTTP_USER_AGENT'],'Firefox')) > 0)
+  echo file_get_contents($this->script.$this->chap.'_f.txt');
+ else
+  echo file_get_contents($this->script.$this->chap.'.txt');
 }
 public function draw(){
  require_once($this->json['pattern'].'.php');
@@ -56,7 +59,8 @@ echo '<title>'.$json['title'].' | Minh, Inc. Bangalore India</title>';
       <li><a class="leaf" href="<? echo $this->level ?>/training/py/advance-py-slides.php">Slides</a></li>
       <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
        <ul>
-        <li><a href="http://www.minhinc.com/research/accessingfilesinpython.txt">Accessing Files in Python</a></li>
+        <li><a href="http://www.developer.com/open/accessing-files-using-python.html">Accessing Files in Python</a></li>
+        <li><a href="http://minhinc.42web.io/research/rectanglepacking.pdf">Rectangle packing using Python</a></li>
        </ul>
       </li>
      </ul>
@@ -82,6 +86,7 @@ echo '<title>'.$json['title'].' | Minh, Inc. Bangalore India</title>';
         <li><a href="http://www.codeguru.com/cpp/g-m/drawing-3d-opengl-graphics-on-google-maps.html">OpenGL drawing on Google Maps</a></li>
         <li><a href="http://www.codeguru.com/tools/commsoftfreecondit/qt-basics-the-chain-of-responsibility-pattern.html">Qt: Chain Of Responsibility</a></li>
         <li><a href="http://www.codeproject.com/Articles/869923/Class-Level-Generic-Logger">C++ Class Level Logger</a></li>
+        <li><a href="https://www.eeweb.com/innovative-methods-in-design-patterns-with-c">Innovative Methods in Design Patterns with C++</a></li>
        </ul>
       </li>
      </ul>
@@ -137,7 +142,7 @@ echo '<title>'.$json['title'].' | Minh, Inc. Bangalore India</title>';
       <li><a class="leaf" href="<? echo $this->level ?>/training/dp/advance-dp-slides.php">Slides</a></li>
       <li><div></div><a href="<? echo $this->level ?>/research/">Articles</a>
        <ul>
-        <li><a href="http://www.minhinc.com/research/SDJ_Open_2014.pdf">Design Patterns in Perl</a></li>
+        <li><a href="http://www.minhinc.42web.io/research/SDJ_Open_2014.pdf">Design Patterns in Perl</a></li>
        </ul>
       </li>
      </ul>
@@ -147,6 +152,8 @@ echo '<title>'.$json['title'].' | Minh, Inc. Bangalore India</title>';
   <li><div></div><a href="<? echo $this->level ?>/research/" style="<?php echo ($this->headername=='research'?'color:#f38502':'') ?>">Research</a>
    <ul>
     <li class="blank">" "</li>
+    <li><a href="https://www.eeweb.com/innovative-methods-in-design-patterns-with-c">Innovative Methods in Design Patterns with C++</a></li>
+    <li><a href="http://minhinc.42web.io/research/rectanglepacking.pdf">Rectangle Packing using Python</a></li>
     <li><a href="https://www.codeproject.com/Articles/1271791/GUI-Modeling-in-Perl-Tk-Using-Composite-Design-Pat">GUI Modeling in Perl/Tk Using Composite Design Pattern</a></li>
     <li><a href="http://www.codeguru.com/IoT/coding-analog-sensors-on-the-raspberry-pi3.html">Coding Analog Sensors On The Raspberry Pi3</a></li>
     <li><a href="http://www.codeguru.com/IoT/coding-sensors-on-the-rpi3.html">Coding Sensors On The Raspberry Pi3</a></li>
@@ -210,7 +217,7 @@ $json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',
 if (!empty($json['comingtraining']) && $this->headername != "about" && $this->subitem != "online"){
 echo '<div style="width:70%;height:60px;margin:10px auto;background-color:#0707a2"><pre style="float:left;padding-left:5%;line-height:60px;color:#ffffff;font-family:mytwcenmt;font-size:22px;">';
 echo $json['comingtraining'];
-echo '</pre><a href="http://www.minhinc.com/about/online" style="float:right;margin:10px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:40px;font-size:20px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
+echo '</pre><a href="http://www.minhinc.42web.io/about/online" style="float:right;margin:10px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:40px;font-size:20px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
 }
 
 }
@@ -232,7 +239,7 @@ if(empty($this->headername)){
   <li><p>#85, 5th Main, P&T<br>
    SanjayNagar, Bangalore<br>
    Karnataka, India 560094<br><br>
-   <b>sales@minhinc.com</b><br>
+   <b>tominhinc@gmail.com</b><br>
    <b>+91 9483160610</b> <img src="<? echo $this->level.'/image/whatsapp_s.png' ?>" width="20px" height="20px"></p>
   </li>
  </ul>

@@ -3,6 +3,7 @@ from seleniumrequest import seleniumrequest
 from databaserequest import databaserequest
 from machinelearningrequest import machinelearningrequest
 import MISC.utillib.requestm as requestm
+from MISC.utillib.util import Util
 import datetime,re,uuid
 
 class fetcher(seleniumrequest,databaserequest,machinelearningrequest):
@@ -43,10 +44,12 @@ class fetcher(seleniumrequest,databaserequest,machinelearningrequest):
   file.write(' '.join(re.split(self.DELIMITER,i[0]))+' '+' '.join(email[:4])+' #'+' '.join(email[4:])+'\n')
   file.flush()
   print(f'fetcher.get <>{email[:4]}')
-  self.db.search2('company',0,re.split(self.DELIMITER,i[0])[0],'0',mode='fill') if not self.db.search2('company','name','=',re.split(self.DELIMITER,i[0])[0].encode('utf-8').decode('unicode_escape'),mode='search') else None
+  self.db.search2('company',0,Util.converttolatin1(re.split(self.DELIMITER,i[0])[0]),mode='insert') if not self.db.search2('company','name','=',Util.converttolatin1(re.split(self.DELIMITER,i[0])[0]),mode='search') else None
   if len(email):
-   emaildata=(str(uuid.uuid4()),self.db.search2('company','id','name','=',re.split(self.DELIMITER,i[0])[0].encode('utf-8').decode('unicode_escape'),mode='get')[0][0],self.db.search2('tech','id','name','=',re.split(self.DELIMITER,i[0])[1],mode='get')[0][0],101,self.db.search2('country','id','name','=',re.split(self.DELIMITER,i[0])[2],mode='get')[0][0],re.sub('-','',(datetime.date.today()-datetime.timedelta(days=60)).isoformat()),0,0)
-   self.db.search2('track',*[(x,*emaildata) for x in email[0:4]],mode='fillbulk')
+#   emaildata=(str(uuid.uuid4()),self.db.search2('company','id','name','=',re.split(self.DELIMITER,i[0])[0].encode('utf-8').decode('unicode_escape'),mode='get')[0][0],self.db.search2('tech','id','name','=',re.split(self.DELIMITER,i[0])[1],mode='get')[0][0],101,self.db.search2('country','id','name','=',re.split(self.DELIMITER,i[0])[2],mode='get')[0][0],re.sub('-','',(datetime.date.today()-datetime.timedelta(days=60)).isoformat()),0,0)
+   emaildata=(self.db.search2('company','id','name','=',Util.converttolatin1(re.split(self.DELIMITER,i[0])[0]),mode='get')[0][0],self.db.search2('tech','id','name','=',re.split(self.DELIMITER,i[0])[1],mode='get')[0][0],self.db.search2('country','id','name','=',re.split(self.DELIMITER,i[0])[2],mode='get')[0][0],re.sub('-','',(datetime.date.today()-datetime.timedelta(days=60)).isoformat()),0,0)
+#   self.db.search2('track',*[(x,*emaildata) for x in email[0:4]],mode='fillbulk')
+   self.db.search2('track',*[(x,str(uuid.uuid4()),*emaildata) for x in email[0:4]],mode='insertbulk')
   self.threadcondition.release()
   self.threadevent.wait()
   self.threadevent.clear()

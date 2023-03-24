@@ -26,7 +26,15 @@ echo '</select><pre class="ls bold star">*</pre></div>
 <div style="margin:10px 0;" id="captchaid" class="g-recaptcha" data-callback="imNotARobot" data-sitekey="'.preg_replace('/^(.*)\\n.*/m','$1',file_get_contents($util->level.'/donotdelete/captchav2/sitecaptchav2.key')).'"></div>
 <div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold disable" id="s_submit"><iframe name="myIframe" frameborder="0" scrolling="no" class="l" id="iframeid" style="width:400px"></iframe></div>
 </form>
-<div style="float:right;width:350px"><py>requestm.adsensepaste(350,600,backend="desktop",factor=0.2)</py></div>
+<div style="float:right;width:350px"><div style="width:350px;height:600px;position:relative;" align="center"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- fixed_300_600 -->
+<ins class="adsbygoogle"
+     style="position:absolute;left:25px;top:0px;display:inline-block;width:300px;height:600px"
+     data-ad-client="ca-pub-8488699542117607"
+     data-ad-slot="9990985608"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></div>
 <div style="clear:both"></div>
 <script>
 var chargearr={"":"",';

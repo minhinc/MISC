@@ -19,7 +19,7 @@ if(!empty($item) and !preg_match('/[.]php$/',$item)){
   $this->subitem=$item;
  $this->level=$this->level."/..";
  }elseif(preg_match('/[.]php$/',$item) and $item!='index.php')
-  $this->script='http://www.minhinc.com/'.preg_replace('/(.*)[.]php$/','$1',$_SERVER['SCRIPT_NAME']);
+  $this->script='http://www.minhinc.42web.io/'.preg_replace('/(.*)[.]php$/','$1',$_SERVER['SCRIPT_NAME']);
   if (isset($_GET['chap'])){
    $this->chap='-chap'.$_GET['chap'];
   }

@@ -1,11 +1,14 @@
 import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp')
 import time
 import re
+from MISC.utillib.util import Util
+from MISC.ffmpeg.libm import libc
 if re.search(r'^(win|cygwin)',sys.platform,flags=re.I):
  import pymysql
  pymysql.install_as_MySQLdb()
 import MySQLdb
 import MISC.utillib.databasem as databasem
+libi=libc()
 def _id_(db,country):
  if not country.isdigit():
   return db.get('country','id','name',country)[0][0]
@@ -17,16 +20,15 @@ def usage():
  python seed.py dump # show tables
  python seed.py trunc junkextension visitedlink
  python seed.py drop junkextension visitedlink
- python seed.py insert junkextension .*[.]doc$
- python seed.py insert country 101 "United State Of Americas"
- python seed.py insert city 101 "Los Angles,United State Of Americas"
- python seed.py insert gl 101 "OpenGL integration with Qt"
- python seed.py delete linkvisited [regexp] name .*minh.*
- python seed.py delete linkvisited date 20180318
- python seed.py update track status 2 email sales@minhinc.com
- python seed.py print <tablename> i.e. "print track" or "print"
+ python seed.py insert junkextension "0,.*[.]doc$"
+ python seed.py insert country "101,United State Of Americas"
+ python seed.py insert gl "((101,Introduction, , ),(102,OpenGL integration with Kivy, , ))"
+ python seed.py delete linkvisited name R .*minh.* #regexp
+ python seed.py delete linkvisited date = 20180318
+ python seed.py update track status 2 email = sales@minhinc.com
+ python seed.py print [<tablename>] i.e. "print track" or "print"
  python seed.py push [<tablename>] <datafilename> i.e. "push qt data.txt" or "push data.txt"
- python seed.py search track [regex] name .*minh.*''')
+ python seed.py search track name R .*minh.*''')
 if len(sys.argv)<=1:
  usage()
 elif re.search('create',sys.argv[1],flags=re.I):
@@ -34,37 +36,21 @@ elif re.search('create',sys.argv[1],flags=re.I):
  dbi.close()
 else:
  dbi=databasem.databasec(False)
- try:
-  crsr=dbi.conn.cursor()
- except Exception as e:
-  print('e.type',type(e))
  if re.search('dump',sys.argv[1],flags=re.I):
-  crsr.execute("SHOW TABLES")
-  for (table_name,) in crsr:
-   print(table_name)
+  for (table,) in dbi.search2('',mode='showtables'):
+   print(table)
  elif re.search('push',sys.argv[1],flags=re.I):
-  tempvar1=None
-  selectq=None
-  tbl=dict()
-  [tbl.__setitem__(re.sub(r'^(\w+).*$',r'\1',i[0]),re.findall(r'(\w+)\s+(\w*CHAR|\w*INT|\w*TEXT|\w*BLOB)',i[1])) for i in re.findall('CREATE TABLE.*?(\w+)\s*\((.*?)\)"\s*\)',open('../utillib/databasem.py').read())]
-  print('tbl',tbl)
-  with open(sys.argv[2 if len(sys.argv)<=3 else 3]) as file:
-   for line in [line.strip('\n') for line in file]:
-    if re.search(r'^(database re-connected|\s*$)',line,flags=re.I):
-     continue
-    if re.search(r'^[ ]+\w+',line):
-     tempvar1=re.sub(r'^\s*(\w+).*$',r'\1',line,flags=re.I)
-     if len(sys.argv)>3 and not re.search(r'^'+tempvar1+r'$',sys.argv[2],flags=re.I):
-      tempvar1=None
-     else:
-      selectq=f'INSERT INTO {tempvar1}('+','.join(i[0] for i in tbl[tempvar1])+r') VALUES('+('%s,'*len(tbl[tempvar1]))[:-1]+r')'
-      print(f'truncating {tempvar1}')
-      crsr.execute("TRUNCATE TABLE %s" % (tempvar1,))
-     continue
-    if tempvar1:
-     splitline=re.split('!ABS SBA!',line)
-     col=[int(re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',splitline[i]).encode('utf-8').decode('unicode_escape')) if tbl[tempvar1][i][1]=='INT' else re.sub(r'^[\'"]?(.*?)[\'"]?$',r'\1',splitline[i]).encode('utf-8').decode('unicode_escape') for i in range(len(splitline))]
-     crsr.execute(selectq,col)
+  tabledict=dict()
+  for i in ((sys.argv[2],) if len(sys.argv)>3 else re.findall('^\s+(\w+)\s+$',open(sys.argv[2]).read(),flags=re.M)):
+   tabledict[i]=re.sub(r'(?:^|\n)\s+'+i+'\s+\n?(.*?)(?=\n\s+|$)',r'\1',open(sys.argv[2 if len(sys.argv)==3 else 3]).read(),flags=re.DOTALL)
+  print(f'push {tabledict=}')
+  for i in tabledict:
+   print(f'<=>push truncating {i=}')
+   dbi.search2(i,mode='trunc')
+#   dbi.search2(i,*[re.split(Util.DELIMITER,eval(Util.converttolatin1(line))) for line in re.split('\n',tabledict[i]) if line],mode='fillbulk')
+#   dbi.search2(i,*[[eval(Util.converttolatin1(re.sub(r'^[\'"](.*)[\'"]$',r'\1',x))) for x in re.split(Util.DELIMITER,line)] for line in re.split('\n',tabledict[i]) if line],mode='insertbulk')
+#   dbi.search2(i,*[re.split(Util.DELIMITER,Util.converttolatin1(re.sub(r'^[\'"](.*)[\'"]$',r'\1',line))) for line in re.split('\n',tabledict[i]) if line],mode='insertbulk')
+   dbi.search2(i,*[[Util.converttolatin1(x) for x in re.split(Util.DELIMITER,eval(line))] for line in re.split('\n',tabledict[i]) if line],mode='insertbulk')
  elif re.search('youtube',sys.argv[1],flags=re.I):
   from selenium import webdriver
   import json
@@ -92,77 +78,31 @@ else:
   if len(sys.argv)>3:
    youtubecontent=re.sub(r'.*?({.*}).*',r'\1',str(dbi.get('tech','content','name',sys.argv[3])).replace('\\n','\n').replace(", '",", \n'"),flags=re.DOTALL|re.I)
    if re.search(r'"youtube"\s*:',youtubecontent,flags=re.I):
-    dbi.update('tech','content',re.sub(r'(.*"youtube"\s*:\s*).*?(,?\s*\n.*)',r'\1'+json.dumps(jsonstring)+r'\2',youtubecontent,flags=re.DOTALL|re.I),'name',sys.argv[3])
+    dbi.search2('tech','content',re.sub(r'(.*"youtube"\s*:\s*).*?(,?\s*\n.*)',r'\1'+json.dumps(jsonstring)+r'\2',youtubecontent,flags=re.DOTALL|re.I),'name','=',sys.argv[3],mode='update')
   if not fileexists: driver.close()
  elif re.search('print',sys.argv[1],flags=re.I):
-  tempvar1=None
-  if len(sys.argv)>2:
-#   tempvar1=sys.argv[2:]
-   tempvar1=sys.argv[2:3]
-  else:
-   crsr.execute('SHOW TABLES')
-   tempvar1=[i[0] for i in crsr]
-  for i in tempvar1:
-   print(f'      {i}      ')
-   for j in dbi.get(i):
-    if len(sys.argv)>3:
-     print([j[int(x)] for x in sys.argv[3:]])
-    else:
-     print(repr('!ABS SBA!'.join(str(k) if type(k)!=str else k for k in j)))
+  for i in ((sys.argv[2],) if len(sys.argv)>=3 else [x[0] for x in dbi.search2('',mode='showtables')]):
+   print('      '+i+'      ')
+#   [print(Util.converttolatin1(Util.DELIMITER.join(str(y) if type(y)==int else y for y in x))) for x in dbi.search2(i,'*','name','R','.*',mode='get')]
+   [print(repr(Util.DELIMITER.join(str(y) if type(y)==int else y for y in x))) for x in dbi.search2(i,'*',mode='get')]
+#   for i in [Util.converttolatin1(Util.DELIMITER.join(str(y) if type(y)==int else y for y in x)) for x in dbi.search2(i,'*','name','R','.*',mode='get')]:
+#    print(i)
+#    print(eval(repr(i)))
  elif len(sys.argv)<=2:
   usage()
- elif re.search('drop',sys.argv[1],flags=re.I):
-  for i in range(2,len(sys.argv)):
-   crsr.execute("DROP TABLE IF EXISTS %s" % (sys.argv[i],))
-   print("dropped table %s" % sys.argv[i])
- elif re.search('trun',sys.argv[1],flags=re.I):
-  for i in range(2,len(sys.argv)):
-   crsr.execute("TRUNCATE TABLE %s" % (sys.argv[2],))
-   print("truncated table %s" % sys.argv[i])
+ elif sys.argv[1] in ['drop','trunc']:
+  [dbi.search2(table,mode=sys.argv[1]) for table in sys.argv[2:]]
+  print(f'dropped table(s) {sys.argv[2:]}')
  elif re.search('delete',sys.argv[1],flags=re.I):
-  if re.search(r'(reg|rgx)',sys.argv[3],flags=re.I):
-   for i in range(5,len(sys.argv)):
-    crsr.execute("DELETE FROM %s WHERE %s REGEXP '%s'" % (sys.argv[2],sys.argv[4],sys.argv[i]))
-    print("deleted from table %s field %s value %s" % (sys.argv[2],sys.argv[4],sys.argv[i]))
-  else:
-   for i in range(4,len(sys.argv)):
-    crsr.execute("DELETE FROM %s WHERE %s='%s'" % (sys.argv[2],sys.argv[3],sys.argv[i]))
-    print("deleted from table %s field %s value %s" % (sys.argv[2],sys.argv[3],sys.argv[i]))
+  print(dbi.search2(sys.argv[1:],mode='delete'))
  elif re.search('insert', sys.argv[1],flags=re.I):
-  if re.search('city', sys.argv[2],flags=re.I):
-   for i in range(4,len(sys.argv)):
-    dbi.fill('city',((re.sub(r'^([^,]+),.*',r'\1',sys.argv[i]).lower(),_id_(dbi,re.sub(r'^[^,]+,(.*)$',r'\1',sys.argv[i]).lower())),))
-    dbi.update('city','id',int(sys.argv[3])+i-4,'name',re.sub(r'^([^,]+),.*',r'\1',sys.argv[i]).lower())
-    print("%s - %d" % (re.sub(r'^([^,]+),.*',r'\1',sys.argv[i]),_id_(dbi,re.sub(r'^[^,]+,(.*)$',r'\1',sys.argv[i]).lower())))
-  elif re.search('country',sys.argv[2],flags=re.I):
-   for i in range(4,len(sys.argv)):
-    dbi.fill('country',((sys.argv[i],),))
-    dbi.update('country','id',int(sys.argv[3])+i-4,'id',0)
-    print("inserted into country %s" % sys.argv[i])
-  elif re.search('^(qt|qml|gl|c|cpp|py|ldd|li|dp|ai|headername)$',sys.argv[2],flags=re.I):
-   dbi.fill(sys.argv[2],((sys.argv[4],),))
-   dbi.update(sys.argv[2],'id',int(sys.argv[3]),'id',0)
-   if len(sys.argv)>=6:
-    dbi.update(sys.argv[2],'value',sys.argv[5],'id',int(sys.argv[3]))
-   if len(sys.argv)>=7:
-    dbi.update(sys.argv[2],'lab',sys.argv[6],'id',int(sys.argv[3]))
-  elif len(sys.argv)<=3:
-   dbi.fill(sys.argv[2])
-   print('inserted empty row in table')
-  else:
-   for i in range(3,len(sys.argv)):
-    dbi.fill(sys.argv[2],((sys.argv[i],),))
-    print("inserted into table %s value %s" % (sys.argv[2],sys.argv[i]))
+  tmptuple=libi.str2tuple(sys.argv[3])
+  print(f'{tmptuple=} {len(tmptuple)=}')
+  print(dbi.search2(sys.argv[2],*tmptuple,mode=('insert' if not type(tmptuple)=='tuple' else 'insertbulk')))
  elif re.search('update',sys.argv[1],flags=re.I):
-  dbi.update(sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6])
-  print("updated table %s field %s value %s for %s = %s" % (sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6]))
+  print(dbi.search2(sys.argv[2],sys.argv[3],Util.converttolatin1(sys.argv[4]),*sys.argv[5:],mode='update'))
  elif re.search('search',sys.argv[1],flags=re.I):
-  if re.search(r'reg',sys.argv[3],flags=re.I):
-   if dbi.search(sys.argv[2],sys.argv[5],sys.argv[4],regex=True):
-    print(dbi.get(sys.argv[2],'*',sys.argv[4],sys.argv[5],regex=True))
-  else:
-   if dbi.search(sys.argv[2],sys.argv[4],sys.argv[3]):
-#    print(str(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4])).replace('\\n','\n').replace(", '",", \n'"))
-#    print(str(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4])).replace(r'\\',"!double escape!").replace(r'\n','\n').replace('!double escape!',r'\\'))
-    print(str(dbi.get(sys.argv[2],'*',sys.argv[3],sys.argv[4])).encode('utf-8').decode('unicode_escape'))
- dbi.close()
+  print(dbi.search2(*sys.argv[2:],mode='search'))
+ elif re.search('get',sys.argv[1],flags=re.I):
+#  print(dbi.search2(*sys.argv[2:],mode='get')[0][Slice() if sys.argv[2]=='*' else 0])
+  print(dbi.search2(*sys.argv[2:],mode='get')[0][sys.argv[3]=='*' and slice(0,None) or 0])

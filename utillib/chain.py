@@ -16,7 +16,7 @@ db=databaserequest()
 for i in 'naukri','linkedin','google':
  chain.append(eval(i+'()'))
 for i in range(int(len(sys.argv)/3)):
- url_t=[ml.getmatching(sys.argv[i*3+1],*[x[1] for x in db.db.get('tech')])[0].lower(),ml.getmatching(sys.argv[i*3+2],*[x[1] for x in db.db.get('country')])[0].lower(),int(sys.argv[i*3+3])]
+ url_t=[ml.getmatching(sys.argv[i*3+1],*[x[1] for x in db.db.search2('tech',mode='get')])[0].lower(),ml.getmatching(sys.argv[i*3+2],*[x[1] for x in db.db.search2('country',mode='get')])[0].lower(),int(sys.argv[i*3+3])]
  while url_t:
   url=url_t
   url_t=[]

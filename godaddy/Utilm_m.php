@@ -45,7 +45,7 @@ $json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',
 if (!empty($json['comingevents']) && $this->headername != "about" && $this->subitem != "online"){
 echo '<div style="width:90%;height:40px;margin:10px auto;background-color:#0707a2"><pre style="float:left;padding-left:5%;line-height:40px;color:#ffffff;font-family:mytwcenmt;font-size:10px;">';
 echo $json['comingtraining'];
-echo '</pre><a href="http://www.minhinc.com/about/online" style="float:right;margin:5px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:30px;font-size:10px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
+echo '</pre><a href="http://www.minhinc.42web.io/about/online" style="float:right;margin:5px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:30px;font-size:10px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
 }
 }
 
@@ -55,7 +55,7 @@ $json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',
 foreach($json['child'] as $key){
  $color='';
  if($key==$this->headername) {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
- $returnstring .= '<div class="line"><div class="l"><a '.$color.' href='.$this->level.'/'.$key.'>'.ucfirst($key).'</a></div><div class="r linesubmenu" onclick="myFunction1(\'linesubmenu\')"><div class="tr"></div></div></div>
+ $returnstring .= '<div class="line"><div class="l"><a '.$color.' href='.$this->level.'/'.$key.'>'.ucfirst($key).'</a></div><div class="right linesubmenu" onclick="myFunction1(\'linesubmenu\')"><div class="tr"></div></div></div>
   <div class="submenu">';
   $json1=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',$key))[0],true);
   foreach($json1['child'] as $key1){
@@ -95,7 +95,7 @@ Minh, Inc.
 SanjayNagar, Bangalore
 Karnataka, India 560094
 
-sales@minhinc.com
+tominhinc@gmail.com
 +91 9483160610&nbsp&nbsp<img src="'.$this->level.'/image/whatsapp_s.png" width="15px" height="15px"/>
 </pre>
 <div style="margin:15px 0px 5px 0px">';
@@ -104,7 +104,7 @@ echo '<a href="'.$element[0].'"><img width="25" height="25" style="float:left;ma
 }
 echo '</div>
 </div>
-<div class="r">';
+<div class="right">';
 foreach($json['child'] as $key){
 $color='';
 if($key==$this->headername) {$color='color:#f38502;';}else{$color='';}

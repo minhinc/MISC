@@ -10,6 +10,7 @@ div.pg hr{float:left;width:100%;color:#888888}
 div.pg pre {white-space:pre-wrap;}
 div.pg a{color:#0000aa;font-size:13pt;font-family:mytwcenmt;text-decoration:none}
 div.pg pre.ftr{position:absolute;bottom:0px;left:45%;color:#004000;font-family:mytwcenmt;font-size:8pt}
+div.pg a.ftr{position:absolute;bottom:0px;left:45%;color:#004000;font-family:mytwcenmt;font-size:8pt}
 div.pg pre.pn{position:absolute;bottom:0px;right:0px;color:#040;font-family:mytwcenmt;font-size:8pt}
 div.pg a.pn{position:absolute;bottom:0px;right:0px;color:#040;font-family:mytwcenmt;font-size:8pt}
 div.pg div.clr {clear:both;}
@@ -29,10 +30,11 @@ div.pg pre.title{text-align:center;font-size:24pt;font-weight:bold;font-family:m
 div.pg pre.subtitle{text-align:center;font-size:18pt;font-family:mytwcenmt}
 /*div.pg pre.company{text-align:center;font-size:16pt;margin-bottom:100px;color:#004000;font-family:mytwcenmt}*/
 div.pg pre.company{text-align:center;font-size:16pt;color:#004000;font-family:mytwcenmt}
-div.pg div.headerleft{float:left;background-color:#c9c6ff;height:100%;width:24.9%;font-weight:bold;font-size:16pt;}
-div.pg div.headerright{float:right;background-color:#eaebff;height:100%;width:74.9%;}
+div.pg div.headerleft{float:left;background-color:#c9c6ff;width:24.9%;font-weight:bold;font-size:16pt;}
+div.pg div.headerright{float:right;background-color:#eaebff;width:74.9%;}
 div.pg div.headerleft > pre{font-size:16pt;padding:10 0 0 10;font-family:mytwcenmt}
-div.pg div.headerright > pre{padding:10 0 0 10;font-family:mytwcenmt}
+div.pg div.headerright > pre{font-size:16pt;padding:10 0 0 10;font-family:mytwcenmt}
+div.pg div.headerright > pre b{font-size:18pt;font-family:mytwcenmt}
 
 div.pg div.header2 pre.header {background-color:#c9c6ff;font-size:16pt;font-weight:bold;font-family:mytwcenmt;padding-left:10px;}
 div.pg div.header2 pre.content {background-color:#eaebff;padding:10 0 0 10;font-family:mytwcenmt}
@@ -46,13 +48,16 @@ div.pg div.dayheaderright {float:right;width:50%;}
 div.pg div.dayheaderheader {background-color:#c9c6ff;width:100%;}
 div.pg div.dayheaderheadertechchange {background-color:#d9c6ff;width:100%;}
 div.pg div.dayheaderheaderlab {background-color:#719476;width:100%;}
-div.pg div.dayheaderheader pre,div.pg div.dayheaderheaderlab pre{font-weight:bold;font-size:11pt;}
+div.pg div.dayheaderheader pre,div.pg div.dayheaderheaderlab pre{font-weight:bold;font-size:11pt;font-family:mytwcenmt;}
 div.pg div.dayheaderheader pre{font-weight:bold;font-size:11pt;}
 div.pg div.dayheaderheader a,div.pg div.dayheaderheadertechchange a{display:block;font-weight:bold;color:#000;padding:8px 0 0 5px;width:99%;font-size:11pt;font-family:mytwcenmt;}
 div.pg ul.daycontent {background-color:#eaebff;padding-top:10px;width:99.7%;}
 div.pg ul.daycontent li{margin-left:45px;font-size:11pt;list-style:disc}
 div.pg ul.daycontent li pre{font-size:13pt;font-family:mytwcenmt}
 div.pg ul.daycontent li a{color:#000000;font-size:13pt;display:block;font-family:mytwcenmt}
+div.pg ul.daycontent li a.y pre{color:#004000;}
+div.pg ul.daycontent li a.o pre{color:#662500;}
+div.pg ul.daycontent li a.r pre{color:#ff0000;}
 div.pg ul.daycontent li a:hover {background-color:#ffaa00}
 
 div.pg pre.slidetitle {text-align:center;margin-top:30%;font-family:mytwcenmt;font-size:72pt;color:#004000}
@@ -67,21 +72,25 @@ div.pg div.slideheader ul.slidecontent li.big{margin-left:45px;font-size:13pt;li
 div.pg div.slideheader ul.slidecontent li.sml{margin-left:45px;font-size:4pt;list-style:disc}
 div.pg div.slideheader ul.slidecontent li.big pre{font-size:13pt;font-family:mybembo}
 div.pg div.slideheader ul.slidecontent li.big a{color:#000000;font-size:13pt;font-family:mybembo}
+div.pg div.slideheader ul.slidecontent li.big a.y pre{color:#004000}
+div.pg div.slideheader ul.slidecontent li.big a.o pre{color:#662500}
+div.pg div.slideheader ul.slidecontent li.big a.r pre{color:#ff0000}
 div.pg div.slideheader ul.slidecontent li.sml pre{font-size:3pt;font-family:mybembo}
+div.pg div.slideheader a {display:block}
 div.pg pre.slideabstract{ float:right;width:53%;padding-top:40px;font-size:10pt;font-style:Italic;font-family:mybembo;}
-div.pg pre.slidecontent {font-size:13pt;font-family:mytwcenmt;display:inline-block;max-width:60%}
+div.pg pre.slidecontent {font-size:13pt;font-family:mytwcenmt;display:block;max-width:60%}
 div.pg pre.slidecontent span {font-size:13pt;font-family:mytwcenmt;}
 div.pg pre.slidecontent pre.note {font-size:13pt;padding:2px 0px 8px 8px;border-radius:5px;font-family:mytwcenmt;background-color:#bcd4ff;color:#000000;display:inline-block}
 div.pg img.img {max-width:50%;text-align:center}
-div.pg pre.code {font-size:10pt;font-family:myconsolas;display:inline-block;max-width:70%;margin:4px 0px;}
+div.pg pre.code {font-size:10pt;font-family:myconsolas;display:block;max-width:70%;margin:4px 0px;}
 div.pg pre.code span {font-size:10pt;font-family:myconsolas;}
-div.pg pre.codeb {font-size:9pt;font-family:myconsolas;background-color:#eeeeee;display:inline-block;margin:4px 0px;padding:10px;max-width:70%}
+div.pg pre.codeb {font-size:9pt;font-family:myconsolas;background-color:#eeeeee;display:block;margin:4px 0px;padding:10px;max-width:70%}
 div.pg pre.codeb span {font-size:9pt;font-family:myconsolas;}
 div.pg pre.codei,div.pg pre.codei span {font-size:10pt;font-family:myconsolas;display:inline}
-div.pg pre.codec{font-size:6pt;font-family:myconsolas;max-width:70%;display:inline-block;}
+div.pg pre.codec{font-size:6pt;font-family:myconsolas;max-width:70%;display:block;}
 div.pg pre.codec span{font-size:6pt;font-family:myconsolas;}
 div.pg pre.codeci, div.pg pre.codeci span{font-size:6pt;font-family:myconsolas;display:inline}
-div.pg pre.codes{font-size:6pt;float:left;font-family:myconsolas; -webkit-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); -moz-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); padding: 5px 0 0 2px; background: #eee; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;max-width:49%;}
+div.pg pre.codes{font-size:6pt;float:left;display:block;font-family:myconsolas; -webkit-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); -moz-box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.75); padding: 5px 0 0 2px; background: #eee; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;min-width:40%;max-width:49%;}
 div.pg pre.slidecontent b{font-family:mytwcenmt}
 div.pg pre.slidecontent pre.blue{color:#447777;font-weight:bold;display:inline;}
 div.pg pre.slidecontent pre.black{color:#000;font-weight:bold;display:inline;}

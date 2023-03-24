@@ -1,4 +1,5 @@
 import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp/')
+import random
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -43,7 +44,7 @@ def init():
   drawtext(draw,sys.argv[1])
   img=Image.new('RGBA',(1090,314),(0,0,0,0))
   img.paste(img2,(200,155),img2)
- img.save('copyright.png')
+ img.save('logdir/copyright.png')
  glEnable(GL_LIGHTING)
  glEnable(GL_LIGHT0)
  glEnable(GL_NORMALIZE)
@@ -51,10 +52,10 @@ def init():
 # airplane=Shape(obj='airplane.obj',texture=('airplane.png',('copyright.png',40)),specular=(0.4,0.4,0.4,1),shininess=20)
 # earth=Shape(obj=os.path.expanduser('~')+r'/tmp/imageglobe/'+'airplane.obj',texture=(os.path.expanduser('~')+r'/tmp/MISC/gc/'+'skyblue.png',('copyright.png',100)),specular=(0.4,0.4,0.4,1),shininess=20)
  if sys.argv[2]=='1':
-  earth=Shape(obj=os.path.expanduser('~')+r'/tmp/imageglobe/'+'sphere.obj',texture=(os.path.expanduser('~')+r'/tmp/imageglobe/physical-world-map.jpg',('copyright.png',100 )),specular=(0.4,0.4,0.4,1),shininess=20)
+  earth=Shape(obj=os.path.expanduser('~')+r'/tmp/imageglobe/'+'sphere.obj',texture=(os.path.expanduser('~')+r'/tmp/imageglobe/'+('physical-world-map.jpg','satelite_2048_1024_mod.jpg','satelite_5000_2500_mod.jpg','yellowworldmap_mod.png')[random.randint(0,3)],('logdir/copyright.png',80 )),specular=(0.4,0.4,0.4,1),shininess=20)
  else:
-  Image.new('RGBA',(200,100),(0,255,0,255)).save('skyblue.png')
-  earth=Shape(obj=os.path.expanduser('~')+r'/tmp/imageglobe/'+'airplane.obj',texture=(os.path.expanduser('~')+r'/tmp/MISC/gc/'+'skyblue.png',('copyright.png',127)),specular=(0.4,0.4,0.4,1),shininess=20)
+  Image.new('RGBA',(200,100),(0,255,0,255)).save('logdir/skyblue.png')
+  earth=Shape(obj=os.path.expanduser('~')+r'/tmp/imageglobe/'+'airplane.obj',texture=(r'logdir/skyblue.png',('logdir/copyright.png',127)),specular=(0.4,0.4,0.4,1),shininess=20)
 
 def display():
  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -94,16 +95,16 @@ def keyboard(key,x=0,y=0):
  elif key==b'p':
   glFlush()
 #  subprocess.call(shlex.split(r'gnome-screenshot -d 1 -w -f tmp.png'))
-  subprocess.call(shlex.split(r'scrot -d 1 -u -F tmp.png'))
-  img=Image.open('tmp.png').convert('RGBA')
+  subprocess.call(shlex.split(r'scrot -d 1 -u -F logdir/tmp.png'))
+  img=Image.open('logdir/tmp.png').convert('RGBA')
 #  img.crop((img.width//3.3,img.height//7.2,img.width-img.width//3.3,img.height-img.height//8.5)).save('tmp2.png')
   if sys.argv[2]=='1':
-   img.crop((img.width//3.3,img.height//8.5,img.width-img.width//3.3,img.height-img.height//8.5)).save('tmp2.png')
+   img.crop((img.width//3.3,img.height//8.5,img.width-img.width//3.3,img.height-img.height//8.5)).save('logdir/tmp2.png')
   else:
-   img.crop((img.width//3.3,img.height//8.5,img.width-img.width//5,img.height-img.height//8.5)).save('tmp2.png')
-  subprocess.call(shlex.split(r'convert tmp2.png -channel rgba -fill "rgba(0,0,0,0)" -opaque "rgb(0,0,0)" '+re.sub(r'[\s/]+','',sys.argv[1]).lower()+'.png'))
-  os.remove('tmp.png')
-  os.remove('tmp2.png')
+   img.crop((img.width//3.3,img.height//8.5,img.width-img.width//5,img.height-img.height//8.5)).save('logdir/tmp2.png')
+  subprocess.call(shlex.split(r'convert logdir/tmp2.png -channel rgba -fill "rgba(0,0,0,0)" -opaque "rgb(0,0,0)" '+r'logdir/tex_'+re.sub(r'[\s/]+','',sys.argv[1]).lower()+'.png'))
+  os.remove('logdir/tmp.png')
+  os.remove('logdir/tmp2.png')
   glutDestroyWindow(globalwindow)
  glutPostRedisplay()
 

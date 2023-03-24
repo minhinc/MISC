@@ -13,7 +13,17 @@ $json1=json_decode(mysqli_fetch_row($util->db->get('headername','content','name'
    echo '<option value="'.$key.'">'.ucfirst(preg_replace("/ training$/i","",$json1['title'])).'</option>';
 }
 echo '</select></div>
-<div class="clr"></div><py>requestm.adsensepaste(0,0,backend="")</py>
+<div class="clr"></div><div align="center" style="width:100%;"<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- responsive-square -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-8488699542117607"
+     data-ad-slot="8189130995"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script></div>
 
 <div class="row"><pre class="lc bold">Name:</pre><input type="text" name="name" placeholder="Your Name" class="l"></div>
 <div class="row"><pre class="lc bold">Email:</pre><input id="emailid" type="text" name="email" placeholder="Email Address" class="l"></div>

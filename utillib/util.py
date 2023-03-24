@@ -3,9 +3,12 @@ from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
 import io,os,re
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+import datetime
 #from MISC.extra.debugwrite import print
 
 class Util:
+ customtag=['<h[yor]?>','<m>','<a>','<c>','<cb>','<cc>','<cs>']
+ DELIMITER='!ABS SBA!'
  def __init__(self):
   super(Util,self).__init__()
  def concatpdf(self,dir):
@@ -67,6 +70,7 @@ class Util:
  @staticmethod
  def push(*file,dir,push=False):
   data=None
+  retry=2
   if not hasattr(Util.push,'file'):
    Util.push.file=[]
   count=[x for x in Util.push.file if x[1]==dir]
@@ -74,10 +78,92 @@ class Util:
   print(f'<=>Util.push {Util.push.file=} {push=}')
   if push:
    for dir in Util.push.file:
-    data=os.popen(r'~/tmp/ftp.sh ls '+dir[1]).read()
+    os.mkdir(os.path.expanduser('~')+r'/tmp/imageglobe/'+dir[1]) if not os.path.exists(os.path.expanduser('~')+r'/tmp/imageglobe/'+dir[1]) else None
+    [os.system(f"cp {x} {os.path.expanduser('~')}/tmp/imageglobe/{dir[1]}/") for x in dir[0]]
+    while retry:
+     data=os.popen(r'~/tmp/ftp.sh ls '+dir[1]).read()
+     if data and not re.search(r'not connected',data,flags=re.I):
+      break
+     retry-=1
+    else:
+     print('Util.push Could Not Connect')
+     return None
 #    outputfile=' '.join([x for x in dir[0] if not re.search(x,data) or re.sub(r'^.*?(\d+)(?:\s+\w+){3}\s+'+x+r'\s*$',r'\1',data,flags=re.DOTALL) != re.sub(r'^.*?(\d+)(\s+\w+){3}\s+'+x+r'\s*$',r'\1',os.popen(r'ls -la '+x).read(),flags=re.M)])
     outputfile=' '.join([x for x in dir[0] if not re.search(x,data)])
-    print(f'data ->{data=} {dir=} {outputfile=}')
-    os.system(r'~/tmp/ftp.sh mput '+dir[1]+' '+outputfile) if outputfile else None
-   [[os.system(f"cp {x} {os.path.expanduser('~')}/tmp/MISC/{dir[1]}") for x in dir[0]] for dir in Util.push.file] if push else None
+    print(f'TEST Util.push data ->{dir[1]=} {outputfile=}')
+    os.system('cd ~/tmp/imageglobe/'+dir[1]+';'+r'~/tmp/ftp.sh '+'mput '+dir[1]+' '+outputfile) if outputfile else None
+#   [[os.system(f"cp {x} {os.path.expanduser('~')}/tmp/imageglobe/{dir[1]}") for x in dir[0]] for dir in Util.push.file] if push else None
    Util.push.file=[]
+ @staticmethod
+ def gethtmltag(htmltaglist,htmlstr):
+  htmltaglist=[re.sub(r'^<(.*)>$',r'\1',x) for x in htmltaglist]
+  resulttag={}
+  for i in re.findall(r'<(\w+)',htmlstr,flags=re.DOTALL):
+   if [x for x in htmltaglist if re.search(r'^'+x+r'$',i)]:
+    resulttag[i]=1 if i not in resulttag else resulttag[i]+1
+  print(f'--------- HTML TAG DETECTED ----------')
+  print(resulttag)
+  print(f'---------------------------')
+ @staticmethod
+ def gethtmltagdescripancy(htmltaglist,htmlstr):
+  htmltaglist=[re.sub(r'^<(.*)>$',r'\1',x) for x in htmltaglist]
+  resulttag={}
+  for i in re.split(r'(\n|\\n)',htmlstr):
+   for x in [x for x in re.findall(r'(?<!<)</?(\w+)',i) if [k for k in htmltaglist if re.search(r'^'+k+r'$',x)]]:
+    if re.search(r'</?'+x+r'[^>]+(<|$)',i):
+     if i not in resulttag:
+      resulttag[i]=[1,x]
+     else:
+      resulttag[i][0]+=1
+      resulttag[i].append(x) if x not in resulttag[i] else None
+  print(f'---------- HTML TAG DISCREPENCY FOUND ----------')
+  print(resulttag)
+  print(f'---------------------------')
+
+ @staticmethod
+ def usertagdescripancy(tech):
+  mismatchdict=dict()
+  for count,i in enumerate(re.split('\n',os.popen(f'python3 ../gc/seed.py print {tech}').read())):
+   for j in __class__.customtag:
+    count1=len(re.findall(r'(?<!\\)'+j,re.sub(r'\\n','\n',i),flags=re.M))
+    count2=len(re.findall(r'(?<!\\)'+re.sub('^<','</',j),re.sub(r'\\n','\n',i),flags=re.M))
+    if count1!=count2:
+     print(f'{count} {i[:20]} {j} {count1} {count2}')
+     mismatchdict[j]=(count,i[:20],j,count1,count2)
+  return mismatchdict
+
+ @staticmethod
+ def mysqldump():
+  open(f'dbname{datetime.datetime.today():%Y_%m_%d}.sql','w').write(re.sub('utf8mb4_0900_ai_ci','utf8mb4_general_ci',os.popen('mysqldump -p -u root epiz_30083730_minhinc').read()))
+
+ @staticmethod
+ def ftp(mode,dir,*filelist,localdir='.'):
+  print(f'><Util.ftp {mode=} {dir=} {filelist=} {localdir=}')
+  retrycount=2
+  while retrycount:
+   data=os.popen('cd '+localdir+';~/tmp/ftp.sh '+(mode=='get' and 'mget' or mode=='put' and 'mput' or mode)+' '+dir+' '+' '.join(filelist)).read()
+   if data and re.search('^Connected to',data,flags=re.M):
+    break
+   retrycount-=1
+  return retrycount if not retrycount else data
+ @staticmethod
+ def gettable():
+  return {i[1]:re.findall(r'(\w+)\s+(\w*(?:CHAR|INT|TEXT|BLOB))',i[2]) for i in re.findall('^(.*?)CREATE TABLE.*?(\w+)\s*\(\s*(.*?)"\s*\)',open(os.path.expanduser('~')+r'/tmp/MISC/utillib/'+'databasem.py').read(),flags=re.M) if not re.search('#',i[0])}
+ @staticmethod
+ def converttolatin1(strpar):
+  return strpar.encode('latin1').decode('latin1')
+
+ @staticmethod
+ def syncimagedir():
+  filelistremote=[i for i in re.findall(r'^(?:[d-]rw.*?)(\S+)$',Util.ftp('ls','image',''),flags=re.M) if not i=='.' and not i=='..']
+  filelistlocal=os.listdir(os.path.expanduser('~')+'/tmp/imageglobe/image/')
+  Util.ftp('put','image',*[i for i in filelistlocal if i not in filelistremote],localdir='~/tmp/imageglobe/image')
+  Util.ftp('get','image',*[i for i in filelistremote if i not in filelistlocal],localdir='~/tmp/imageglobe/image')
+ @staticmethod
+ def diffindirectory(dir1,dir2):
+  dir1file=[i for i in os.listdir(dir1) if not i=='.' and not i=='..']
+  dir2file=[i for i in os.listdir(dir2) if not i=='.' and not i=='..']
+  [print(dir1+'/'+i) for i in dir1file if i not in dir2file]
+  [print(dir2+'/'+i) for i in dir2file if i not in dir1file]
+  for i in [i for i in dir1file if i in dir2file]:
+   print(i,end=' ') if open(dir1+'/'+i).read()!=open(dir2+'/'+i).read() else None

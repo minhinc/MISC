@@ -14,7 +14,15 @@ echo ' <ul class="three"">
 <pre class="f10"><span class="bold">Available oral languages: </span><span class="f8">English</span></pre>
 <pre class="f10" style="margin-top:5px"><span class="bold">Online Training: </span><a href="'.$util->level.'/about/online" class="bold" style="font-size:16pt;color:#ff4444;">Click here</a></pre></li>';
 foreach (array('research','product') as $research){
-echo '<div class="clr"></div>    <li class="adsense100"><py>requestm.adsensepaste(0,100,backend="moblie")</py></li>';
+echo '<div class="clr"></div>    <li class="adsense100"><div align="center" style="width:100%;height:100px;"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- responsive-square -->
+<ins class="adsbygoogle adslot_1"
+     style="display:inline-block;height:100px;"
+     data-ad-client="ca-pub-8488699542117607"
+     data-ad-slot="8189130995"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></li>';
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$research))[0],true);
 $first=TRUE;
 foreach ($json['child'] as $key) {

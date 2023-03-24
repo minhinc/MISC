@@ -13,7 +13,7 @@ if($first){
 if($light=="light"){$light="dark";}else{$light="light";}
 echo '<li class="'.$light.'"><div class="l"><img class="ll" src="'.$util->level.'/image/'.$key.'.png"/><div class="rr"><pre>'.$item['title'].' - '.$item['description'].'</pre><a class="btnBlueGloss" href="'.$util->level.'/product/'.$key.'">... more</a></div></div>';
 }else{
-echo '<div class="r"><img class="ll" src="'.$util->level.'/image/'.$key.'.png"/><div class="rr"><pre>'.$item['title'].' - '.$item['description'].'</pre><a class="btnBlueGloss" href="'.$util->level.'/product/'.$key.'">... more</a></div></div></li>';
+echo '<div class="right"><img class="ll" src="'.$util->level.'/image/'.$key.'.png"/><div class="rr"><pre>'.$item['title'].' - '.$item['description'].'</pre><a class="btnBlueGloss" href="'.$util->level.'/product/'.$key.'">... more</a></div></div></li>';
 }
 $first=!$first;
 }

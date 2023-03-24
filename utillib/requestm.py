@@ -103,7 +103,7 @@ def adsenserect(width,height,criteria='.*desktop.*',factor=0.1):
 # print("><adsenserect width,height,factor",width,height,factor)
  if not hasattr(adsenserect,'rect'):
   db=databasec(False)
-  adsensecode=[(i[2],i[3:]) for i in db.get('adsense','*','name',criteria,regex=True) if i[3:]!=(0,0)]
+  adsensecode=[(i[2],i[3:]) for i in db.search2('adsense','*','name','R',criteria) if i[3:]!=(0,0)]
   rect=[i[1] for i in adsensecode]
   setattr(adsenserect,'adsensecode',adsensecode)
   setattr(adsenserect,'rect',rect)
@@ -153,18 +153,19 @@ def adsenserect(width,height,criteria='.*desktop.*',factor=0.1):
 def youtubeimage(youtubeid,pushonserver=False):
  """<- (imageurl,img.size)"""
  print(f'><youtubeimage {youtubeid=}')
- if os.path.exists(os.path.expanduser('~')+r'/tmp/MISC/image/'+youtubeid+r'.jpg'):
+ if os.path.exists(os.path.expanduser('~')+r'/tmp/imageglobe/image/'+youtubeid+r'.jpg'):
 #  print(f'image {youtubeid=}.jpg available at {os.path.expanduser("~")+r"/tmp/MISC/image"}')
-  img=Image.open(os.path.expanduser('~')+r'/tmp/MISC/image/'+youtubeid+r'.jpg')
+  img=Image.open(os.path.expanduser('~')+r'/tmp/imageglobe/image/'+youtubeid+r'.jpg')
  else:
   with Image.open(gets(r'https://img.youtube.com/vi/'+youtubeid+r'/sddefault.jpg',get=True,stream=True,retrycount=4)) as img:
-   with Image.open(os.path.expanduser('~')+r'/tmp/MISC/image/youtubebutton.png') as youtubebuttonimg:
+   with Image.open(os.path.expanduser('~')+r'/tmp/imageglobe/image/youtubebutton.png') as youtubebuttonimg:
     youtubebuttonimg=youtubebuttonimg.resize((img.width//5,img.height//5))
     img.paste(youtubebuttonimg,(int((img.width-youtubebuttonimg.width)/2),int((img.height-youtubebuttonimg.height)/2)),youtubebuttonimg)
     img=img.crop((0,int((img.height-(img.width*9)/16)/2),img.width,int((img.height+(img.width*9)/16)/2)))
     print('image ',youtubeid+r'.jpg not available at /image uploading...')
-    img.save(os.path.expanduser('~')+r'/tmp/MISC/image/'+youtubeid+".jpg")
-    os.system(r'~/tmp/ftp.sh -f put image ./'+youtubeid+'.jpg') if pushonserver else None
+    img.save(os.path.expanduser('~')+r'/tmp/imageglobe/image/'+youtubeid+".jpg")
+#    os.system(r'~/tmp/ftp.sh -f put image ./'+youtubeid+'.jpg') if pushonserver else None
+    Util.ftp('put','image','./'+youtubeid+'.jpg') if pushonserver else None
  #print('imagewidth',img.size)
  #return (r'http://minhinc.000webhostapp.com/image/'+youtubeid+'.jpg',img.size)
  return (r'http://minhinc.42web.io/image/'+youtubeid+'.jpg',img.size)
@@ -202,9 +203,10 @@ def syncyoutube(*youtubelinklist):
  ftpstring=''
  for i in [re.sub(r'.*\?v=(.*)$',r'\1',i) for i in youtubelinklist]:
   if not re.search(i+r'.jpg\n',data):
-   if not os.path.exists(os.path.expanduser('~')+r'/tmp/MISC/image/'+i+r'.jpg'):
+   if not os.path.exists(os.path.expanduser('~')+r'/tmp/imageglobe/image/'+i+r'.jpg'):
     youtubeimage(i)
    ftpstring+=r' ./'+i+'.jpg'
  print(f'syncyoutube {ftpstring=}')
  if ftpstring:
-  os.system('cd ~/tmp/MISC/image/;~/tmp/ftp.sh mput image'+ftpstring)
+  os.system('cd ~/tmp/imageglobe/image/;~/tmp/ftp.sh mput image'+ftpstring)
+

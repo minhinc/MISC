@@ -11,6 +11,10 @@
     font-family: myconsolas;
     src: url("./../misc/Consolas.ttf")
 }
+@font-face {
+    font-family: myliberationserif;
+    src: url("./../misc/LiberationSerif-Regular.ttf")
+}
 * {margin:0px;padding:0px;font-family:Verdana, Arial, Geneva, sans-serif; color:#000;text-decoration:none;list-style:none;}
 p,a {font-size:11px;}
 p.inline,a.inline {display:inline-block;}

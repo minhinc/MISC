@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email import encoders
+from MISC.utillib.util import Util
 import smtplib
 import subprocess,shlex
 
@@ -25,6 +26,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
  def __init__(self,subprocess=False):
   super(sendmail,self).__init__(True,'linkedin')
   self.MAXEMAIL=3
+  self.subprocess=subprocess
   self.emailcount=int(re.sub(r'^.*(\d+)$',r'\1',open(r'logdir/emailcount.txt','r').read()) if os.path.exists(r'logdir/emailcount.txt') else 1)%self.MAXEMAIL+1 
   if not subprocess:
 #   os.remove(r'logdir/seleniumdump.html') if os.path.exists(r'logdir/seleniumdump.html') else None
@@ -38,6 +40,13 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
   if not self.connect():
    print(f'connection failed tominhinc{self.emailcount}@gmail.com, exiting..')
    sys.exit(-1)
+  if not subprocess:
+   if Util.ftp('get','unsubscribe','track.txt'):
+    self.db.search2('message',*[(0,x) for x in re.findall(r'^\S+\s+2\s+(.*)$',open('track.txt').read(),flags=re.M) if not self.db.search2('message','name','=',x,mode='search')],mode='insertbulk')
+    self.db.search2('track',*[('status',2,'email','=',x) for x in re.findall(r'^(\S+)\s+2\s+.*$',open('track.txt').read(),flags=re.M)],mode='updatebulk')
+    self.db.search2('track',*[('message',int(self.db.search2('message','id','name','=',x[1],mode='get')[0][0]),'email','=',x[0]) for x in re.findall(r'^(\S+)\s+2\s+(.*)$',open('track.txt').read(),flags=re.M)],mode='updatebulk')
+   os.system('python3 ../gc/seed.py print track > track.txt')
+   Util.ftp('put','unsubscribe','track.txt')
 
  def connect(self):
   while self.emailcount<=self.MAXEMAIL:
@@ -111,7 +120,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
   msgRoot.attach(msgAlternative)
 
 #  print("mail {}".format(self.message.jsonemailcontent[tech]["1"]))
-  msgHTML=MIMEText(re.sub(r'MMYY',calendar.month_name[(datetime.date.today()+datetime.timedelta(days=16)).month]+' '+str((datetime.date.today()+datetime.timedelta(days=16)).year),re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.get('track','uuid','email',strTo)[0][0],emailcontent,flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),'html')
+  msgHTML=MIMEText(re.sub(r'MMYY',calendar.month_name[(datetime.date.today()+datetime.timedelta(days=16)).month]+' '+str((datetime.date.today()+datetime.timedelta(days=16)).year),re.sub(r'XXX',strTo,re.sub(r'email=XXX','email='+self.db.search2('track','uuid','email','=',strTo,mode='get')[0][0],emailcontent,flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),flags=re.DOTALL|re.I),'html')
 #  msgHTML.replace_header('Content-Type','text/html' if "t" not in self.message.jsonemailcontent[tech] else self.message.jsonemailcontent[tech]["t"])
   msgHTML.replace_header('Content-Type','text/html')
   msgAlternative.attach(msgHTML)
@@ -126,7 +135,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
   print(f'{"################## sendmail.get ##################":^100}\n{url=!r:^100}')
   lc=0
   if not (len(url)==3 and type(url[2])==int): # sending email when calling this module individually get(('comp pvt. ltd','qt','canada','pravinkumarsinha@gmail.com','tominhinc@gmail.com'),('ding dong pvt. ltd','cpp','india','tominhinc@gmail.com'))
-   emaillist=[x[0] for count,x in enumerate(self.db.search2('track','*','expire','<',re.sub('-','',(datetime.date.today()-datetime.timedelta(days=50)).isoformat()),'status','<',2,mode='get')) if len(url)==1 and type(url[0])==int and count<url[0] or url and x[0] in url or not url]
+   emaillist=[x[0] for count,x in enumerate(self.db.search2('track','*','date','<',re.sub('-','',(datetime.date.today()-datetime.timedelta(days=50)).isoformat()),'status','<',2,mode='get')) if len(url)==1 and type(url[0])==int and count<url[0] or url and x[0] in url or not url]
    print(f'<=>sendmail.get {emaillist=}')
    for count,i in enumerate(emaillist[:]):
     try:
@@ -142,7 +151,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
        self.db.delete('track','email',i)
       else:
        self.smtp.close()
-       self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count]],mode='updatebulk')
+       self.db.search2('track',*[('date',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count]],mode='updatebulk')
 #       if not self.emailcount==self.MAXEMAIL:
        if not len(re.findall(r'\d+',open(r'logdir/emailcount.txt').read()))==self.MAXEMAIL:
         subprocess.call(shlex.split(r'python3 -c "import os,sys;sys.path.append(os.path.expanduser(\"~\")+r\"/tmp/\");import MISC.utillib.sendmail as sendmail;s=sendmail.sendmail(subprocess=True);s.get()"'))
@@ -151,18 +160,18 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
      print(f"{count+1}/{len(emaillist)} email sent ({self.emailcount}) {i}")
      if not (count+1)%10:
       print(f'database updating... {lc} -> {count}')
-      self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count+1]],mode='updatebulk')
+      self.db.search2('track',*[('date',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count+1]],mode='updatebulk')
       lc=count+1
      elif count==len(emaillist)-1:
       print(f'--- ALL MAIL SENT({len(emaillist)}) ---')
-      self.db.search2('track',*[('expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count+1]],mode='updatebulk')
+      self.db.search2('track',*[('date',re.sub('-','',datetime.date.today().isoformat()),'email','=',x) for x in emaillist[lc:count+1]],mode='updatebulk')
 #     self.db.search2('track','expire',re.sub('-','',datetime.date.today().isoformat()),'email','=',i[0],mode='update')
    self.smtp.close()
    print(f'database updated')
    print(f'******  ALL EMAIL SENT  *******\n{url=!r:^100}\n***************************')
    if not os.path.isdir('logdir'):
     os.mkdir('logdir')
-   if self.emailcount==self.MAXEMAIL:
+   if not self.subprocess:
     os.system(r'python3 ../gc/seed.py print > dbbackup.txt')
     os.system(r'rm dbbackup.7z')
     os.system(r'7z a dbbackup.7z dbbackup.txt')

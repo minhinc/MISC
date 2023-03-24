@@ -1,6 +1,6 @@
 if [[ $# -eq 0 ]]; then
 echo "--usage--"
-echo "./arg.sh <[qt|c|cpp|gl|li|ldd|dp|[Aa]ll> <[companyname]>"
+echo "./arg.sh <[qt|c|cpp|gl|li|ldd|dp|[Aa]ll> <[companyname]> <[firefox]> <[push]>"
 exit
 fi
 
@@ -17,7 +17,7 @@ gl=("1 2 3 4:L" "5 6 7:8 9 L" "10:101 102 L")
 alltech[gl]=gl[@]
 qml=("1 2 3:4 L" "5 6 12:7 L" "8 9 10:11 13 L")
 alltech[qml]=qml[@]
-py=("1 2 3:L" "4 5 6:7 L" "8 9:L" "10 11:L" "12 13:L")
+py=("1 2 3:L" "4 5 6:7 L" "8 9:10 L" "11 12 13:14 L" "15 16 17:L")
 alltech[py]=py[@]
 ldd=("1 2:L" "3 4:L" "5 6:L" "7 8:L" "9 10:L")
 alltech[ldd]=ldd[@]
@@ -42,13 +42,16 @@ for i in "${!alltech[@]}"; do
  if [ $1 == ${i} ] || echo ${1}|egrep '^[Aa]ll'; then
   value=${alltech[$i]}
 #  python3 agenda.py $1 $2 $i "$under" "${!value}"
-  if [ ! -z "$2" ]; then
+  rm -rf logdir/advance-${i}-slides*.*
+  if [[ ( ! -z "$2"  &&  "$2" != "firefox" ) || ( ! -z "$3"  &&  "$3" != "push" ) ]]; then
    echo "---> python3 agenda.py --tech $1 --company $2 ${!value}"
    python3 agenda.py --tech $1 --company $2 "${!value}"
   else
    echo "---> python3 agenda.py --tech $1 ${!value}"
    python3 agenda.py --tech $1 "${!value}"
+   if [[ ( ! -z "$2"  &&  "$2" == "firefox" ) || ( ! -z "$3"  &&  "$3" == "firefox" ) ]]; then
    python3 agenda.py --browser firefox --tech $1 "${!value}"
+   fi
   fi
 #  if [ $2 == "php" ]; then
 #   read -p "Press (y/n) to send advance-${i}-slides${backend}.txt to the server ... " yorno
@@ -70,9 +73,12 @@ for i in "${!alltech[@]}"; do
       count=$((count+1))
      done
     done
+    if [[ ( ! -z "$2"  &&  "$2" == "push" ) || ( ! -z "$3"  &&  "$3" == "push" ) ]]; then
     echo $argstr
     cd logdir
     ~/tmp/ftp.sh mput training/${i} $argstr `echo ${argstr}|sed 's/\(.txt\)/_m\1/g'` `echo ${argstr}|sed 's/\(.txt\)/_f\1/g'`
+    ~/tmp/ftp.sh mput training advance-${i}-slides.pdf advance-${i}-slides_print.pdf
+    fi
 #    ~/tmp/ftp.sh mput training/${i} `echo ${argstr}|sed 's/\(.txt\)/_m\1/g'`
 #   fi
 #  fi
