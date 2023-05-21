@@ -1,6 +1,6 @@
 <?php
 function draw($util){
-echo '<a href="https://www.youtube.com/c/minhinc"><img class="traininglogo" src="./image/traininglogo.png"/></img></a>
+echo '<a href="https://www.youtube.com/c/minhinc"><img class="traininglogo" src="./image/main_front.png"/></img></a>
  <div class="one"> <ul class="events">
   <li class="header"><p>Upcoming Events</p></li>';
 $json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name','main'))[0],true);

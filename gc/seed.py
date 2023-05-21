@@ -40,16 +40,13 @@ else:
   for (table,) in dbi.search2('',mode='showtables'):
    print(table)
  elif re.search('push',sys.argv[1],flags=re.I):
-  tabledict=dict()
-  for i in ((sys.argv[2],) if len(sys.argv)>3 else re.findall('^\s+(\w+)\s+$',open(sys.argv[2]).read(),flags=re.M)):
-   tabledict[i]=re.sub(r'(?:^|\n)\s+'+i+'\s+\n?(.*?)(?=\n\s+|$)',r'\1',open(sys.argv[2 if len(sys.argv)==3 else 3]).read(),flags=re.DOTALL)
-  print(f'push {tabledict=}')
+  tabledict=dict([(x[0],re.sub(r'^\n','',x[1])) for x in re.findall(r'(?:^|\n)[ \t]+(\w+)[ \t]+(.*?)(?=\n\s+|$)',open(sys.argv[2 if len(sys.argv)==3 else 3]).read(),flags=re.DOTALL)])
+  if len(sys.argv)>3:
+   tabledict=dict([(sys.argv[2],tabledict[sys.argv[2]])])
+  print(f'push {tabledict.keys()=}')
   for i in tabledict:
    print(f'<=>push truncating {i=}')
    dbi.search2(i,mode='trunc')
-#   dbi.search2(i,*[re.split(Util.DELIMITER,eval(Util.converttolatin1(line))) for line in re.split('\n',tabledict[i]) if line],mode='fillbulk')
-#   dbi.search2(i,*[[eval(Util.converttolatin1(re.sub(r'^[\'"](.*)[\'"]$',r'\1',x))) for x in re.split(Util.DELIMITER,line)] for line in re.split('\n',tabledict[i]) if line],mode='insertbulk')
-#   dbi.search2(i,*[re.split(Util.DELIMITER,Util.converttolatin1(re.sub(r'^[\'"](.*)[\'"]$',r'\1',line))) for line in re.split('\n',tabledict[i]) if line],mode='insertbulk')
    dbi.search2(i,*[[Util.converttolatin1(x) for x in re.split(Util.DELIMITER,eval(line))] for line in re.split('\n',tabledict[i]) if line],mode='insertbulk')
  elif re.search('youtube',sys.argv[1],flags=re.I):
   from selenium import webdriver
@@ -94,7 +91,7 @@ else:
   [dbi.search2(table,mode=sys.argv[1]) for table in sys.argv[2:]]
   print(f'dropped table(s) {sys.argv[2:]}')
  elif re.search('delete',sys.argv[1],flags=re.I):
-  print(dbi.search2(sys.argv[1:],mode='delete'))
+  print(dbi.search2(*sys.argv[2:],mode='delete'))
  elif re.search('insert', sys.argv[1],flags=re.I):
   tmptuple=libi.str2tuple(sys.argv[3])
   print(f'{tmptuple=} {len(tmptuple)=}')

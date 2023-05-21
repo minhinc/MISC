@@ -5,6 +5,7 @@ from PIL import Image,ImageDraw,ImageFont
 import datetime
 import math
 from selenium import webdriver
+import PyPDF2
 import MISC.utillib.requestm as requestm
 from MISC.utillib.databasem import databasec
 from MISC.utillib.util import Util
@@ -13,7 +14,7 @@ from MISC.extra.debugwrite import print
 if len(sys.argv)<4:
  print(''' ---usage---
  Note:-[Ll]->lab [Tt]->Theory
- agenda.py [--browser firefox] --tech [c|cpp|gl|li|ldd|py|qt|qml|ml] --company '' "(((1,2,3),(4,L)),((4 5 6),(L,qml1)),((2,),(4T 3 L)))"
+ agenda.py --tech [c|cpp|gl|li|ldd|py|qt|qml|ml] --company '' "(((1,2,3),(4,L)),((4 5 6),(L,qml1)),((2,),(4T 3 L)))"
  =agenda.py --tech [c|cpp|gl|li|ldd|py|qt|qml] --company '' "(((1,2,3),(4,L)),((4 5 6),(L,qml1)),((2,),(4T 3 L)))"
  agenda.py --tech qt --company '' "(((1,2,3),(4,L)),((4,5,6),(L,)))"
  agenda.py --tech qt --company 'ABC Company' "(1,2,4,5,3)"
@@ -36,15 +37,15 @@ class format:
  DELIMITER='!ABS SBA!'
  #PH -> Page Height Maximum TM->Top Margin
 # PH,TM=1402,20
- PH,TM=1400,20
- PDFOFST=(TM*3)//2
+ TM=20
  ADIMAGEHEIGHT=200
  TESTFILE='test.html'
+ TESTPDF='test.pdf'
  LEFTBLANK='Intentionally Left Blank'
  def __init__(self):
   super(format,self).__init__()
   self.libi=libc()
-  self.browser,self.tech,self.company=Util.getarg('--browser',2),Util.getarg('--tech',2).lower(),Util.getarg('--company',2)
+  self.tech,self.company=Util.getarg('--tech',2).lower(),Util.getarg('--company',2)
   if Util.usertagdescripancy(self.tech):
    print(f'-------- USER TAG DESCRIPANCY TAG FOUND --------')
    print(f'------------------------------------------------')
@@ -57,18 +58,27 @@ class format:
   self.PAGEWIDTH=int(re.sub(r'^.*body\s*{\s*width\s*:\s*(\d+).*$',r'\1',open(r'../css/main.css').read(),flags=re.I|re.DOTALL))
   self.htmlstr=''
   self.db=databasec(False)
-  self.driver=None
+  self.driver={'firefox':None,'chrome':None}
   self.pagenumber=0
   print(f'<=>format.__init__ self.tech={self.tech} self.company={self.company} self.day={self.day} sys.argv={sys.argv}')
   self.fileheader=(f'<html>\n<head>\n<title>Minh, Inc. Software development and Outsourcing| {self.tech} training Bangalore India</title>\n<META http-equiv="Content-Type" content="text/html; charset=UTF-8">\n<link rel="stylesheet" type="text/css" href="../css/main.css" media="all"/>\n<link rel="stylesheet" type="text/css" href="../css/agenda.css" media="all"/>\n</head>\n<body>\n','\n</body>\n</html>')
   os.mkdir(r'logdir') if not os.path.exists('logdir') else None
+  self.PH=int(open('logdir/ph.txt').read()) if os.path.exists('logdir/ph.txt') else 1390
+  Image.new('RGBA',(self.PAGEWIDTH//2,self.PH),color=(255,0,0,255)).save('logdir/ding.png')
+  while self.lineheightnhtml(f'<img src="logdir/ding.png" style="height:{self.PH}px;"/>')[2]>=2:
+   self.PH-=1
+  while self.lineheightnhtml(f'<img src="logdir/ding.png" style="height:{self.PH}px;"/>')[2]==1:
+   self.PH+=1
+  self.PH-=1
+  open('logdir/ph.txt','w').write(f'{self.PH}')
   self.preparedisclaimer()
   self.prepareheader()
   self.preparecontent()
   self.preparedisclaimer2()
   self.prepareoutfile()
 #  os.remove(self.TESTFILE)
-  self.driver.close()
+  self.driver['firefox'].close()
+  self.driver['chrome'].close()
 
  def placepagebreak(self,side,topicnumber=0,arrow=True):
   '''\
@@ -84,11 +94,12 @@ class format:
 #   tmpstr+=(f'\n <pre class="ftr">&copy {Util.webpageurl()}</pre><a href="#main{topicnumber}" class="pn">{"p"+str(self.pagenumber)}</a>' if arrow else '')+'\n</div>'
    tmpstr+=(f'\n <a class="ftr" style="display:block" href="{Util.webpageurl(http=True)}">&copy {Util.webpageurl()}</a><a class="pn" href="#main{topicnumber}">p{self.pagenumber}</a>' if arrow else '')+'\n</div>'
   if side in ['top','all']:
+#   tmpstr+='\n'+rf'<div class="pg" style="height:{self.PH}px;"><div class="topcolor" style="height:{self.TM}px;"></div>'
    tmpstr+='\n'+rf'<div class="pg" style="height:{self.PH}px;"><div class="topcolor" style="height:{self.TM}px;"></div>'
   self.htmlstr+=tmpstr if arrow else ''
   return tmpstr
 
- def lineheightnhtml(self,htmlcode):
+ def lineheightnhtml(self,htmlcode,makepdf=True,driver='chrome'):
   '''\
   <-  ({'height':,'width':} convertedhtmlcode)
   ->
@@ -100,24 +111,26 @@ class format:
   print(f'><lineheightnhtml htmlcode={htmlcode}')
 #  covertag='<div class="pg" style="overflow:auto;">'
   htmlcode='\n'.join([x if x else ' ' for x in htmlcode.split('\n')])
-  if not self.driver:
-   if str(self.browser).lower()=='firefox':
-    self.driver=webdriver.Firefox(executable_path=os.path.expanduser('~')+r'/nottodelete/geckodriver')
+  if not self.driver[driver]:
+   if driver=='firefox':
+    self.driver[driver]=webdriver.Firefox(executable_path=os.path.expanduser('~')+r'/nottodelete/geckodriver')
    else:
-    self.driver=webdriver.Chrome()
-   self.driver.maximize_window()
+    self.driver[driver]=webdriver.Chrome()
+   self.driver[driver].maximize_window()
    with open(self.TESTFILE,'w') as file:
     file.write(r'')
-   self.driver.get(r'file:///'+re.sub(r'/?$','',os.getcwd())+r'/'+self.TESTFILE)
+   self.driver[driver].get(r'file:///'+re.sub(r'/?$','',os.getcwd())+r'/'+self.TESTFILE)
   htmlcode=eval(','.join(r"re.sub(r'"+x+"',r'"+self.inlinehtmltag[x]+"' if '"+self.inlinehtmltag[x]+"'!='EMPTY' else '<'+r'\\1'+'>'" for x in self.inlinehtmltag)+r",re.sub(r'(?P<id>\\?&lt;/?)(?P<id2>\w+)(?P<id3>((?!&lt;).)*?&gt;)',lambda m:re.sub(r'&lt;','<',m.group('id'))+m.group('id2')+re.sub(r'&gt;','>',m.group('id3')) if not re.search(r'^\\',m.group('id')) and [x for x in self.inlinehtmltag if re.search(x,'<'+m.group('id2')+'>',flags=re.I)] else re.sub(r'\\&lt;','&lt;',m.group('id'))+m.group('id2')+m.group('id3'),re.sub(r'<',r'&lt;',re.sub(r'>',r'&gt;',htmlcode,flags=re.M),flags=re.M),flags=re.M)"+',flags=re.I|re.M)'*len(self.inlinehtmltag),{"self":self,"re":re},{"htmlcode":htmlcode})
 #  htmlcode=re.sub(r'&lt;m&gt;(?P<id>.*?)&lt;/m&gt;',lambda m:r'<a href="'+re.sub(r'^.*(http.*)',r'\1',m.group('id'))+r'">'+re.sub(r'^(.*)(http.*)',r'\1' or r'\2',m.group('id'))+r'</a>',htmlcode,flags=re.M)
   htmlcode=re.sub(r'&lt;m&gt;(?P<id>.*?)&lt;/m&gt;',lambda m:r'<a href="'+re.sub(r'^.*(http.*)',r'\1',m.group('id'))+r'">'+re.sub(r'^(?P<id2>.*)(?P<id3>http.*)',lambda m:m.group('id2') or m.group('id3'),m.group('id'))+r'</a>',htmlcode,flags=re.M)
   with open(self.TESTFILE,'w') as file:
    file.write(self.fileheader[0]+'<div class="pg" style="overflow:auto;">'+htmlcode+'</div>'+self.fileheader[1])
-  self.driver.refresh()
-  elementdata=self.driver.find_element_by_css_selector('div.pg')
-  print(f'''<>lineheightnhtml {elementdata.size=} {elementdata.value_of_css_property('margin-top')=} {elementdata.value_of_css_property('margin-bottom')=} {open(self.TESTFILE).read()=}''')
-  return ({'height':elementdata.size['height']+int(re.sub(r'^\s*(\d+).*$',r'\1',elementdata.value_of_css_property('margin-top')))+int(re.sub(r'^\s*(\d+).*$',r'\1',elementdata.value_of_css_property('margin-bottom'))),'width':elementdata.size['width']},htmlcode)
+  self.driver[driver].refresh()
+  elementdata=self.driver[driver].find_element_by_css_selector('div.pg')
+  height=elementdata.size['height']+int(re.sub(r'^\s*(\d+).*$',r'\1',elementdata.value_of_css_property('margin-top')))+int(re.sub(r'^\s*(\d+).*$',r'\1',elementdata.value_of_css_property('margin-bottom')))
+  os.system('wkhtmltopdf --enable-local-file-access '+self.TESTFILE+' '+self.TESTPDF+' > /dev/null 2>&1') if makepdf and height>self.PH*0.75 else None
+  print(f'''<>lineheightnhtml {elementdata.size=} {elementdata.value_of_css_property('margin-top')=} {elementdata.value_of_css_property('margin-bottom')=} {open(self.TESTFILE).read()=} numpages={PyPDF2.PdfFileReader(open(self.TESTPDF,'rb')).numPages if makepdf and height>self.PH*0.75 else 1}''')
+  return ({'height':elementdata.size['height']+int(re.sub(r'^\s*(\d+).*$',r'\1',elementdata.value_of_css_property('margin-top')))+int(re.sub(r'^\s*(\d+).*$',r'\1',elementdata.value_of_css_property('margin-bottom'))),'width':elementdata.size['width']},htmlcode,PyPDF2.PdfFileReader(open(self.TESTPDF,'rb')).numPages if makepdf and height>self.PH*0.75 else 1)
  
  def searchtag(self,tag,cnt,getcode=False,getall=False,includetag=False):
 #  return re.search(r'^[ \t]*<'+tag+r'>[ \t]*\n',cnt,flags=re.I|re.DOTALL)
@@ -146,17 +159,30 @@ class format:
     return cnt,''
 
  '''
- def adsense(self,height):
+ def adsense(self,height=None,width=None,imageurl=None):
+  basetech=youtube=None
   if not hasattr(format.adsense,'tech'):
    format.adsense.tech=[]
-#  print(f'TEST adsense {height=} {format.adsense.tech=}')
-  height-=int(self.TM*1.2)
-  format.adsense.tech=[x[0] for x in self.db.search2('tech','name','name','R','.*',mode='get') if x[0]!=self.tech and os.path.exists(os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+x[0]+'traininglogo.gif')] if not format.adsense.tech else format.adsense.tech
-  basetech=format.adsense.tech[random.randint(0,len(format.adsense.tech)-1)]
-  format.adsense.tech[format.adsense.tech.index(basetech):format.adsense.tech.index(basetech)+1]=[]
-  img=Image.open(os.path.expanduser('~')+r'/tmp/imageglobe/resource/'+f'{basetech}traininglogo.gif')
-  heightl=(height*img.width)/img.height > self.PAGEWIDTH*0.95 and int((self.PAGEWIDTH*0.95*img.height)/img.width) or height
-  return '\n<div class="clr"></div>'+f'<a style="display:block" href="{"http://"+Util.webpageurl()+"/training/"+basetech}"><img style="margin:{heightl<height and (height-heightl)//2 or self.TM//2}px 0;margin-left:{(self.PAGEWIDTH-(heightl*img.width)//img.height)//2}px;height:{heightl}px;" src=http://{Util.webpageurl()}/image/{basetech}traininglogo.gif /></a>'+'<div class="clr"></div>\n'
+  if not imageurl:
+   format.adsense.tech=[x[0] for x in self.db.search2('tech','name','name','R','.*',mode='get') if x[0]!=self.tech and os.path.exists(os.path.expanduser('~')+r'/tmp/imageglobe/image/'+x[0]+'traininglogo.gif')] if not format.adsense.tech else format.adsense.tech
+   basetech=format.adsense.tech[random.randint(0,len(format.adsense.tech)-1)]
+   format.adsense.tech[format.adsense.tech.index(basetech):format.adsense.tech.index(basetech)+1]=[]
+   imageurl=f'{basetech}traininglogo.gif'
+  else:
+   youtube=True if re.search('youtube',imageurl,flags=re.I) else False
+   imageurl=re.sub('.*/(.*)$',r'\1',imageurl)
+  img=Image.open(os.path.expanduser('~')+r'/tmp/imageglobe/image/'+imageurl)
+  if width:
+   widthl=width if img.width>=width else img.width
+   heightl=(widthl*img.height)//img.width
+  if height:
+   heightl=height if img.height >= height else img.height
+   widthl=(heightl*img.width)//img.height
+   if widthl>self.PAGEWIDTH:
+    widthl=self.PAGEWIDTH
+    heightl=(widthl*img.height)//img.width
+  print(f'<=>adsense adsense {(width,height)=} {(widthl,heightl)=} {(youtube,imageurl)=} {format.adsense.tech=}')
+  return '\n<div class="clr"></div>'+f'<a style="display:block" href="'+(f'https://youtube.com/watch?v={imageurl}' if youtube else Util.webpageurl(http=True)+"/image/"+imageurl if not basetech else Util.webpageurl(http=True)+"/training/"+basetech)+f'"><img style="height:{heightl}px;margin:{((height and height or heightl)-heightl)//2}px {(self.PAGEWIDTH-widthl)//2}px" src="http://{Util.webpageurl()}/image/{imageurl}" /></a>'+'<div class="clr"></div>\n'
 
 class trainingformat(format):
  def __init__(self):
@@ -185,9 +211,9 @@ class trainingformat(format):
     tmpstr=''' <hr>
 '''
    self.htmlstr+=re.sub(r'^(?P<id>.*?<div.*?class="header(?:left|right)")(?P<id2>.*)$',lambda m:m.group('id')+' style="height:'+str(self.lineheightnhtml(tmpstr)[0]['height'])+'px;"'+m.group('id2'),tmpstr,flags=re.M)
-  tmpstr=(self.PH-self.PDFOFST-max(int(0.65*(self.PH-self.PDFOFST)),self.lineheightnhtml(self.getpage())[0]['height']))//len(re.findall(r'<div\s+class="headerleft"',self.getpage(),flags=re.M))
+  tmpstr=int(max(0,(self.PH*0.70-self.lineheightnhtml(self.getpage())[0]['height'])//len(re.findall(r'<div\s+class="headerleft"',self.getpage(),flags=re.M))))
   self.htmlstr=re.sub(r'(?P<id><div\s+class="header(?:left|right)".*?style="height:)(?P<id2>\d+)(?P<id3>.*)$',lambda m:m.group('id')+str(eval(m.group('id2'))+tmpstr)+m.group('id3'),self.htmlstr,flags=re.M)
-  self.htmlstr=re.sub(r'(class="title")',r'\1'+f' style="margin-top:{int((self.PH-self.PDFOFST-self.lineheightnhtml(self.getpage())[0]["height"])*0.3)}"',self.htmlstr,flags=re.DOTALL)
+  self.htmlstr=re.sub(r'(class="title")',r'\1'+f' style="margin-top:{int((self.PH-self.lineheightnhtml(self.getpage())[0]["height"])*0.3)}"',self.htmlstr,flags=re.DOTALL)
   self.placepagebreak('all')
   for count,data in enumerate(self.db.search2(self.tech,'*','name','ROid','^h2_',mode='get')):
    tmpstr=f"""
@@ -222,11 +248,12 @@ class trainingformat(format):
  '''
 #     print(f'TEST {(k,i,j)=} {tmpstr=}')
      labstr.clear() if re.search(r'^[Ll]$',day[k][i][j]) else None
-     def fixextragap(self):
+     def fixextragap(self,factor=1.0):
+      tmphtmlstr=self.htmlstr
       headermorningcount=len(re.findall(r'YYY.*?Morning',self.htmlstr,flags=re.I))
       headerafternooncount=len(re.findall(r'YYY.*?Afternoon',self.htmlstr,flags=re.I))
       daycount=len(re.findall(r'dayheaderleft.*?XXX',self.htmlstr,flags=re.I))
-      basevalue=int((self.PH-self.PDFOFST-self.lineheightnhtml(re.sub(r'(YYY|XXX)','',self.getpage(),flags=re.DOTALL))[0]['height'])/(6*headermorningcount+2*headerafternooncount+daycount)) if headermorningcount+headerafternooncount+daycount>0 else 0
+      basevalue=int(factor*(self.PH-self.lineheightnhtml(re.sub(r'(YYY|XXX)','',self.getpage(),flags=re.DOTALL))[0]['height'])/(6*headermorningcount+2*headerafternooncount+daycount)) if headermorningcount+headerafternooncount+daycount>0 else 0
 #      print(f'TEST {(headermorningcount,headerafternooncount,daycount)=} {basevalue=} {(k,i,j)=}')
       if headermorningcount+headerafternooncount+daycount:
        self.htmlstr=re.sub(r'(<div class="dayheader".*?YYY.*?Morning)',self.adsense(6*basevalue+CHG)+r'\1',self.htmlstr,flags=re.M) if headermorningcount and (6*basevalue+CHG)>= self.ADIMAGEHEIGHT else self.htmlstr
@@ -235,7 +262,11 @@ class trainingformat(format):
        self.htmlstr=re.sub(r'(?P<id>\d+)YYY(?P<id1>.*?Morning)',lambda m: str(int(m.group('id'))+6*basevalue if (6*basevalue+CHG)<self.ADIMAGEHEIGHT else 0)+m.group('id1'),self.htmlstr,flags=re.I)
        self.htmlstr=re.sub(r'(?P<id>\d+)YYY(?P<id1>.*?Afternoon)',lambda m: str(int(m.group('id'))+2*basevalue if (2*basevalue+CHG)<self.ADIMAGEHEIGHT else 0)+m.group('id1'),self.htmlstr,flags=re.I)
        self.htmlstr=re.sub(r'(?P<id>\d+)XXX',lambda m: str(int(m.group('id'))+basevalue if (basevalue+CCG)<self.ADIMAGEHEIGHT else 0),self.htmlstr,flags=re.I)
-     if (re.search(r'class="dayheaderright"',tmpstr,flags=re.DOTALL) or j==(len(day[k][i])-1)) and self.lineheightnhtml(re.sub(r'(YYY|XXX)','',self.getpage(tmpstr),flags=re.DOTALL))[0]['height']>(self.PH-self.PDFOFST):
+      while self.lineheightnhtml(self.getpage())[2]>=2:
+       self.htmlstr=tmphtmlstr
+       fixextragap(self,factor=factor-0.1)
+#     if (re.search(r'class="dayheaderright"',tmpstr,flags=re.DOTALL) or j==(len(day[k][i])-1)) and self.lineheightnhtml(re.sub(r'(YYY|XXX)','',self.getpage(tmpstr),flags=re.DOTALL))[0]['height']>(self.PH-self.PDFOFST):
+     if (re.search(r'class="dayheaderright"',tmpstr,flags=re.DOTALL) or j==(len(day[k][i])-1)) and self.lineheightnhtml(re.sub(r'(YYY|XXX)','',self.getpage(tmpstr),flags=re.DOTALL))[2]>=2:
       fixextragap(self)
       self.placepagebreak('all',day[k][i][j])
       self.htmlstr+='\n'+re.sub(r'\d+(YYY|XXX)',r'0',tmpstr,flags=re.I)
@@ -244,7 +275,8 @@ class trainingformat(format):
       self.htmlstr+=tmpstr
       tmpstr=''
       fixextragap(self)
-      self.htmlstr+=self.adsense(self.PH-self.PDFOFST-self.lineheightnhtml(self.getpage())[0]['height']) if (self.PH-self.PDFOFST-self.lineheightnhtml(self.getpage())[0]['height']) >=self.ADIMAGEHEIGHT else ''
+#      self.htmlstr+=self.adsense(self.PH-self.lineheightnhtml(self.getpage())[0]['height']) if (self.PH-self.lineheightnhtml(self.getpage())[0]['height']) >=self.ADIMAGEHEIGHT else ''
+      self.htmlstr+=self.adjustimage(self.PH-self.lineheightnhtml(self.getpage())[0]['height']) if (self.PH-self.lineheightnhtml(self.getpage())[0]['height']) >=self.ADIMAGEHEIGHT else ''
       self.placepagebreak('bottom',day[k][i][j])
      if (re.search(r'class="dayheaderright"',tmpstr,flags=re.DOTALL) or j==(len(day[k][i])-1)):
       self.htmlstr+=tmpstr
@@ -255,10 +287,15 @@ class trainingformat(format):
  def getheadertag(self,data):
   return re.findall(r'(?:^|\n[ \t]*)<h[yor]?>[ \t]*\n.*?</h>(?=(?:[ \t]*\n|$))',data,flags=re.DOTALL)
  '''
+ def adjustimage(self,height):
+  count=0
+  while(self.lineheightnhtml(self.getpage()+self.adsense(height=int(height-math.sqrt(height)*count)))[2]>=2):
+   count+=1
+  return self.adsense(int(height-math.sqrt(height)*count))
  def preparedisclaimer(self):
   self.placepagebreak(side='top')
   img=Image.open(os.path.expanduser('~')+r'/tmp/imageglobe/resource/booktitlepage.png').convert('RGBA')
-  img=img.resize((((self.PH-self.PDFOFST)*img.width)//img.height,self.PH-self.PDFOFST))
+  img=img.resize((((self.PH-self.TM)*img.width)//img.height,self.PH-self.TM))
   self.libi.system(r'python3 tex.py "'+self.db.search2('tech','content','name','=',self.tech,mode='get')[0][0].title()+r'" 1')
   img2=Image.open(r'logdir/tex_'+re.sub(r'[\s/]+','',self.db.search2('tech','content','name','=',self.tech,mode='get')[0][0].lower())+'.png').convert('RGBA')
   img.paste(img2,((img.width-img2.width)//2,(img.height-img2.height)//2),img2)
@@ -307,17 +344,19 @@ class trainingformat(format):
         tmpcode="""\n <div class="slideheader">
   %s<pre class="day">%s</pre></a>
   %s<pre class="topic">%s</pre>%s
-  %s
-""" % (f'<a name="{"chap" if content=="content" else "chaplab"}{day[k][i][j]}{"_"+str(subtopiccount) if subtopiccount else ""}" href="#{"main" if content=="content" else "lab"}{day[k][i][j]}{"_"+str(subtopiccount) if subtopiccount else ""}">','Day '+str(k+1)+' '+('Afternoon' if i!=0 else 'Morning'),"<h1>" if subtopiccount==0 else '','  '+str(day[k][i][j])+'. '+self.db.search2(self.tech,'name','id','=',day[k][i][j],mode='get')[0][0],"</h1>" if subtopiccount==0 else '','</div><div class="clr"></div>' if content=='lab' else '')
+  %s """ % (f'<a name="{"chap" if content=="content" else "chaplab"}{day[k][i][j]}{"_"+str(subtopiccount) if subtopiccount else ""}" href="#{"main" if content=="content" else "lab"}{day[k][i][j]}{"_"+str(subtopiccount) if subtopiccount else ""}">','Day '+str(k+1)+' '+('Afternoon' if i!=0 else 'Morning'),"<h1>" if subtopiccount==0 else '','  '+str(day[k][i][j])+'. '+self.db.search2(self.tech,'name','id','=',day[k][i][j],mode='get')[0][0],"</h1>" if subtopiccount==0 else '','</div><div class="clr"></div>' if content=='lab' else '')
        if content=='lab':
         tmpcode+='\n <div class="slideheader">'
-       tmpcode+='\n    <ul class="slidecontent">'
+       tmpcode+='\n  <ul class="slidecontent">'
        for count,line in enumerate([(re.sub(r'^.*?<h(.*?)>.*',r'\1',x,flags=re.DOTALL),re.sub(r'^.*?<h.*?>.*?\n(.*?)\n</h.*$',r'\1',x,flags=re.DOTALL)) for x in fixheader]):
         if content=='lab' and count==subtopiccount or content=='content':
-         tmpcode+='\n   <li class='+('"sml"' if count!=subtopiccount else '"big"')+'>'+(f'''<h2><a {'class="'+line[0]+'"' if line[0] else ""} href="#{"main" if content=="content" else "lab"}{day[k][i][j]}_{count}" name="{"chap" if content=="content" else "chaplab"}{day[k][i][j]}_{count}">''' if count==subtopiccount else '<pre>')+f'<pre>{line[1]}</pre>'+('</a></h2>' if count==subtopiccount else '</pre>')+'</li>'
+#         tmpcode+='\n   <li class='+('"sml"' if count!=subtopiccount else '"big"')+'>'+(f'''<h2><a {'class="'+line[0]+'"' if line[0] else ""} href="#{"main" if content=="content" else "lab"}{day[k][i][j]}_{count}" name="{"chap" if content=="content" else "chaplab"}{day[k][i][j]}_{count}">''' if count==subtopiccount else '<pre>')+f'<pre>{line[1]}</pre>'+('</a></h2>' if count==subtopiccount else '</pre>')+'</li>'
+#         tmpcode+='\n   <li class='+('"sml"' if count!=subtopiccount else '"big"')+'>'+(f'''<h2><a {'class="'+line[0]+'"' if line[0] else ""} href="#{"main" if content=="content" else "lab"}{day[k][i][j]}_{count}" name="{"chap" if content=="content" else "chaplab"}{day[k][i][j]}_{count}">''' if count==subtopiccount else '')+f'<pre>{line[1]}</pre>'+('</a></h2>' if count==subtopiccount else '')+'</li>'
+         tmpcode+='\n   <li class='+('"sml"' if count!=subtopiccount else '"big"')+'>'+(f'''<a {'class="'+line[0]+'"' if line[0] else ""} href="#{"main" if content=="content" else "lab"}{day[k][i][j]}_{count}" name="{"chap" if content=="content" else "chaplab"}{day[k][i][j]}_{count}">''' if count==subtopiccount else '')+f'<pre>{line[1]}</pre>'+('</a>' if count==subtopiccount else '')+'</li>'
        tmpcode+="""\n  </ul>
  </div>"""
-       if self.lineheightnhtml(self.getpage('\n'+tmpcode))[0]['height']>=self.PH-self.PDFOFST:
+#       if self.lineheightnhtml(self.getpage('\n'+tmpcode))[0]['height']>=self.PH-self.PDFOFST:
+       if self.lineheightnhtml(self.getpage('\n'+tmpcode))[2]>=2:
         self.placepagebreak('all',day[k][i][j]);
        self.htmlstr+=tmpcode
        self.htmlstr+=f'\n <div class="clr"></div>' if not re.search(r'^\s*<a>',cnt,flags=re.DOTALL) else ''
@@ -337,21 +376,24 @@ class trainingformat(format):
        '''
        code=Util.webpageurl(http=True)+r'/image/'+code if not re.search(r'/',code) else code
        '''
-       tmpvar1=re.sub(r'^.*(?:embed/|\?v=)(.*)$',r'\1',code) if re.search('youtube',code,flags=re.I) else ''
+#       tmpvar1=re.sub(r'^.*(?:embed/|\?v=)(.*)$',r'\1',code) if re.search('youtube',code,flags=re.I) else ''
        code=requestm.youtubeimage(re.sub(r'^.*(?:embed/|\?v=)(.*)$',r'\1',code),pushonserver=True)[0] if re.search(r'youtube',code,flags=re.I) else code
-       code='file://'+os.path.expanduser('~')+'/tmp/imageglobe/image/'+code if not re.search(r'/',code) else re.sub(Util.webpageurl(http=True)+r'/image/','file://'+os.path.expanduser('~')+'/tmp/imageglobe/image/',code)
+#       code='file://'+os.path.expanduser('~')+'/tmp/imageglobe/image/'+code if not re.search(r'/',code) else re.sub(Util.webpageurl(http=True)+r'/image/','file://'+os.path.expanduser('~')+'/tmp/imageglobe/image/',code)
        try:
-        with Image.open(os.path.expanduser('~')+r'/tmp/imageglobe/image/'+re.sub(r'^.*/','',code)) as img:
-         tmpvar1='\n'+("  <a style=\"display:block;\" href=\""+(re.sub(r'(.*)_s[.](.*)','\\1.\\2',code) if not tmpvar1 else r'https://youtube.com/watch?v='+tmpvar1)+"\">" if re.search(r'_s[.]',code) or tmpvar1 else '')+f'<img class="img" style="margin-left:{(self.PAGEWIDTH-img.width)//2 if self.PAGEWIDTH>img.width*2 else self.PAGEWIDTH//4}px;" src="{code}" />'+("</a>" if re.search(r'_s[.]',code) or tmpvar1 else "")+f'''<div class="clr"></div>'''
-         tmpcode=self.lineheightnhtml(self.getpage('\n'+tmpvar1))
-         if tmpcode[0]['height']>=self.PH-self.PDFOFST:
-          self.htmlstr+=self.adsense(self.PH-self.PDFOFST-self.lineheightnhtml(self.getpage())[0]['height']) if self.PH-self.PDFOFST-self.lineheightnhtml(self.getpage())[0]['height']>self.ADIMAGEHEIGHT else ''
+#        with Image.open(os.path.expanduser('~')+r'/tmp/imageglobe/image/'+re.sub(r'^.*/','',code)) as img:
+#         tmpvar1='\n'+("  <a style=\"display:block;\" href=\""+(re.sub(r'(.*)_s[.](.*)','\\1.\\2',code) if not tmpvar1 else r'https://youtube.com/watch?v='+tmpvar1)+"\">" if re.search(r'_s[.]',code) or tmpvar1 else '')+f'<img class="img" style="margin-left:{(self.PAGEWIDTH-img.width)//2 if self.PAGEWIDTH>img.width*2 else self.PAGEWIDTH//4}px;" src="{code}" />'+("</a>" if re.search(r'_s[.]',code) or tmpvar1 else "")+f'''<div class="clr"></div>'''
+         tmpvar1=self.adsense(width=re.search(r'youtube',code) and (self.PAGEWIDTH*4)//10 or (self.PAGEWIDTH*6)//10,imageurl=code)
+#         tmpcode=self.lineheightnhtml(self.getpage('\n'+tmpvar1))
+#         if tmpcode[0]['height']>=self.PH-self.PDFOFST:
+         if self.lineheightnhtml(self.getpage('\n'+tmpvar1))[2]>=2:
+          self.htmlstr+=self.adjustimage(self.PH-self.lineheightnhtml(self.getpage())[0]['height']) if self.PH-self.lineheightnhtml(self.getpage())[0]['height']>self.ADIMAGEHEIGHT else ''
           self.placepagebreak('all',day[k][i][j])
          self.htmlstr+=tmpvar1
        except Exception as e:
         print(f'<=>preparecontent exception {code=}')
         tmpvar1=f'\n <a style="display:block" href="{code}">{code}</a>'
-        if self.lineheightnhtml(self.getpage('\n'+tmpvar1))[0]['height']>=self.PH-self.PDFOFST:
+#        if self.lineheightnhtml(self.getpage('\n'+tmpvar1))[0]['height']>=self.PH-self.PDFOFST:
+        if self.lineheightnhtml(self.getpage('\n'+tmpvar1))[2]>=2:
          self.placepagebreak('all',day[k][i][j])
         self.htmlstr+=tmpvar1
       else:
@@ -363,49 +405,58 @@ class trainingformat(format):
         print("<>")
         code,cnt=self.searchtag('',cnt,getcode=True)
         htmltag='<pre class="slidecontent">'
-       def gettagheight(self=self,htmltag=htmltag):
-        return min(self.lineheightnhtml(self.getpage())[0]['height']+self.lineheightnhtml('<pre class="codes">\n'+code+'</pre>')[0]['height']//2+self.PDFOFST,self.PH-self.PDFOFST) if re.search(r'"codes"',htmltag) else self.PH-self.PDFOFST
+#       def gettagheight(self=self,htmltag=htmltag):
+#        return min(self.lineheightnhtml(self.getpage())[0]['height']+self.lineheightnhtml('<pre class="codes">\n'+code+'</pre>')[0]['height']//2+self.PDFOFST,self.PH-self.PDFOFST) if re.search(r'"codes"',htmltag) else self.PH-self.PDFOFST
        tmpvar2=False if re.search(r'"codes"',htmltag) else True
        maxindex=len(re.split('\n',code))
        print(f'<=>preparecontent {htmltag=} {maxindex=}')
        code=' ' if code=='' else code
-       tmpvar1=gettagheight()
+#       tmpvar1=gettagheight()
        while code:
+        if re.search('"codes"',htmltag) and not tmpvar2 and max(self.lineheightnhtml(self.getpage()+'\n'+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex//2])+'</pre>')[2],self.lineheightnhtml(self.getpage()+'\n'+htmltag+'\n'+'\n'.join(re.split('\n',code)[maxindex//2:])+'</pre>')[2])==1:
+         self.htmlstr+='\n'+htmltag+'\n'.join(re.split('\n',code)[:maxindex//2])+'</pre>'+'\n'+htmltag+'\n'.join(re.split('\n',code)[maxindex//2:])+'</pre>\n<div class="clr"></div>'
+         code=''
 #        print(f'TEST {tmpvar1=} {tmpvar2=} {maxindex=} {htmltag=} {code=}')
-        if self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[0]['height']<=tmpvar1:
+#        if self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[0]['height']<=tmpvar1:
+        elif self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[2]==1:
          if maxindex==len(re.split('\n',code)):
           self.htmlstr+='\n '+htmltag+'\n'+code+'</pre>'+('\n <div class="clr"></div>' if tmpvar2 and re.search('"codes"',htmltag)  or not tmpvar2 and maxindex==len(re.split('\n',code)) else '')
          else:
           jumpcodeindex=max(1,int(math.sqrt(maxindex*2)))
-          while self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[0]['height']<=tmpvar1:
+#          while self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[0]['height']<=tmpvar1:
+          while self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[2]==1:
            maxindex+=jumpcodeindex
-          while self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[0]['height']>tmpvar1:
+#          while self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[0]['height']>tmpvar1:
+          while self.lineheightnhtml(self.getpage('\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'))[2]>=2:
            maxindex=maxindex-1
           self.htmlstr+='\n '+htmltag+'\n'+'\n'.join(re.split('\n',code)[:maxindex])+'</pre>'+('\n <div class="clr"></div>' if tmpvar2 and re.search('"codes"',htmltag)  or not tmpvar2 and maxindex==len(re.split('\n',code)) else '')
-          self.placepagebreak('all',self.day[k][i][j]) if tmpvar1==(self.PH-self.PDFOFST) and tmpvar2 else None
+#          self.placepagebreak('all',self.day[k][i][j]) if tmpvar1==(self.PH-self.PDFOFST) and tmpvar2 else None
+          self.placepagebreak('all',self.day[k][i][j]) if tmpvar2 else None
          code='\n'.join(re.split('\n',code)[maxindex:])
          maxindex=len(re.split('\n',code))
          tmpvar2=not tmpvar2 if re.search('"codes"',htmltag) else True
-         tmpvar1=gettagheight()
+#         tmpvar1=gettagheight()
         else:
          maxindex=maxindex//2
          if not maxindex:
           self.placepagebreak('all',day[k][i][j])
           tmpvar2=False
           maxindex=len(re.split('\n',code))
-          tmpvar1=gettagheight()
+#          tmpvar1=gettagheight()
      else:
       subtopiccount=0
-      self.htmlstr+=self.adsense(self.PH-self.PDFOFST-self.lineheightnhtml(self.getpage())[0]['height']) if self.PH-self.PDFOFST-self.lineheightnhtml(self.getpage())[0]['height']>self.ADIMAGEHEIGHT else ''
+      self.htmlstr+=self.adjustimage(self.PH-self.lineheightnhtml(self.getpage())[0]['height']) if self.PH-self.lineheightnhtml(self.getpage())[0]['height']>self.ADIMAGEHEIGHT else ''
 #      self.htmlstr+=self.adsense(self.PH-self.hc) if self.PH-self.hc>self.ADIMAGEHEIGHT else ''
       self.placepagebreak('bottom',day[k][i][j])
-  self.htmlstr=self.lineheightnhtml(self.htmlstr)[1]
+#  self.htmlstr=self.lineheightnhtml(self.htmlstr)[1]
+  self.htmlstr=self.lineheightnhtml(re.sub(r'\\</pre>$',r'\ </pre>',self.htmlstr,flags=re.M))[1]
 
 #  import pdfkit
 #  os.environ['NO_AT_BRIDGE']=str(1)
  def placeemptypage(self,text=format.LEFTBLANK):
   tmpstr=self.placepagebreak(side='top',arrow=False)
-  tmpstr+=fr'''<pre style="margin-top:{(self.PH-ImageFont.truetype(os.path.expanduser('~')+r'/tmp/MISC/misc/LiberationSerif-Regular.ttf',30).getsize(text)[1])//2}px;text-align:center;font-weight:bold;font-size:30pt;color:#000000;font-family:myliberationserif;">{text}</pre>'''
+#  tmpstr+=fr'''<pre style="margin-top:{(self.PH-ImageFont.truetype(os.path.expanduser('~')+r'/tmp/MISC/misc/LiberationSerif-Regular.ttf',30).getsize(text)[1])//2}px;text-align:center;font-weight:bold;font-size:30pt;color:#000000;font-family:myliberationserif;">{text}</pre>'''
+  tmpstr+=fr'''<pre style="margin:{(self.PH-ImageFont.truetype(os.path.expanduser('~')+r'/tmp/MISC/misc/LiberationSerif-Regular.ttf',30).getsize(text)[1])//2}px auto;text-align:center;font-weight:bold;font-size:30pt;color:#000000;font-family:myliberationserif;">{text}</pre>'''
   tmpstr+=self.placepagebreak(side='bottom',arrow=False)
   return tmpstr
  def preparedisclaimer2(self):
@@ -413,7 +464,7 @@ class trainingformat(format):
   self.htmlstr+=self.placeemptypage()
   self.placepagebreak(side='top')
   img=Image.open(os.path.expanduser('~')+r'/tmp/imageglobe/resource/booktitlepagebottom.png').convert('RGBA')
-  img=img.resize((((self.PH-self.PDFOFST)*img.width)//img.height,self.PH-self.PDFOFST))
+  img=img.resize((((self.PH-self.TM)*img.width)//img.height,self.PH-self.TM))
   self.libi.system(r'python3 tex.py "'+self.db.search2('tech','content','name','=',self.tech,mode='get')[0][0].title()+r'" 2')
   img2=Image.open(r'logdir/tex_'+re.sub(r'[\s/]+','',self.db.search2('tech','content','name','=',self.tech,mode='get')[0][0].lower())+'.png').convert('RGBA')
   img.paste(img2,((img.width-img2.width)//2,int(img.height*0.64)-img2.height//2),img2)
@@ -434,83 +485,106 @@ class trainingformat(format):
  def prepareoutfile(self):
 #  open('../css/tmp.css','w').write('div.pg pre.slidecontent, div.pg pre.code,div.pg pre.codeb,  div.pg pre.codec {display:block;}')
   tmpstr=tmpstr2=tmpcode=''
-  self.htmlstr=re.sub('file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',Util.webpageurl(http=True)+r'/image/',self.htmlstr,flags=re.DOTALL)
-  disclaimer2=re.sub(r'.*(<div class="pg".*?'+self.LEFTBLANK+'.*)$',r'\1',self.htmlstr,flags=re.DOTALL)
-  content=[re.sub(r'^.*(<div class="pg".*)$',r'\1',re.split(re.escape(x),self.htmlstr)[0],flags=re.DOTALL)+re.sub(r'^(.*)<div class="pg".*$',r'\1',x,flags=re.DOTALL) for x in re.findall(r'(name="chap\d+".*?)(?=name="chap\d+"|'+self.LEFTBLANK+')',self.htmlstr,flags=re.I|re.DOTALL)]
+  count=0
+  print(f'{"":-^40}\n{"OUTPUT GENERATION":-^40}\n{"":-^40}')
+  for i in self.driver:
+   for j in re.findall(r'(<div\s+class="pg"\s+style=".*?)(?=<div\s+class="pg"\s+style="|$)',self.htmlstr,flags=re.DOTALL):
+    tmpstr+=re.sub(r'(?P<id><div\s+class="pg".*?style="height:)\d+(?P<id2>.*)',lambda m:m.group('id')+str(max(self.lineheightnhtml(re.sub(r'^.*?<div\s+class="pg".*?>(.*)</div>',r'\1',j,flags=re.DOTALL),makepdf=False,driver=i)[0]['height'],self.PH)+(i=='firefox' and 20 or 10))+m.group('id2'),j,flags=re.DOTALL)
+   open(f'logdir/tmp{self.tech}{"_f" if i=="firefox" else ""}.html','w').write(re.sub('([.][.]/css/)','../'+r'\1',self.fileheader[0])+'\n'+tmpstr+'\n'+self.fileheader[1])
+   tmpstr=re.sub('file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',Util.webpageurl(http=True)+r'/image/',tmpstr,flags=re.DOTALL)
+   disclaimer2=re.sub(r'.*(<div class="pg".*?'+self.LEFTBLANK+'.*)$',r'\1',tmpstr,flags=re.DOTALL)
+   content=[re.sub(r'^.*(<div class="pg".*)$',r'\1',re.split(re.escape(x),tmpstr)[0],flags=re.DOTALL)+re.sub(r'^(.*)<div class="pg".*$',r'\1',x,flags=re.DOTALL) for x in re.findall(r'(name="chap\d+".*?)(?=name="chap\d+"|'+self.LEFTBLANK+')',tmpstr,flags=re.I|re.DOTALL)]
 
-  #destop Firefox and Chrome
-  for count in range(len(content)):
-   daycount=re.sub(r'.*?name="chap(\d+)".*$',r'\1',content[count],flags=re.DOTALL)
-   with open(f"logdir/advance-{self.tech}-slides{'-chap'+daycount if count else ''}{'_f' if str(self.browser).lower()=='firefox' else ''}.txt",'w') as file:
-    print(f'writing to file firefox {file.name=} {daycount=} {count=}')
-#    filedatadesktop=re.sub(r'-slides.php\?chap='+self.day[0][0][0]+'#',r'-slides.php#',re.sub(r'(?P<id>style=")?(?P<id2>.*?href="#chap.*?")',lambda m:(m.group('id')+'background-color:#f38502;' if m.group('id') and re.search('"#chap'+daycount+'"',m.group('id2')) else m.group('id') if m.group('id') else '')+re.sub(r'#chap(\d+)(_\d+)?',r'http://'+Util.webpageurl()+r'/training/'+self.tech+r'/advance-'+self.tech+r'-slides.php?chap='+r'\1'+'#chap'+r'\1\2',m.group('id2')),re.split(re.escape(content[0]),self.htmlstr)[0]+'\n'+content[count],flags=re.M),flags=re.M)+disclaimer2
-    filedatadesktop=re.sub(r'-slides.php\?chap='+self.day[0][0][0]+'#',r'-slides.php#',re.sub(r'(?P<id>.*?)(?P<id2>href="#chap.*?")',lambda m:(re.sub(r'(style=")',r'\1'+'background-color:#f38502;',m.group('id')) if re.search('"#chap'+daycount+'"',m.group('id2')) else m.group('id'))+re.sub(r'#chap(\d+)(_\d+)?',r'http://'+Util.webpageurl()+r'/training/'+self.tech+r'/advance-'+self.tech+r'-slides.php?chap='+r'\1'+'#chap'+r'\1\2',m.group('id2')),re.split(re.escape(content[0]),self.htmlstr)[0]+'\n'+content[count],flags=re.M),flags=re.M)+disclaimer2
-    file.write(filedatadesktop)
-   #Mobile Chrome
-   if not str(self.browser).lower()=='firefox':
-    with open(f"logdir/advance-{self.tech}-slides{'-chap'+daycount+'_m' if count else '_m'}.txt",'w') as file:
+   #desktop
+   for count in range(len(content)):
+    daycount=re.sub(r'.*?name="chap(\d+)".*$',r'\1',content[count],flags=re.DOTALL)
+    with open(f"logdir/advance-{self.tech}-slides{'-chap'+daycount if count else ''}{'_f' if i=='firefox' else ''}.txt",'w') as file:
      print(f'writing to file firefox {file.name=} {daycount=} {count=}')
-     file.write(re.sub('(<pre .*?)font-size:\d+pt(.*?'+self.LEFTBLANK+'.*)',r'\1\2',re.sub(r'(?P<id><div class="header2".*?margin-top:)(?P<id2>\d+)',lambda m:m.group('id')+('40' if int(m.group('id2'))==0 else m.group('id2')),re.sub(r'(?P<id><div class="dayheader".*?style="margin-top\s*:\s*)(?P<id2>\d+)',lambda m:m.group('id')+('40' if int(m.group('id2'))>40 else m.group('id2')),re.sub(r'(<div class="pg".*?)style="height:.*?"',r'\1',re.sub(r'(<img .*?)style=".*?"',r'\1'+'class="img" ',re.sub(r'^.*?<a.*?class="ftr.*','',re.sub(r'(<div class="(?:dayheaderleft|dayheaderright)".*?)style=".*?"',r'\1'+' style="margin-top:20px;margin-bottom:40px;"',re.sub(r'(<div class="slideheader".*?)style=".*?"',r'\1'+'style="margin-top:20px;margin-bottom:10px;"',re.sub(r'(<pre class="(?:code.*?|slidecontent)".*?)style=".*?"',r'\1',filedatadesktop,flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M))
+     filedatadesktop=re.sub(r'-slides.php\?chap='+self.day[0][0][0]+'#',r'-slides.php#',re.sub(r'(?P<id>.*?)(?P<id2>href="#chap.*?")',lambda m:(re.sub(r'(style=")',r'\1'+'background-color:#f38502;',m.group('id')) if re.search('"#chap'+daycount+'"',m.group('id2')) else m.group('id'))+re.sub(r'#chap(\d+)(_\d+)?',r'http://'+Util.webpageurl()+r'/training/'+self.tech+r'/advance-'+self.tech+r'-slides.php?chap='+r'\1'+'#chap'+r'\1\2',m.group('id2')),re.split(re.escape(content[0]),tmpstr)[0]+'\n'+content[count],flags=re.M),flags=re.M)+disclaimer2
+     file.write(filedatadesktop)
+   #Mobile Chrome
+    if not i=='firefox':
+     with open(f"logdir/advance-{self.tech}-slides{'-chap'+daycount+'_m' if count else '_m'}.txt",'w') as file:
+      print(f'writing to file firefox {file.name=} {daycount=} {count=}')
+      file.write(re.sub('(<pre .*?)font-size:\d+pt(.*?'+self.LEFTBLANK+'.*)',r'\1\2',re.sub(r'(?P<id><div class="header2".*?margin-top:)(?P<id2>\d+)',lambda m:m.group('id')+('40' if int(m.group('id2'))==0 else m.group('id2')),re.sub(r'(?P<id><div class="dayheader".*?style="margin-top\s*:\s*)(?P<id2>\d+)',lambda m:m.group('id')+('40' if int(m.group('id2'))>40 else m.group('id2')),re.sub(r'(<div class="pg".*?)style="height:.*?"',r'\1',re.sub(r'(<img .*?)style=".*?"',r'\1'+'class="img" ',re.sub(r'^.*?<a.*?class="ftr.*','',re.sub(r'(<div class="(?:dayheaderleft|dayheaderright)".*?)style=".*?"',r'\1'+' style="margin-top:20px;margin-bottom:40px;"',re.sub(r'(<div class="slideheader".*?)style=".*?"',r'\1'+'style="margin-top:20px;margin-bottom:10px;"',re.sub(r'(<pre class="(?:code.*?|slidecontent)".*?)style=".*?"',r'\1',filedatadesktop,flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M),flags=re.M))
 #     file.write(re.sub(r'(<div class="pg".*?)style=".*?"',r'\1',re.sub(r'(<pre class="(?:code.*?|slidecontent)".*?)style=".*?"',r'\1',re.sub(r'(<div class="slideheader".*style=".*?)width:\d+px',r'\1',re.sub(r'(<img .*style=".*?)margin-left:\d+px',r'\1'+'max-width:100%',filedatadesktop,flags=re.M),flags=re.M),flags=re.M),flags=re.M))
+   tmpstr=''
 
-  Util.gethtmltag(self.inlinehtmltag_nofrequentlyused,self.htmlstr)
-  os.system(r'python3 seed.py print '+self.tech+' > t'+self.tech+'.txt')
-  Util.gethtmltagdescripancy(self.inlinehtmltag,open('t'+self.tech+'.txt').read())
-  #Desktop single file
-  print(f"--writing to {self.tech}_pdf{'_f' if str(self.browser).lower()=='firefox' else ''}.html")
-  open(f"logdir/{self.tech}_pdf{'_f' if str(self.browser).lower()=='firefox' else ''}.html",'w').write(self.htmlstr+self.fileheader[1])
+  Util.searchhtmltag(self.inlinehtmltag_nofrequentlyused,self.htmlstr)
 
   #PDF file generation
-  print(f"--writing to logdir/tmp{self.tech}.html")
-  open('logdir/tmp'+self.tech+'.html','w').write(re.sub(Util.webpageurl(http=True)+r'/image/',r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+self.htmlstr+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
-  print(f"creating pdf ... logdir/advance-{self.tech}-slides{'_firefox' if self.browser=='firefox' else ''}.pdf")
-  os.system(f"wkhtmltopdf --page-size A4 --enable-local-file-access logdir/tmp{self.tech}.html logdir/advance-{self.tech}-slides{'_firefox' if self.browser=='firefox' else ''}.pdf")
+  print(f"creating pdf... logdir/advance-{self.tech}-slides.pdf")
+#  open('logdir/pdf'+self.tech+'.html','w').write(re.sub(Util.webpageurl(http=True)+r'/image/',r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+self.htmlstr+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
+  open('logdir/pdf'+self.tech+'.html','w').write(re.sub('(<img\s+.*?src=")'+Util.webpageurl(http=True)+r'/image/',r'\1'+r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+self.htmlstr+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
+  os.system(f"wkhtmltopdf --page-size A4 --enable-local-file-access logdir/pdf{self.tech}.html logdir/advance-{self.tech}-slides.pdf")
 
   offset=0;tmpday=''
-  for count,i in enumerate(re.findall(r'<div\s+class="pg".*?<a\s+class="ftr".*?</div>',self.htmlstr,flags=re.DOTALL)):
-   if re.search(r'<pre\s+class="title"',i,flags=re.DOTALL) and not (count+1+offset)%2:
-    self.htmlstr=re.sub(r'(?P<id>'+re.escape(i)+')',lambda m:self.placeemptypage()+'\n'+m.group('id'),self.htmlstr)
+  for count,i in enumerate(re.findall(r'(<div\s+class="pg"\s+style=".*?)(?=<div\s+class="pg"\s+style="|$)',self.htmlstr,flags=re.DOTALL)):
+   if re.search(r'<pre\s+class="title".*?<pre\s+class="subtitle"',i,flags=re.DOTALL) and not (count+1+offset)%2:
+    tmpstr+=self.placeemptypage()+'\n'+i
     offset=(offset+1)%2
    elif re.search(r'<div\s+class="slideheader".*?Day\s+\d+\s+(?:Morning|Afternoon)',i,flags=re.DOTALL):
     x=re.findall(r'<pre\s+class="topic".*?(\d+)',i,flags=re.DOTALL)[0]
     if not (count+1+offset)%2 and x!=tmpday:
-     self.htmlstr=re.sub(r'(?P<id>'+re.escape(i)+')',lambda m:self.placeemptypage()+'\n'+m.group('id'),self.htmlstr)
+     tmpstr+=self.placeemptypage()+'\n'+i
      offset=(offset+1)%2
     elif (count+1+offset)%2 and x!=tmpday:
-     self.htmlstr=re.sub(r'(?P<id>'+re.escape(i)+')',lambda m:self.placeemptypage()+'\n'+self.placeemptypage()+'\n'+m.group('id'),self.htmlstr)
+     tmpstr+=self.placeemptypage()+'\n'+self.placeemptypage()+'\n'+i
+    else:
+     tmpstr+=i
     tmpday=x
-   elif re.search(r'<img .*_bottom',i,flags=re.DOTALL) and not (count+1+offset)%2:
-    self.htmlstr=re.sub(r'(?P<id>'+re.escape(i)+')',lambda m:self.placeemptypage()+'\n'+m.group('id'),self.htmlstr)
-  print(f"--writing to logdir/tmp{self.tech}2.html")
-  open(f'logdir/tmp{self.tech}2.html','w').write(re.sub(Util.webpageurl(http=True)+r'/image/',r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+self.htmlstr+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
-  print(f"creating pdf ... logdir/advance-{self.tech}-slides{'_firefox' if self.browser=='firefox' else ''}_print.pdf")
-  os.system(f"wkhtmltopdf --page-size A4 --enable-local-file-access logdir/tmp{self.tech}2.html logdir/advance-{self.tech}-slides{'_firefox' if self.browser=='firefox' else ''}_print.pdf")
+   elif re.search(f'<img .*advance-{self.tech}-slides_bottom',i,flags=re.DOTALL) and (count+1+offset)%2:
+    tmpstr+=self.placeemptypage()+'\n'+i
+   else:
+    tmpstr+=i
+  open(f'logdir/pdf{self.tech}_print.html','w').write(re.sub('(<img\s+.*?src=")'+Util.webpageurl(http=True)+r'/image/',r'\1'+r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+tmpstr+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
+  print(f"creating pdf... logdir/advance-{self.tech}-slides_print.pdf")
+  os.system(f"wkhtmltopdf --page-size A4 --enable-local-file-access logdir/pdf{self.tech}_print.html logdir/advance-{self.tech}-slides_print.pdf")
+  tmpstr=''
+
+  #image storage
+  tmpcode+=self.placepagebreak('top',arrow=False)
+  for x in re.findall(r'(?:<pre\s+class="topic".*?>(.*?)</pre>|<li\s+class="big".*?>.*?<pre>(.*?)<\/pre>|<img\s+(?:(?!src).)*?src="(.*?)")',self.htmlstr,flags=re.DOTALL):
+   tmpstr=x[0] if not re.search(r'^\s*$',x[0]) else tmpstr
+   tmpstr2=x[1] if not re.search(r'^\s*$',x[1]) else tmpstr2
+   print(f'IMAGE {tmpstr=} {tmpstr2=} {x[2]=}')
+   if not re.search('(^\s*$|https?://.*?youtube|traininglogo[.]gif|advance-'+self.tech+'-slides_(front|bottom)[.])',x[2]) and Image.open(re.sub(r'^.*/(.*)$',os.path.expanduser('~')+'/tmp/imageglobe/image/'+r'\1',x[2])).width > self.PAGEWIDTH*0.6:
+    if self.lineheightnhtml(re.sub(r'^.*<div\s+class="pg".*?>(.*)$',r'\1',tmpcode,flags=re.DOTALL)+'\n'+self.adsense(imageurl=x[2],width=self.PAGEWIDTH*0.9)+'\n<pre style="text-align:center;margin-bottom:20px">'+tmpstr+'    '+tmpstr2+'    '+re.sub(r'.*/(.*)$',r'\1',x[2])+'</pre>')[2]>=2:
+     tmpcode+='\n'+self.placepagebreak('all',arrow=False)
+    tmpcode+='\n'+self.adsense(imageurl=x[2],width=self.PAGEWIDTH*0.9)+'\n<pre style="text-align:center;margin-bottom:20px">'+tmpstr+'    '+tmpstr2+'    '+re.sub(r'.*/(.*)$',r'\1',x[2])+'</pre>'
+  tmpcode+=self.placepagebreak('bottom',arrow=False)
+  open(f'logdir/pdf{self.tech}_image.html','w').write(re.sub(Util.webpageurl(http=True)+r'/image/',r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+tmpcode+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
+  print(f'creating pdf... logdir/advance-{self.tech}-slides_image.pdf')
+  os.system(f"wkhtmltopdf --page-size A4 --enable-local-file-access logdir/pdf{self.tech}_image.html logdir/advance-{self.tech}-slides_image.pdf")
+  tmpcode=tmpstr=tmpstr2=''
 
   self.htmlstr+='\n'+self.placeemptypage('#########\n  LAB SESSION  \n##########')+'\n'+self.placeemptypage()
   self.preparecontent('lab')
-  print(f"creating pdf ... logdir/advance-{self.tech}_slides{'_firefox' if self.browser=='firefox' else ''}_lab.pdf")
-  open('logdir/lab'+self.tech+'.html','w').write(re.sub(Util.webpageurl(http=True)+r'/image/',r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+re.sub(r'.*_bottom.png.*?(<div\s+class="pg".*)$',r'\1',self.htmlstr,flags=re.DOTALL)+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
-  os.system('wkhtmltopdf --page-size A4 --enable-local-file-access logdir/lab'+self.tech+f".html logdir/advance-{self.tech}-slides{'_firefox' if self.browser=='firefox' else ''}_lab.pdf")
+  print(f"creating pdf ... logdir/advance-{self.tech}-slides_lab.pdf")
+  open('logdir/lab'+self.tech+'.html','w').write(re.sub(Util.webpageurl(http=True)+r'/image/',r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+re.sub(r'<ul class="slidecontent">','<ul class="slidecontent" style="width:140%">',re.sub(f'.*advance-{self.tech}-slides_bottom.png.*?(<div\s+class="pg".*)$',r'\1',self.htmlstr,flags=re.DOTALL),flags=re.M)+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
+  os.system('wkhtmltopdf --page-size A4 --enable-local-file-access logdir/lab'+self.tech+f".html logdir/advance-{self.tech}-slides_lab.pdf")
 
   tmpcode='\n'+self.placeemptypage('#########\n  OBJECTIVE TYPE\nQuestions \n##########')+'\n'+self.placeemptypage()
   tmpcode+=self.placepagebreak('top',arrow=False)
 #  for i in re.findall(r'(<div\s+class="slideheader"(?:(?!"slideheader").)*?(?:<a\s+class="y"|\n[ \t]*a[.]\s+.*?\bb[.]\s+).*?</div>)',self.htmlstr,flags=re.DOTALL):
-  for i in [i for i in re.findall(r'(<div\s+class="slideheader"(?:(?!"slideheader").)*?</div>)',self.htmlstr,flags=re.DOTALL) if re.search(r'(?:<a\s+class="y"|\n[ \t]*a[.]\s+.*?\bb[.]\s+)',i,flags=re.DOTALL)]:
-   print(f'objective type header {i=}')
-   tmpstr2=re.sub(r'^.*<pre\s+class="topic">(.*?)</pre>.*?'+re.escape(i)+'.*',r'\1',self.htmlstr,flags=re.DOTALL)
-   if tmpstr2!=tmpstr:
-    tmpstr=re.sub(r'(?P<id>'+re.escape(i)+')',lambda m:'<div class="slideheader">\n<h1><pre class="topic">'+tmpstr2+'</pre></h1></div>\n<div class="clr"></div>\n'+m.group('id'),i,flags=re.DOTALL)
-   else:
-    tmpstr='\n'+i
-   tmpstr+='\n'+'<div class="clr"></div>'
-   tmpstr+='<br><br>'
-   if self.lineheightnhtml(tmpstr)[0]['height']>(self.PH-self.PDFOFST):
-    tmpcode+='\n'+self.placepagebreak('all',arrow=False)
-   tmpcode+='\n'+tmpstr
-   tmpstr=tmpstr2
+  for x in re.findall(r'(?:<pre\s+class="topic".*?>(.*?)</pre>|(<div\s+class="slideheader(?:(?!slideheader).)*?(?:<a\s+class="y"|\n[ \t]*a[.]\s+.*?\bb[.]\s+).*?<\/div>))',open('logdir/labpy.html').read(),flags=re.DOTALL):
+   tmpstr=x[0] if not re.search(r'^\s*$',x[0]) else tmpstr
+#   print(f'TEST image {count=} {x=} {tmpcode=} {tmpstr=} {tmpstr2=}')
+   if not re.search(r'^\s*$',x[1]):
+    if tmpstr!=tmpstr2:
+     tmpcode+='\n'+self.placepagebreak('all',arrow=False) if not tmpstr2=='' else ''
+     count=0
+    tmpstr2='<div class="slideheader">\n<h1><pre class="topic">'+tmpstr+'</pre></h1></div>\n<div class="clr"></div>\n'+x[1]
+    if self.lineheightnhtml(re.sub('^.*<div\s+class="pg".*?</div>(.*)',r'\1',tmpcode,flags=re.DOTALL)+'\n'+tmpstr2)[2]>=2 and count<10:
+     tmpcode+='\n'+self.placepagebreak('all',arrow=False) 
+    tmpcode+='\n'+tmpstr2 if count<10 else ''
+    tmpstr2=tmpstr
+    count+=1
   tmpcode+=self.placepagebreak('bottom',arrow=False)
   open(r'logdir/obj.html','w').write(re.sub(Util.webpageurl(http=True)+r'/image/',r'file://'+os.path.expanduser('~')+r'/tmp/imageglobe/image/',re.sub(r'[.][.]/css/',r'../../css/',self.fileheader[0]+'\n'+tmpcode+'\n'+self.fileheader[1],flags=re.M),flags=re.M))
-  print(f"creating pdf ... logdir/advance-{self.tech}_slides{'_firefox' if self.browser=='firefox' else ''}_objective.pdf")
-  os.system(f"wkhtmltopdf --page-size A4 --enable-local-file-access logdir/obj.html logdir/advance-{self.tech}-slides{'_firefox' if self.browser=='firefox' else ''}_objective.pdf")
+  print(f"creating pdf ... logdir/advance-{self.tech}_slides_objective.pdf")
+  os.system(f"wkhtmltopdf --page-size A4 --enable-local-file-access logdir/obj.html logdir/advance-{self.tech}-slides_objective.pdf")
+  tmpcode=tmpstr=tmpstr2=''
+
 
 trainingformat()

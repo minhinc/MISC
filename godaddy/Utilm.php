@@ -19,6 +19,11 @@ elseif(!empty($this->headername)) $json=json_decode(mysqli_fetch_row($this->db->
 ?>
 <html>
 <head>
+<meta charset="UTF-8">
+<meta name="description" content="Training and Research Tutorials">
+<meta name="keywords" content="HTML, CSS, JavaScript, Python, Machine Learning, Artificial Intelligence, ML, AI">
+<meta name="author" content="Minh Inc">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script data-ad-client="ca-pub-8488699542117607" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <?
@@ -193,7 +198,7 @@ echo '<title>'.$json['title'].' | Minh, Inc. Bangalore India</title>';
    <ul>
     <li class="blank">" "</li>
     <li><a href="<? echo $this->level ?>/about/">About Minh, Inc.</a></li>
-    <li><a href="<? echo $this->level ?>/about/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
+    <li><a href="<? echo $this->level ?>/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
     <li><a href="<? echo $this->level ?>/about/question">Ask a Programming Question</a></li>
     <li><a href="<? echo $this->level ?>/about/contact">Contact Us</a></li>
    </ul>
@@ -208,7 +213,7 @@ echo '<title>'.$json['title'].' | Minh, Inc. Bangalore India</title>';
   <li>|</li>
   <li><a href="<? echo $this->level ?>/service/medicalsystem" <? echo ($this->subitem=='medicalsystem'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Medical Systems</a></li>
   <li>|</li>
-  <li><a href="<? echo $this->level ?>/about/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
+  <li><a href="<? echo $this->level ?>/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
  </ul>
 <br>
 <?
@@ -217,7 +222,7 @@ $json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',
 if (!empty($json['comingtraining']) && $this->headername != "about" && $this->subitem != "online"){
 echo '<div style="width:70%;height:60px;margin:10px auto;background-color:#0707a2"><pre style="float:left;padding-left:5%;line-height:60px;color:#ffffff;font-family:mytwcenmt;font-size:22px;">';
 echo $json['comingtraining'];
-echo '</pre><a href="http://www.minhinc.42web.io/about/online" style="float:right;margin:10px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:40px;font-size:20px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
+echo '</pre><a href="http://www.minhinc.42web.io/online" style="float:right;margin:10px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:40px;font-size:20px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
 }
 
 }
@@ -289,7 +294,7 @@ if(empty($this->headername)){
   <li class="top"><a href="<? echo $this->level ?>/about/">Help</a>
    <ul>
     <li><hr class="help" style="<?php echo ($this->headername=='about'?'background-color:#f38502':'') ?>"></li>
-    <li><a href="<? echo $this->level ?>/about/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
+    <li><a href="<? echo $this->level ?>/online" <? echo ($this->subitem=='online'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Online Training</a></li>
     <li><a href="<? echo $this->level ?>/about/question" <? echo ($this->subitem=='question'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Ask a programming question</a></li>
     <li><a href="<? echo $this->level ?>/about/contact" <? echo ($this->subitem=='contact'?'style="font-weight:bold;color:#aa4400;"':'') ?>>Contact Us</a></li>
    </ul>

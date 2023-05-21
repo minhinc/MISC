@@ -56,6 +56,24 @@ class utilc:
    outimagelist.append(outimagename)
   return outimagelist[0] if len(outimagelist)==1 else outimagelist
 
+ def addalpha2(self,imagename,alpha,outimagename=None):
+  '''imagename=.mp4 or .png
+  alpha=0-255 or 0.0 to 1.0 (float)'''
+  print(f'><utilc.addalpha2 {(imagename,alpha,outimagename)=}')
+  outimagename=self.libi.outimagename(imagename,outimagename,extension='mov' if re.search('video',self.libi.exiftool(imagename,'MIME Type'),flags=re.I) else 'png')
+  alpha=type(alpha)==str and re.search('[.]',alpha) and float(alpha) or type(alpha)==str and int(alpha) or alpha
+  mask=Image.new(r'L',[int(i) for i in self.libi.videoattribute(imagename)[0]] if re.search('video',self.libi.exiftool(imagename,'MIME Type'),flags=re.I) else Image.open(imagename).size,color=type(alpha)==int and alpha or int(255*alpha))
+  if re.search('video',self.libi.exiftool(imagename,'MIME Type'),flags=re.I):
+   mask.save(self.libi.adddestdir('maskimage.png'))
+   mask.close()
+   self.libi.system("ffmpeg -i "+imagename+" -loop 1 -i "+self.libi.adddestdir('maskimage.png')+" -filter_complex \"[0][1]alphamerge=shortest=1\""+self.libi.vformat('mov')+" -y "+outimagename)
+  else:
+   img=Image.open(imagename).convert('RGBA')
+   img.putalpha(mask)
+   img.save(outimagename)
+   img.close()
+  return outimagename
+ """
  def image2gif(self,imagename,filtername,duration=None,backcolor='0x00000000',reversefilter=False,outimagename=None):
   '''-----------
   imagename - .png,.gif,.gif,.mp4 or list of .png or (400,200)<--imagesize of backcolor
@@ -104,51 +122,117 @@ class utilc:
    self.libi.system(r'ffmpeg -ss '+('0 -to '+str(duration or 4) if not re.search('-',str(duration)) else re.split('-',duration)[0]+' -t 4')+r' -i '+imagename+r' -r 6 -y '+outimagename)
    return outimagename
   else:
-   returnstring+=(r'[0:v]'+self.libi.filter['41']+r'[ov];' if type(imagename)==str else '')+((r'[black][ov]' if not reversefilter else r'[ov][black]') if type(imagename)==str else r'[black]')+filtername
+#   returnstring+=(r'[0:v]'+self.libi.filter['41']+r'[ov];' if type(imagename)==str else '')+((r'[black][ov]' if not reversefilter else r'[ov][black]') if type(imagename)==str else r'[black]')+filtername
+   returnstring+=(r'[0:v]'+self.libi.filter['41']+r'[ov];' if type(imagename)==str else '')+(('[black]nullsink;[ov]' if re.search('^fade',filtername,flags=re.I) else r'[black][ov]' if not reversefilter else r'[ov][black]') if type(imagename)==str else r'[black]')+filtername
 #   self.libi.system("ffmpeg -i "+self.libi.adddestdir('transparentpng.png')+" "+(("-loop 1 " if not re.search(r'[.](gif|mov|mp4)$',imagename) else "-ignore_loop 0 " if re.search(r'[.]gif$',imagename,re.I) else "")+"-t "+str(duration)+" " if duration else "")+"-i "+imagename+" -filter_complex \""+("[0][1]" if not re.search(r'^\[',filtername) else "")+filtername+"\" -pix_fmt rgba -vcodec png -y "+outimagename)
   print(f'<=>utilc.image2gif returnstring={returnstring}')
-  self.libi.system("ffmpeg "+("-ignore_loop 0 -t "+str(duration) if type(imagename)==str and re.search(r'[.]gif$',imagename,flags=re.I) else '')+''.join(" -i "+x for x in type(imagename)==tuple and type(imagename[0])==str and imagename or type(imagename)==str and [imagename] or '')+" -filter_complex \""+returnstring+"\" "+(self.libi.vformat('mp4') if re.search(r'[.]mp4$',outimagename,flags=re.I) else self.libi.vformat('mov'))+" -y "+outimagename)
+  self.libi.system("ffmpeg "+("-ignore_loop 0 "+str(duration) if type(imagename)==str and re.search(r'[.]gif$',imagename,flags=re.I) else f' -t {duration} ' if duration else '')+''.join(" -i "+x for x in type(imagename)==tuple and type(imagename[0])==str and imagename or type(imagename)==str and [imagename] or '')+" -filter_complex \""+returnstring+"\" "+(self.libi.vformat('mp4') if re.search(r'[.]mp4$',outimagename,flags=re.I) else self.libi.vformat('mov'))+" -y "+outimagename)
   return outimagename
 
- def text2image(self,text,textcolor='r',backcolor=(0,0,0,0),size=0.3,stroke=False,alignment='m',linemargin=10,richtext=False,outimagename=None):
+ """
+ def image2gif(self,imagename,duration):
+  print(f'><utilc.image2gif {imagename=} {duration=}')
+  imagenamelist=list(imagename)
+  imagenamelist.sort(key=lambda m:Image.open(m).width*Image.open(m).height,reverse=True)
+  for count,i in enumerate(imagenamelist[:]):
+   imagenamelist[count]='logdir/'+re.sub(r'^.*/(.*)',r'\1',i)
+   if not count:
+    img=Image.open(i).convert('RGBA')
+    img.resize((2*(img.width//2),2*(img.height//2))).save(imagenamelist[count])
+   else:
+    img=Image.new('RGBA',Image.open(imagenamelist[0]).size,color=(0,0,0,0))
+    img2=Image.open(i).convert('RGBA')
+    img.paste(img2,((img.width-img2.width)//2,(img.height-img2.height)//2),img2)
+    img.save(imagenamelist[count])
+  outimagename=self.libi.outimagename(imagenamelist[0],extension='gif')
+  print(f'<=>utilc.image2gif {imagenamelist=}')
+  self.libi.system('convert -delay '+str(25)+' -dispose Background -loop 0 '+' '.join((' '+imagenamelist[count])*int((duration*100)//(len(imagenamelist)*25)+((count+1)*((duration*100)%(len(imagenamelist)*25)))//(len(imagenamelist)*25)) for count in range(len(imagenamelist)))+' '+outimagename)
+  return outimagename
+
+ def image2mov(self,imagename,filter,duration,backcolor='0x00000000',outimagename=None):
+  '''-----------
+  imagename - .png,.gif,.mp4,tuple(.png)
+  filter - i.e. blend=all_exp....
+  duration - total duration of background
+  backcolor - background glass color
+  outimagename - output mp4 name=<imagename>_<count>.mp4
+  -------------
+  image2mov(imagename=('one.png','two.png','three.png'),filter=("fade=in:st=0:d=3:alpha=1","blend=all_expr='if(lte(Y,(H-T/1*H)),A,B)'"),duration=10,backcolor='0x00000000')
+  image2mov(imagename='one.gif',filter="blend=all_expr='if(lte(Y,(H-T/1*H)),A,B)'",duration=4)
+  image2mov(imagename='one.mp4',filter=("fade=in:st=0:d=3:alpha=1","blend=all_expr='if(lte(Y,(H-T/1*H)),A,B)'"),duration=10,backcolor='0x00000000')\
+  '''
+  print(f'><utilc.image2mov {imagename=} {filter=} {duration=} {backcolor=}')
+  returnstring=''
+  imagename=self.image2gif(imagename,duration) if not type(imagename)==str else imagename
+  outimagename=self.libi.outimagename(imagename,extension='mov')
+  dimension=not type(filter)==str and not type(filter[0])==str and [re.sub(r'^.*?(?P<id>\d+)%(?P<id2>\d+)%$',lambda m:str(int(2*((self.libi.videowidth*float(m.group('id')))//(2*100))))+'x'+str(int(2*((self.libi.videoheight*float(m.group('id2')))//(2*100)))),x[0]) for x in filter if re.search(r'%.*?%$',x[0])] or []
+  filter=type(filter)==str and (filter,) or type(filter[0])==str and filter or [x[1] for x in filter]
+  tmp=[x for x in filter if not re.search('^fade',x,flags=re.I)]
+#  returnstring='color=c='+backcolor+':size='+'x'.join([(str(2*(int(x[0])//2)),str(2*(int(x[1])//2))) for x in ([self.libi.videoattribute(imagename)[0]] if re.search('video',self.libi.exiftool(imagename,'MIME Type'),flags=re.I) else [Image.open(imagename).size])][0])+':d='+str(duration)+r"[black];"+('[black]split='+str(len(tmp))+'[black]'*len(tmp)+';' if len(tmp)>1 else '')+'[0:v]'+self.libi.filter['41']+'[ov];'
+  returnstring='color=c='+backcolor+':size='+('x'.join([(str(2*(int(x[0])//2)),str(2*(int(x[1])//2))) for x in ([self.libi.videoattribute(imagename)[0]] if re.search('video',self.libi.exiftool(imagename,'MIME Type'),flags=re.I) else [Image.open(imagename).size])][0]) if not dimension else dimension[0])+':d='+str(duration)+r"[black];"+('[black]split='+str(len(tmp))+'[black]'*len(tmp)+';' if len(tmp)>1 else '')+'[0:v]'+self.libi.filter['41']+'[ov];'
+  for count,i in enumerate(not type(filter)==str and filter or (filter,)):
+   returnstring+='[ov]'+i+'[ov];' if re.search('fade.*(in|out)',i) else '[black][ov]'+i+'[ov];'
+  print(f'<=>utilc.image2mov returnstring={returnstring}')
+  self.libi.system("ffmpeg "+((" -loop 1 " if not re.search(r'[.](gif|mov|mp4|webm)$',imagename,re.I) else " -ignore_loop 0 " if re.search(r'[.]gif$',imagename,re.I) else "")+" -t "+str(duration))+" -i "+imagename+" -filter_complex \""+re.sub(r'\[ov\];$','',returnstring)+"\" "+self.libi.vformat('mov')+" -y "+outimagename)
+  return outimagename
+
+ def text2image(self,text,textcolor='r',backcolor=(0,0,0,0),size=0.3,stroke=None,alignment='m',interlinegap=10,outimagename=None):
   '''\
             ----------------
-  text - single text i.e. 'hello\nworld' or in tuple,i.e. (('hello\nworld',None,(128,0,0,0.5),0.5,False,None,5),....)
+  text - text i.e. 'hello\nworld' or in tuple,i.e. (('hello\nworld',None,(128,0,0,0.5),0.5,False,None,5),('Welcome',(0,40,0,255),(0,0,0,0),0.3,(125,0,0,255),'m',10),....)
   textcolor - default color of text = 'red' see lib.palettecolor
   backcolor - background color of text = (0,0,0,192)
   size - width of textline/video width = 0.4
-  stroke - Need stroke (True/False) = False
+  stroke - None or stroke color, (255,255,0,255)
   alignment - m:center l:left = 'm'
-  margin - inter line margin
+  interlinegap - margin from top,Top line no margin
             ----------------
   outimagename - output image file name = To be auto generated
-            ----------------'''
-  print(f'><utilc.text2image text={text} textcolor={textcolor} backcolor={backcolor} size={size} stroke={stroke} alignment={alignment} linemargin={linemargin} richtext={richtext}')
+            ----------------
+  text2image('Hello World\nWelcome to the World')
+  text2image(('Hello World\nWelcome to the World',))
+  text2image('Hello World\nWelcome to the World',backcolor=(125,0,0,128),alignment='l',stroke=(255,0,255,255))
+  text2image(('Hello World\nWelcome to the World',(128,0,0,255),(127,0,0,124)),))'''
+  print(f'><utilc.text2image {text=} {textcolor=} {backcolor=} {size=} {stroke=} {alignment=} {interlinegap=}')
   stringlist=[]
-  xoffset=4
-  yoffset=4
-  if richtext:
-   if type(text)==str:
-    for i in re.split('\n',text):
-     stringlist.append(self.libi.split(i,('',textcolor,str(backcolor),size,stroke,alignment,linemargin)))
-   else:
-    for i in text:
-     stringlist.append(tuple([self.text2image.__defaults__[count-1] if x==None else x for count,x in enumerate(i)]))
+  offset=int(size*40)
+  if not type(text)==str:#richtext
+   if type(text[0])==str:
+    text=(text,)
+   for i in [[j]+list(i[1:]) for i in text for j in re.split(r'\n',i[0])]:
+    stringlist.append([i[0]]+list(self.text2image.__defaults__))
+#    stringlist.append(tuple([self.text2image.__defaults__[count-1] if x==None else x for count,x in enumerate(i)]))
+    for count,x in enumerate(i):
+     stringlist[-1][count]=x
   else:
 #   stringlist=(('\n'.join(re.split(r'\\n',text)),textcolor,backcolor,size,stroke,alignment,linemargin),)
-   stringlist=tuple([(x,textcolor,backcolor,size,stroke,alignment,linemargin) for x in re.split(re.search(r'\\n',text) and r'\\n' or '\n',text)])
+   stringlist=tuple([(x,textcolor,backcolor,size,stroke,alignment,interlinegap) for x in re.split(re.search(r'\\n',text) and r'\\n' or r'\n',text)])
+  '''
   imagewidth=max(self.libi.getfontsize(x[0],x[3])[0] for x in stringlist)+xoffset
   imageheight=[self.libi.getfontsize(x[0],x[3],lineheight=x[-1])[1]+yoffset for x in stringlist]
-  print(f'<=>libc.text2image stringlist={stringlist} imagewidth={imagewidth} imageheight={imageheight}')
-  img=Image.new('RGBA',(imagewidth,sum(x for x in imageheight)),(0,0,0,0))
+  '''
+  minfontsize=min([self.libi.getfont(x[0],screenratio_p=x[3],widthheight=True).size for x in stringlist])
+#  imagesize=[self.libi.getfont(x[0],screenratio_p=x[3],widthheight=True).getbbox(x[0],anchor="lt")[2:] for x in stringlist]
+  imagesize=[ImageFont.truetype(os.path.expanduser('~')+'/.fonts/ufonts.com_tw-cen-mt.ttf',minfontsize).getbbox(x[0],anchor="lt")[2:] for x in stringlist]
+  img=Image.new('RGBA',(max(x[0] for x in imagesize)+2*offset,sum(x[1] for x in imagesize)+sum(x[6] for count,x in enumerate(stringlist) if count)+2*offset*len(stringlist)),(0,0,0,0))
+  print(f'<=>libc.text2image {stringlist=} {imagesize=} {img.size=}')
   draw=ImageDraw.Draw(img)
   #bottommargin=0
   for count,text in enumerate(stringlist):
-   x1,y1=(re.search(r'^[Mm]',text[-2]) and (imagewidth-self.libi.getfontsize(text[0],text[3],lineheight=text[-1])[0])/2-xoffset/2 or 0,sum([imageheight[i] for i in range(count)] or [0]))
+   '''
+   x1,y1=(re.search(r'^[Mm]',text[5]) and (imagewidth-self.libi.getfontsize(text[0],text[3],lineheight=text[-1])[0])/2-xoffset/2 or 0,sum([imageheight[i] for i in range(count)] or [0]))
    x2,y2=(re.search(r'^[Mm]',text[-2]) and (imagewidth+self.libi.getfontsize(text[0],text[3],lineheight=text[-1])[0])/2+xoffset/2 or imagewidth,sum(imageheight[i] for i in range(count+1)))
-   print(f"<=>text2image text={text} x1,y1,x2,y2={(x1,y1,x2,y2)} len(text[0])=",len(re.split('\n',text[0])))
-   draw.rectangle((x1,y1+1,x2,y2-1),fill=self.libi.palette(text[2]))
-   [draw.text((x1+xoffset/2,y1-yoffset/2+(counti and self.libi.getfontsize('\n'.join(re.split('\n',text[0])[:counti]),text[3],lineheight=text[-1])[1]+text[-1])),texti,font=self.libi.getfont(text[0],text[3]),fill=self.libi.palette(text[1]),stroke_width=text[4],stroke_fill=text[4] and (255,0,0,255) or None) for counti,texti in enumerate(re.split('\n',text[0]))]
+   '''
+   x1,y1=(img.width-imagesize[count][0])//2-offset if re.search(r'^[mM]$',stringlist[count][5]) else 0,offset*2*count+sum(x[1]+stringlist[lcount+1][6] for lcount,x in enumerate(imagesize[:count]))
+   x2,y2=x1+imagesize[count][0]+2*offset,y1+imagesize[count][1]+2*offset
+   print(f"<=>text2image text={text} x1,y1,x2,y2={(x1,y1,x2,y2)} len(text[0])=",len(re.split(r'\n',text[0])))
+#   draw.rectangle((x1,y1+1,x2,y2-1),fill=self.libi.palette(text[2]))
+   draw.rectangle((x1,y1,x2,y2),fill=self.libi.palette(text[2]))
+#   [draw.text((x1+xoffset/2,y1-yoffset/2+(counti and self.libi.getfontsize('\n'.join(re.split('\n',text[0])[:counti]),text[3],lineheight=text[-1])[1]+text[-1])),texti,font=self.libi.getfont(text[0],text[3]),fill=self.libi.palette(text[1]),stroke_width=text[4],stroke_fill=text[4] and (255,0,0,255) or None) for counti,texti in enumerate(re.split('\n',text[0]))]
+#   draw.text((x1+offset,y1+offset),text[0],font=imagesize[count],fill=self.libi.palette(text[1]),stroke_width=text[4] and 2 or 0,stroke_fill=text[4] and 2)
+#   draw.text((x1+(x2-x1)//2,y1+(y2-y1)//2),text[0],anchor='mm',font=self.libi.getfont(stringlist[count][0],screenratio_p=stringlist[count][3],widthheight=True),fill=self.libi.palette(text[1]),stroke_width=text[4] and 2 or 0,stroke_fill=text[4] and 2)
+#   draw.text((x1+offset,y1+offset),text[0],anchor='lt',font=self.libi.getfont(stringlist[count][0],screenratio_p=stringlist[count][3],widthheight=True),fill=self.libi.palette(text[1]),stroke_width=text[4] and 2 or 0,stroke_fill=text[4] and 2)
+   draw.text((x1+offset,y1+offset),text[0],anchor='lt',font=ImageFont.truetype(os.path.expanduser('~')+'/.fonts/ufonts.com_tw-cen-mt.ttf',minfontsize),fill=self.libi.palette(text[1]),stroke_width=text[4] and 2 or 0,stroke_fill=text[4] and 2)
   outimagename=self.libi.outimagename('textimage.',extension='png')
   print(f'libc.text2image x1,y1,x2,y2={(x1,y1,x2,y2)} outimagename={outimagename=}')
   img.save(outimagename)
@@ -427,6 +511,7 @@ class utilc:
   self.libi.system("ffmpeg"+(" -ss "+beginaudio[2] if len(beginaudio)>2 else "")+(" -t "+self.libi.getsecond(beginaudio[1]) if len(beginaudio)>1 else "")+" -i "+beginaudio[0]+((" -t "+self.libi.getsecond(endaudio[1]) if len(endaudio)>1 else "")+" -i "+endaudio[0] if endaudio else "")+" -filter_complex \"[0:a]"+("apad=pad_dur="+str(silenceduration)+"[aout];[aout]" if silenceduration else "")+("[1:a]concat=n=2:v=0:a=1[aout]" if endaudio else "")+"\" -map \"["+("aout" if endaudio or silenceduration else "a:0")+"]\""+" -y "+outimagename)
   return outimagename
 
+ """
  def scalepad(self,imagename,targetdimension=None,upscale=False,padposition='(ow-iw)/2,(oh-ih)/2',begintime=0.0,duration=None,padcolor='0x000000ff',getscalestr=False,outimagename=None):
   '''scale imagename to targetdimension
    imagename - input gif/.mp4 to scale
@@ -435,14 +520,36 @@ class utilc:
    padposition -  x,y where imagename would placed in sclaed video,i.e '0,0' at top left
    padcolor - padcolor i.e (40,40,40,255)'''
   print(f'><utilc.scalepad imagename={imagename} targetdimension={targetdimension} upscale={upscale} padposition={padposition} begintime={begintime} duration={duration} padcolor={padcolor} getscalestr={getscalestr} outimagename={outimagename}')
-  outimagename=self.libi.outimagename(imagename,extension=('mov' if re.search('[.]gif$',imagename,flags=re.I) else None)) if not outimagename else outimagename
-  dimension=tuple(int(x) for x in re.split('x',targetdimension)) if type(targetdimension)==str else targetdimension if type(targetdimension)==tuple else (int(self.libi.videowidth),int(self.libi.videoheight))
-  scalestr=(("scale="+(str(dimension[0])+':-1' if int(self.libi.dimension(imagename)[0])/dimension[0] > int(self.libi.dimension(imagename)[1])/dimension[1] else '-1:'+str(dimension[1]))+',') if upscale or int(self.libi.dimension(imagename)[0])>dimension[0] or int(self.libi.dimension(imagename)[1])>dimension[1] else '')+'pad='+str(dimension[0])+':'+str(dimension[1])+':'+re.sub(r',',':',re.sub(r'(?P<id>\<[WH]\>)',lambda m:'o'+m.group('id').lower(),re.sub(r'(?P<id>\<[wh]\>)',lambda m:'i'+m.group('id'),self.libi.co(padposition,(self.libi.dimension(imagename),dimension)))))+(':'+padcolor if padcolor else '')+',setsar=sar=1'
+#  outimagename=self.libi.outimagename(imagename,extension=('mov' if re.search('[.]gif$',imagename,flags=re.I) else None)) if not outimagename else outimagename
+  outimagename=self.libi.outimagename(imagename,extension=('mov' if re.search('[.]gif$',imagename,flags=re.I) or padcolor=='0x00000000' or padcolor==(0,0,0,0) else None)) if not outimagename else outimagename
+#  dimension=tuple(int(x) for x in re.split('x',targetdimension)) if type(targetdimension)==str else targetdimension if type(targetdimension)==tuple else (int(self.libi.videowidth),int(self.libi.videoheight))
+  dimension=tuple(int(x+1) if x%2 else int(x) for x in (re.split('x',targetdimension) if type(targetdimension)==str else targetdimension if type(targetdimension)==tuple else (int(self.libi.videowidth),int(self.libi.videoheight))))
+#  scalestr=(("scale="+(str(dimension[0])+':-1' if int(self.libi.dimension(imagename)[0])/dimension[0] > int(self.libi.dimension(imagename)[1])/dimension[1] else '-1:'+str(dimension[1]))+',') if upscale or int(self.libi.dimension(imagename)[0])>dimension[0] or int(self.libi.dimension(imagename)[1])>dimension[1] else '')+'pad='+str(dimension[0])+':'+str(dimension[1])+':'+re.sub(r',',':',re.sub(r'(?P<id>\<[WH]\>)',lambda m:'o'+m.group('id').lower(),re.sub(r'(?P<id>\<[wh]\>)',lambda m:'i'+m.group('id'),self.libi.co(padposition,(self.libi.dimension(imagename),dimension)))))+(':'+padcolor if padcolor else '')+',setsar=sar=1'
+#  scalestr=(("scale="+(str(dimension[0])+':-1' if int(self.libi.dimension(imagename)[0])/dimension[0] > int(self.libi.dimension(imagename)[1])/dimension[1] else '-1:'+str(dimension[1]))) if upscale or int(self.libi.dimension(imagename)[0])>dimension[0] or int(self.libi.dimension(imagename)[1])>dimension[1] else '')+(',pad='+str(dimension[0])+':'+str(dimension[1])+':'+re.sub(r',',':',re.sub(r'(?P<id>\<[WH]\>)',lambda m:'o'+m.group('id').lower(),re.sub(r'(?P<id>\<[wh]\>)',lambda m:'i'+m.group('id'),self.libi.co(padposition,(self.libi.dimension(imagename),dimension))))) if padposition else '')+(':'+padcolor if padposition and padcolor else '')+',setsar=sar=1'
+  scalestr=(("scale="+(str(dimension[0])+':-1' if int(self.libi.dimension(imagename)[0])/dimension[0] > int(self.libi.dimension(imagename)[1])/dimension[1] else '-1:'+str(dimension[1])))+',' if upscale or int(self.libi.dimension(imagename)[0])>dimension[0] or int(self.libi.dimension(imagename)[1])>dimension[1] else '')+('pad='+str(dimension[0])+':'+str(dimension[1])+':'+re.sub(r',',':',re.sub(r'(?P<id>\<[WH]\>)',lambda m:'o'+m.group('id').lower(),re.sub(r'(?P<id>\<[wh]\>)',lambda m:'i'+m.group('id'),self.libi.co(padposition,(self.libi.dimension(imagename),dimension))))) if padposition else '')+(':'+padcolor if padposition and padcolor else '')+',setsar=sar=1'
 #  self.libi.system("ffmpeg "+("-ss "+str(begintime)+" -t "+str(duration)+" " if duration else " ")+"-i "+imagename+" -filter_complex \""+(("scale="+(str(dimension[0])+':-1' if int(self.libi.dimension(imagename)[0])/dimension[0] > int(self.libi.dimension(imagename)[1])/dimension[1] else '-1:'+str(dimension[1]))+',') if upscale or int(self.libi.dimension(imagename)[0])>dimension[0] or int(self.libi.dimension(imagename)[1])>dimension[1] else '')+'pad='+str(dimension[0])+':'+str(dimension[1])+':'+re.sub(r',',':',re.sub(r'(?P<id>\<[WH]\>)',lambda m:'o'+m.group('id').lower(),re.sub(r'(?P<id>\<[wh]\>)',lambda m:'i'+m.group('id'),self.libi.co(padposition,(self.libi.dimension(imagename),dimension)))))+(':'+padcolor if padcolor else '')+"\""+(" -pix_fmt rgba -vcodec png " if re.search(r'[.]gif$',imagename,flags=re.I) else " -map 0:v -map 0:a -c:a copy")+" -y "+outimagename)
 #  self.libi.system("ffmpeg "+("-ss "+str(begintime)+" -t "+str(duration)+" " if duration else " ")+"-i "+imagename+" -filter_complex \""+scalestr+"\""+(" -pix_fmt rgba -vcodec png " if re.search(r'[.](gif|mov)$',imagename,flags=re.I) else " -map 0:v -map 0:a -c:a copy")+" -y "+outimagename) if not getscalestr else None
-  self.libi.system("ffmpeg "+("-ss "+str(begintime)+" -t "+str(duration)+" " if duration else " ")+"-i "+imagename+" -filter_complex \""+scalestr+"\""+(self.libi.vformat('mov') if re.search(r'[.](gif|mov)$',imagename,flags=re.I) else self.libi.vformat('mp4'))+" -y "+outimagename) if not getscalestr else None
+#  self.libi.system("ffmpeg "+("-ss "+str(begintime)+" -t "+str(duration)+" " if duration else " ")+"-i "+imagename+" -filter_complex \""+scalestr+"\""+(self.libi.vformat('mov') if re.search(r'[.](gif|mov)$',imagename,flags=re.I) else self.libi.vformat('mp4'))+" -y "+outimagename) if not getscalestr else None
+  self.libi.system("ffmpeg "+("-ss "+str(begintime)+" -t "+str(duration)+" " if duration else " ")+"-i "+imagename+" -filter_complex \""+scalestr+"\""+(self.libi.vformat('mov') if re.search(r'[.](gif|mov)$',imagename,flags=re.I) or padcolor=='0x00000000' else self.libi.vformat('mp4'))+" -y "+outimagename) if not getscalestr else None
   return scalestr if getscalestr else outimagename
+ """
 
+ def scalepad(self,imagename,scaledimension=None,paddimension=None,padposition='(ow-iw)/2,(oh-ih)/2',padcolor='0x000000ff',getscalestr=False,outimagename=None):
+  '''scaledimension - target dimension scale 1600x900 or (1600,900)
+  paddimension - pad dimension = (self.libi.videowidth,self.libi.videoheight)
+  '''
+  print(f'><utilc.scalepad {(imagename,scaledimension,paddimension,padposition,padcolor,getscalestr,outimagename)=}')
+  if self.libi.videowidth==self.libi.videoheight==0:
+   print(f'{"":-^40}\n{"Video Width Height 0":^40}\n{"":-^40}')
+  padcolor='0x'+''.join(str(hex(padcolor[count])) for count in range(4)) if type(padcolor)==tuple else padcolor
+  outimagename=self.libi.outimagename(imagename,extension=('mov' if re.search('[.]gif$',imagename,flags=re.I) or not re.search('ff$',padcolor,flags=re.I) else None)) if not outimagename else outimagename
+  scaledimension=tuple(int(x+1) if int(x)%2 else int(x) for x in (re.split('x',scaledimension) if type(scaledimension)==str else scaledimension if type(scaledimension)==tuple else (int(self.libi.videowidth),int(self.libi.videoheight))))
+  paddimension=tuple(int(x+1) if x%2 else int(x) for x in (re.split('x',paddimension) if type(paddimension)==str else paddimension if type(paddimension)==tuple else (int(self.libi.videowidth),int(self.libi.videoheight))))
+#  scalestr=("scale="+(str(scaledimension[0])+':-1' if int(self.libi.dimension(imagename)[0])/scaledimension[0] > int(self.libi.dimension(imagename)[1])/scaledimension[1] else '-1:'+str(scaledimension[1])))+(',pad='+str(paddimension[0])+':'+str(paddimension[1])+':'+re.sub(r',',':',re.sub(r'(?P<id>\<[WH]\>)',lambda m:'o'+m.group('id').lower(),re.sub(r'(?P<id>\<[wh]\>)',lambda m:'i'+m.group('id'),self.libi.co(padposition,(self.libi.dimension(imagename),paddimension))))) if padposition else '')+(':'+padcolor if padposition and padcolor else '')+',setsar=sar=1'
+  scalestr="scale="+str(scaledimension[0])+'x'+str(scaledimension[1])+(',pad='+str(paddimension[0])+':'+str(paddimension[1])+':'+re.sub(r',',':',re.sub(r'(?P<id>\<[WH]\>)',lambda m:'o'+m.group('id').lower(),re.sub(r'(?P<id>\<[wh]\>)',lambda m:'i'+m.group('id'),self.libi.co(padposition,(self.libi.dimension(imagename),paddimension))))) if padposition else '')+(':'+padcolor if padposition and padcolor else '')+',setsar=sar=1'
+#  self.libi.system("ffmpeg "+("-ss "+str(begintime)+" -t "+str(duration)+" " if duration else " ")+"-i "+imagename+" -filter_complex \""+scalestr+"\""+(self.libi.vformat('mov') if re.search(r'[.](gif|mov)$',imagename,flags=re.I) or padcolor=='0x00000000' else self.libi.vformat('mp4'))+" -y "+outimagename) if not getscalestr else None
+  self.libi.system("ffmpeg"+" -i "+imagename+" -filter_complex \""+scalestr+"\""+(self.libi.vformat('mov') if re.search(r'[.](gif|mov)$',imagename,flags=re.I) or not re.search('ff$',padcolor,flags=re.I) else self.libi.vformat('mp4'))+" -y "+outimagename) if not getscalestr else None
+  return scalestr if getscalestr else outimagename
  def d_(self,filename):
   downloaddir=('image','misc','document','audio')
   for i in range(len(downloaddir)):

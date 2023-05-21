@@ -7,34 +7,43 @@ import subprocess
 from decimal import Decimal
 import copy
 import configparser
-from MISC.extra.debugwrite import print
+#from MISC.extra.debugwrite import print
+import MISC.ffmpeg.filterm as filterm
 class libc:
  '''library class to provide basic functions'''
  counti=-1
  def __init__(self,inputfile=None,destdir='logdir',gifp=None):
+  self.filter=filterm.filter
   '''
   self.filter={
-   'blend':{'blend':"blend=all_expr='A*(1-min(T/1,1))+B*(min(T/1,1))'",
-     'up': "blend=all_expr='if(lte(Y,(H-T/1*H)),A,B)'", #Curtain up \
-     'right':"blend=all_expr='if(gte(X,(T/1*W)),A,B)'", #Curtain right \
-     'down':"blend=all_expr='if(gte(Y,(T/1*H)),A,B)'", #curtain down \
-     'left':"blend=all_expr='if(lte(X,(W-T/1*W)),A,B)'", #curtain left \
-     'verticalopen':"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2)),B,A)'",
-     'horizontalclose':"blend=all_expr='if(between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)'",
+   'blend':{'blend':"blend=all_expr='A*(1-min(T/1,1))+B*(min(T/1,1))':eof_action=pass",
+     'up': "blend=all_expr='if(lte(Y,(H-T/1*H)),A,B)':eof_action=pass", #Curtain up \
+     'right':"blend=all_expr='if(gte(X,(T/1*W)),A,B)':eof_action=pass", #Curtain right \
+     'down':"blend=all_expr='if(gte(Y,(T/1*H)),A,B)':eof_action=pass", #curtain down \
+     'left':"blend=all_expr='if(lte(X,(W-T/1*W)),A,B)':eof_action=pass", #curtain left \
+     'verticalopen':"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2)),B,A)':eof_action=pass",
+     'horizontalopen':"blend=all_expr='if(between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)':eof_action=pass",
      'verticalclose':"",
      'horizontalclose':"",
-     'circleopen':"blend=all_expr='if(gte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(T/2*max(W,H))),A,B)'",
-     'circleclose':"blend=all_expr='if(lte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(max(W,H)-(T/1*max(W,H)))),A,B)'",
-     'expandingwindow':"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2))*between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)'",
-     'fadein': "[1]fade=in:st=0:d=3:alpha=1"
+     'circleopen':"blend=all_expr='if(gte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(T/3*max(W,H))),A,B)':eof_action=pass",
+     'circleclose':"blend=all_expr='if(lte(sqrt((X-W/2)*(X-W/2)+(H/2-Y)*(H/2-Y)),(max(W,H)-(T/1*max(W,H)))),A,B)':eof_action=pass",
+     'expandingwindow':"blend=all_expr='if(between(X,(W/2-T/1*W/2),(W/2+T/1*W/2))*between(Y,(H/2-T/1*H/2),(H/2+T/1*H/2)),B,A)':eof_action=pass",
+     'fadein': "fade=in:st=0:d=3:alpha=1",
+     'fadeinout': "fade=in:st=0:d=1:alpha=1,fade=out:st=0:d=1:alpha=1",
    },
-   'overlay':{ 'normal':"overlay=x='(W-w)/2':y='(H-h)/2'",
-     'up' :"overlay=x='(W-w)/2':y='max((H-h)/2,H-t/1*H)'",
-     'right' : "overlay=x='min((W-w)/2,-w+t/1*W)':y='(H-h)/2'",
-     'bottom': "overlay=x='(W-w)/2':y='min((H-h)/2,-h+t/1*H)'",
-     'left' : "overlay=x='max((W-w)/2,W-t/1*W)':y='(H-h)/2'"
-   }
+   'overlay':{ 'normal':"overlay=x='(W-w)/2':y='(H-h)/2':eof_action=pass",
+     'up' :"overlay=x='(W-w)/2':y='max((H-h)/2,H-t/1*H)':eof_action=pass",
+     'right' : "overlay=x='min((W-w)/2,-w+t/1*W)':y='(H-h)/2':eof_action=pass",
+     'bottom': "overlay=x='(W-w)/2':y='min((H-h)/2,-h+t/1*H)':eof_action=pass",
+     'left' : "overlay=x='max((W-w)/2,W-t/1*W)':y='(H-h)/2':eof_action=pass",
+   },
+   '41':r"crop=w=2*floor(iw/2):h=2*floor(ih/2)",
+   '00t':((255,0,0,255),(128,128,128,128),0.25,False,'m',10),
+   '01t':((255,255,255,255),(128,0,0,128),0.25,False,'m',10),
+   '02t':((0,85,255,255),(255,255,255,255),0.25,False,'m',5),
+   '03t':((255,255,255,255),(0,85,255,255),0.25,False,'m',5),
   }
+  '''
   '''
   self.filter={
    #0-> blend 1-> overlay 2-> text to image 3-> image(gif,.mp4,.png) to .mov
@@ -95,6 +104,7 @@ class libc:
 #   '40_1.3_28_pan
    '41':r"crop=w=2*floor(iw/2):h=2*floor(ih/2)",
   }
+  '''
 
   self.gifi=gifp
   if not os.path.isdir(destdir):
@@ -208,8 +218,17 @@ class libc:
 
  def getfont(self,stringlist_p,screenratio_p=0.8,fontfamily_p=os.path.expanduser('~')+r'/.fonts/ufonts.com_tw-cen-mt.ttf',widthheight=False,setvideo=None):
   '''\
-  stringlist_p - tuple/list of string'''
-  print(f'><libc.getfont self.videowidth={self.videowidth} self.videoheight={self.videoheight} stringlist_p={stringlist_p} screenratio_p={screenratio_p} fontfamily_p={fontfamily_p},{widthheight=}')
+  stringlist_p - tuple/list of string
+  screenratio_p - screen ratio, i.e 0.4 width,height=40% of (screenwidthheight)
+  widthheight - consider both width and height of screen
+  setvideo - screen width and height, defaults to already set through libi.setvideo
+  -----
+  multiline string would get converted to stringlist
+  -----
+  libc.getfont('Hello World',0.5,widthheight=True,setvideo=(300,200))
+  libc.getfont('Hello World\nWelcome',0.4)
+  libc.getfont(('Hello world','Welcome\nTo the World'))'''
+  print(f'><libc.getfont {stringlist_p=} {screenratio_p=} {fontfamily_p=} {widthheight=} {setvideo=} {(self.videowidth,self.videoheight)=}')
   width,height=(0,0)
   maxindex=None
   if setvideo:
@@ -217,19 +236,21 @@ class libc:
   i=10
   stringlist_p=[y for x in (stringlist_p if type(stringlist_p)==tuple or type(stringlist_p)==list else (stringlist_p,)) for y in re.split(r'(?:\n|\\n)',x)]
   if widthheight:
-   while width<float(self.videowidth)*screenratio_p and height<float(self.videoheight)*screenratio_p:
+   while width<=float(self.videowidth)*screenratio_p and height<=float(self.videoheight)*screenratio_p:
     width,height=(0,0)
-    for j in [k for j in stringlist_p for k in re.split(r'(?:\n|\\n)',j)]:
-     width=max(width,ImageFont.truetype(fontfamily_p,i).getsize(j)[0])
+    for j in stringlist_p:
+     width=max(width,ImageFont.truetype(fontfamily_p,i).getbbox(j,anchor="lt")[2])
 #     height+=ImageFont.truetype(fontfamily_p,i).getsize(j)[1]+(widthheight if type(widthheight)==int else 0)
-     height+=ImageFont.truetype(fontfamily_p,i).getmask(j).getbbox()[3]+(widthheight if type(widthheight)==int else 0)
+#     height+=ImageFont.truetype(fontfamily_p,i).getmask(j).getbbox()[3]+(widthheight if type(widthheight)==int else 0)
+     height+=ImageFont.truetype(fontfamily_p,i).getbbox(j,anchor="lt")[3]+(widthheight if type(widthheight)==int else 0)
     height-=widthheight if type(widthheight)==int else 0
     i+=1
-   i-=2
+   i-=1
   else:
    stringlist_p.append('Q'*10) # in order to force calculation for 20 characters minimum
    maxindex=[len(j) for j in stringlist_p].index(max(len(j) for j in stringlist_p))
-   while ImageFont.truetype(fontfamily_p,i).getsize(stringlist_p[maxindex])[0] < float(self.videowidth)*screenratio_p: i=i+1
+#   while ImageFont.truetype(fontfamily_p,i).getsize(stringlist_p[maxindex])[0] < float(self.videowidth)*screenratio_p: i=i+1
+   while ImageFont.truetype(fontfamily_p,i).getbbox(stringlist_p[maxindex],anchor="lt")[2] <= float(self.videowidth)*screenratio_p: i=i+1
    i-=1
   print(f'<>libc.getfont {maxindex=} {i=}')
   return ImageFont.truetype(fontfamily_p,i)
@@ -260,8 +281,8 @@ class libc:
   else:
    hour=int(float(time_p)/3600)
    minute=int((float(time_p)-hour*3600)/60)
-   second=round(float(time_p)-hour*3600-minute*60,2)
-   return str(hour)+":"+str(minute)+":"+str(second)
+   second=round(float(time_p)-hour*3600-minute*60,3)
+   return f'{str(hour):0>2}:{str(minute):0>2}:{str(second):0>2}'
   return time_p
 
  def system(self,commandstring_p,popen=False):

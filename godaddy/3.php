@@ -13,7 +13,7 @@ echo '<div class="downloadright">
 <li><p class="l">Training materials</p>:<a class="r" href="./advance-'.$util->subitem.'-slides.php"><pre style="font-size:15pt;font-weight:bold;color:#400000;display:inline;padding:0">Slides</pre></a><p class="r"> Labs/Results</p></li>
 <li><p class="l">Written language</p>: <p class="r">English</p></li>
 <li><p class="l">Available oral languages:</p> <p class="r">English</p></li>
-<li><p class="l">Online Training: </p><p class="r"><a href="'.$util->level.'/about/online" class="bold" style="font-size:16pt;color:#ff4444;">Click here</a></p></li>
+<li><p class="l">Register For Online Training: </p><p class="r"><a href="'.$util->level.'/online" class="bold" style="font-size:16pt;color:#ff4444;">Click here</a></p></li>
 </ul>';
 foreach (array('research','product') as $research){
 echo '  <li style="height:60px;"><div style="width:650px;height:60px;position:relative;" align="center"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>

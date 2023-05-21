@@ -6,7 +6,8 @@ $dbname="trackweb";
 //echo "<p>__construct<br></p>";
 //$this->link=mysqli_connect('localhost','minhinc','pinku76minh','trackweb') or die ("<html><script language='javascript'>alert('Unable to connect to database'),history.go(-1)</script></html>");
 //$this->link=mysqli_connect('remotemysql.com','A1tIv1Rqct','t255Ihutzd','A1tIv1Rqct') or die ("<html><script language='javascript'>alert('Unable to connect to database'),history.go(-1)</script></html>");
-$key=preg_split('/\s+/',preg_split('/(\r\n\r\n|\r\r|\n\n|\n)/',file_get_contents('http://witheveryone.angelfire.com/passwd'))[0]);
+//$key=preg_split('/\s+/',preg_split('/(\r\n\r\n|\r\r|\n\n|\n)/',file_get_contents('http://witheveryone.angelfire.com/passwd'))[0]);
+$key=preg_split('/\s+/',preg_split('/(\r\n\r\n|\r\r|\n\n|\n)/',file_get_contents('http://minhinc.42web.io/misc/passwd'))[0]);
 $this->link=mysqli_connect($key[0],$key[1],$key[2],$key[3]) or die ("<html><script language='javascript'>alert('Unable to connect to database'),history.go(-1)</script></html>");
 }
 public function update($table,$column,$value,$where,$wherevalue){

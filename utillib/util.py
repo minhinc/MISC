@@ -48,7 +48,8 @@ class Util:
  def getarg(arg,count=1,removehyphen=False):
   """count=0 if argument to be returned
     count=1 if argument presense is checked (True/False)
-    count=2 if argument next value to be returned"""
+    count=2 if argument next value to be returned
+    removehyphen - if count=0 then hyphen should be removed?"""
   print(f'><Util.getarg {arg=}')
   ret=False
   index=([count for count in range(len(sys.argv)) if re.search(arg,sys.argv[count])] or [None])[0]
@@ -95,7 +96,7 @@ class Util:
 #   [[os.system(f"cp {x} {os.path.expanduser('~')}/tmp/imageglobe/{dir[1]}") for x in dir[0]] for dir in Util.push.file] if push else None
    Util.push.file=[]
  @staticmethod
- def gethtmltag(htmltaglist,htmlstr):
+ def searchhtmltag(htmltaglist,htmlstr):
   htmltaglist=[re.sub(r'^<(.*)>$',r'\1',x) for x in htmltaglist]
   resulttag={}
   for i in re.findall(r'<(\w+)',htmlstr,flags=re.DOTALL):
@@ -104,6 +105,7 @@ class Util:
   print(f'--------- HTML TAG DETECTED ----------')
   print(resulttag)
   print(f'---------------------------')
+ '''
  @staticmethod
  def gethtmltagdescripancy(htmltaglist,htmlstr):
   htmltaglist=[re.sub(r'^<(.*)>$',r'\1',x) for x in htmltaglist]
@@ -119,6 +121,7 @@ class Util:
   print(f'---------- HTML TAG DISCREPENCY FOUND ----------')
   print(resulttag)
   print(f'---------------------------')
+ '''
 
  @staticmethod
  def usertagdescripancy(tech):
@@ -139,6 +142,7 @@ class Util:
  @staticmethod
  def ftp(mode,dir,*filelist,localdir='.'):
   print(f'><Util.ftp {mode=} {dir=} {filelist=} {localdir=}')
+  filelist=[re.sub(r'^.*/(.*)$',r'\1',x) for x in filelist]
   retrycount=2
   while retrycount:
    data=os.popen('cd '+localdir+';~/tmp/ftp.sh '+(mode=='get' and 'mget' or mode=='put' and 'mput' or mode)+' '+dir+' '+' '.join(filelist)).read()
@@ -167,3 +171,53 @@ class Util:
   [print(dir2+'/'+i) for i in dir2file if i not in dir1file]
   for i in [i for i in dir1file if i in dir2file]:
    print(i,end=' ') if open(dir1+'/'+i).read()!=open(dir2+'/'+i).read() else None
+ @staticmethod
+ def resizeimagesize(referencesize,imagesize,ratio):
+  width,height=0,0
+  ratio=float(ratio/100) if ratio>1 else ratio
+  if imagesize[0]/imagesize[1]>=referencesize[0]/referencesize[1]:
+   width=int(referencesize[0]*ratio)
+   height=(width*imagesize[1])//imagesize[0]
+  else:
+   height=int(referencesize[1]*ratio)
+   width=(height*imagesize[0])//imagesize[1]
+  return (width,height) if width<imagesize[0] else imagesize
+ @staticmethod
+ def scaledwidthheight(imagesize,scalesize=None,referencesize=None,libi=None):
+  '''\
+  ---------------------------------------
+  |         <referencesize>/<windowsize>|
+  |    ----------------------------     |
+  |    |             <scalesize>  |     |
+  |    |  ----------------        |     |
+  |    |  |              |        |     |
+  |    |  |              |        |     |
+  |    |  |<imagesize>   |        |     |
+  |    |  |              |        |     |
+  |    |  ----------------        |     |
+  |    |                          |     |
+  |    ----------------------------     |
+  ---------------------------------------
+  '''
+  width=height=None
+  print(f'><Util.scaledwidthheight {imagesize=} {scalesize=} {referencesize=} {libi=}')
+  if type(imagesize)==str and not re.search(r'^\d+x\d+$',imagesize):
+   imagesize=[int(x) for x in libi.videoattribute(imagesize)[0]]
+  elif re.search(r'^\d+x\d+$',imagesize):
+   imagesize=[int(x) for x in re.split('x',imagesize)]
+  if scalesize==None:
+   scalesize=(libi.videowidth,libi.videoheight)
+  if referencesize==None:
+   referencesize=(libi.videowidth,libi.videoheight)
+  print(f'<=>Util.scaledwidthheight {imagesize=} {scalesize=} {referencesize=} {libi=}')
+  if abs(scalesize[0]-imagesize[0])//imagesize[0]<=abs(scalesize[1]-imagesize[1])//imagesize[1]:
+   width,height=scalesize[0],(scalesize[0]*imagesize[1])//imagesize[0]
+   if height>referencesize[1]:
+    height=referencesize[1]
+    width=(height*imagesize[0])//imagesize[1]
+  else:
+   width,height=(scalesize[1]*imagesize[0])//imagesize[1],scalesize[1]
+   if width>referencesize[0]:
+    width=referencesize[0]
+    height=(width*imagesize[1])//imagesize[0]
+  return (2*(width//2),2*(height//2))

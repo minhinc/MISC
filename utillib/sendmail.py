@@ -28,6 +28,7 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
   self.MAXEMAIL=3
   self.subprocess=subprocess
   self.emailcount=int(re.sub(r'^.*(\d+)$',r'\1',open(r'logdir/emailcount.txt','r').read()) if os.path.exists(r'logdir/emailcount.txt') else 1)%self.MAXEMAIL+1 
+  processemail=False
   if not subprocess:
 #   os.remove(r'logdir/seleniumdump.html') if os.path.exists(r'logdir/seleniumdump.html') else None
    open(r'logdir/emailcount.txt','w').write(str(self.emailcount))
@@ -42,11 +43,29 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
    sys.exit(-1)
   if not subprocess:
    if Util.ftp('get','unsubscribe','track.txt'):
-    self.db.search2('message',*[(0,x) for x in re.findall(r'^\S+\s+2\s+(.*)$',open('track.txt').read(),flags=re.M) if not self.db.search2('message','name','=',x,mode='search')],mode='insertbulk')
+    self.db.search2('message',*[(0,x) for x in set(re.findall(r'^\S+\s+2\s+(.*?)\s*$',open('track.txt').read(),flags=re.M)) if not self.db.search2('message','name','=',x,mode='search')],mode='insertbulk')
     self.db.search2('track',*[('status',2,'email','=',x) for x in re.findall(r'^(\S+)\s+2\s+.*$',open('track.txt').read(),flags=re.M)],mode='updatebulk')
-    self.db.search2('track',*[('message',int(self.db.search2('message','id','name','=',x[1],mode='get')[0][0]),'email','=',x[0]) for x in re.findall(r'^(\S+)\s+2\s+(.*)$',open('track.txt').read(),flags=re.M)],mode='updatebulk')
+    self.db.search2('track',*[('message',int(self.db.search2('message','id','name','=',x[1],mode='get')[0][0]),'email','=',x[0]) for x in re.findall(r'^(\S+)\s+2\s+(.*?)\s*$',open('track.txt').read(),flags=re.M)],mode='updatebulk')
    os.system('python3 ../gc/seed.py print track > track.txt')
    Util.ftp('put','unsubscribe','track.txt')
+   if Util.ftp('get','online','message.txt','lastemailsent.txt'):
+    for i in re.split('\n',open('message.txt').read()):
+     if i==re.split('\n',open('lastemailsent.txt').read())[0]:
+      processemail=i
+      continue
+     print(f'TEST {i=} {re.split(Util.DELIMITER,i)=}')
+     if len(re.split(Util.DELIMITER,i))==7 and processemail:
+      self.smtp.sendmail('tominhinc@gmail.com',['tominhinc@gmail.com'],"From: Minh Inc <tominhinc@gmail.com>\nTo: Minh Inc <tominhinc@gmail.com>\nSubject: Online Training\n\n"+"\n".join(["Name","Tech","Email","Attachment","Message","Training Required Date","Sent On"][count]+" : "+re.split(Util.DELIMITER,i)[count] for count in range(len(re.split(Util.DELIMITER,i)))))
+      processemail=i
+     elif len(re.split(Util.DELIMITER,i))==4 and processemail:
+      self.smtp.sendmail('tominhinc@gmail.com',['tominhinc@gmail.com'],"From: Minh Inc <tominhinc@gmail.com>\nTo: Minh Inc <tominhinc@gmail.com>\nSubject: Contact Us\n\n"+"\n".join(["Name","Email","Message","Sent On"][count]+" : "+re.split(Util.DELIMITER,i)[count] for count in range(len(re.split(Util.DELIMITER,i)))))
+      processemail=i
+     elif len(re.split(Util.DELIMITER,i))==6 and processemail:
+      self.smtp.sendmail('tominhinc@gmail.com',['tominhinc@gmail.com'],"From: Minh Inc <tominhinc@gmail.com>\nTo: Minh Inc <tominhinc@gmail.com>\nSubject: Ask a programming question\n\n"+"\n".join(["Name","Tech","Email","Attachment","Message","Sent On"][count]+" : "+re.split(Util.DELIMITER,i)[count] for count in range(len(re.split(Util.DELIMITER,i)))))
+      processemail=i
+    if processemail:
+     open('lastemailsent.txt','w').write(processemail)
+     Util.ftp('put','online','lastemailsent.txt')
 
  def connect(self):
   while self.emailcount<=self.MAXEMAIL:
@@ -83,8 +102,9 @@ class sendmail(seleniumrequest,databaserequest,machinelearningrequest):
     open(r'data/marketingemailtext.txt','w').write(requestm.get(r'https://witheveryone.angelfire.com/marketingemailtext.txt',get=True))
 #   setattr(sendmail.message,'youtubehreftext',self.youtubevideolink(r'file://'+os.path.abspath('.')+r'/logdir/seleniumdump.html' if os.path.exists(r'logdir/seleniumdump.html') else r'https://youtube.com/@minhinc/videos'))
    setattr(sendmail.message,'youtubehreftext',self.youtubevideolink(r'https://youtube.com/@minhinc/videos'))
-#   open(r'logdir/seleniumdump.html','w').write(self.webdriverdict['linkedin'].page_source) if not os.path.exists(r'logdir/seleniumdump.html') else None
    requestm.syncyoutube(*[x[0] for x in sendmail.message.youtubehreftext])
+   requestm.preparemainfront(sendmail.message.youtubehreftext[0],self.webdriverdict['linkedin'].find_elements_by_xpath('//*[@id="subscriber-count"]')[0].text)
+#   open(r'logdir/seleniumdump.html','w').write(self.webdriverdict['linkedin'].page_source) if not os.path.exists(r'logdir/seleniumdump.html') else None
    setattr(sendmail.message,'youtubetech',dict())
    setattr(sendmail.message,'techyoutubelist',dict())
    setattr(sendmail.message,'subject',re.split(r'(?:\n|\\n)',self.db.search2('tech','content','name','=','all',mode='get')[0][0]))

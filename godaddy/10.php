@@ -1,6 +1,11 @@
 <?php
-function draw($util){
-$json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$util->subitem))[0],true);
+function form($util,$tech,$state){
+if($state=='form'){
+$min=1;
+$max=300;
+$num1=rand( $min, $max );
+$num2=rand( $min, $max );
+$sum=$num1 + $num2;
 echo '<style>
 #map {
 height:248px;
@@ -24,60 +29,81 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCypT5QJIhCg6kqW808Rsn-mXl
 <div class="r"><p class="b" style="font-family:mytwcenmt;font-size:24pt;color:#004000">Minh, Inc.</p><div class="dl"><p class="n">Tel: +91 9483160610<img src="'.$util->level.'/image/whatsapp.png" width="20px" height="20px"> <br>Email: <a href="mailto:tominhinc@gmail.com"><span class="green">tominhinc@gmail.com</span></a></p></div><div class="dr"><p>#85<br>5th Main<br>P&T Colony<br>SanjayNagar<br>Bangalore-94</p></div></div>
 </li>
 </ul>
-<div style="width:950px;height:250px;position:relative;" align="center"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- fixed_250_250 -->
-<ins class="adsbygoogle"
-     style="position:absolute;left:0px;top:0px;display:inline-block;width:250px;height:250px"
-     data-ad-client="ca-pub-8488699542117607"
-     data-ad-slot="2427356203"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- fixed_250_250 -->
-<ins class="adsbygoogle"
-     style="position:absolute;left:250px;top:0px;display:inline-block;width:250px;height:250px"
-     data-ad-client="ca-pub-8488699542117607"
-     data-ad-slot="2427356203"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- fixed_250_250 -->
-<ins class="adsbygoogle"
-     style="position:absolute;left:500px;top:0px;display:inline-block;width:250px;height:250px"
-     data-ad-client="ca-pub-8488699542117607"
-     data-ad-slot="2427356203"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- fixed_200_200 -->
-<ins class="adsbygoogle"
-     style="position:absolute;left:750px;top:0px;display:inline-block;width:200px;height:200px"
-     data-ad-client="ca-pub-8488699542117607"
-     data-ad-slot="2697807187"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script></div>
-<form class="online" action="'.$util->level.'/php/send_form_email.php" method="post" target="myIframe">
+<form class="online" action="" method="post" enctype="multipart/form-data" style="float:left">
 <h1>Reach Out To Us</h1>
- <div class="row"><pre class="lc bold">Name:</pre><input type="text" name="name" placeholder="Your Name" class="l"></div>
- <div class="row"><pre class="lc bold">Email:</pre><input id="emailid" type="text" name="email" placeholder="Email Address" class="l"></div>
- <div class="rowtextarea"><pre class="lc bold">Query:</pre><textarea id="textareaid" rows="5" name="message" cols="40" class="l2"></textarea></div>
- <div style="margin:10px 0" class="g-recaptcha" data-callback="imNotARobot" data-sitekey="'.preg_replace('/^(.*)\\n.*/m','$1',file_get_contents($util->level.'/donotdelete/captchav2/sitecaptchav2.key')).'"></div>
- <div class="row"><input type="submit" name="submit" value="Submit" class="submit lc bold enable"><iframe name="myIframe" frameborder="0" scrolling="no" class="l" style="width:400px" id="iframeid"></iframe></div>
- </form>
- <div style="clear:both"></div>
+<div class="row"><pre class="lc bold">Name:</pre><input type="text" name="name" placeholder="Your Name" class="l"></div>
+<div class="row"><pre class="lc bold">Email:</pre><input id="emailid" type="text" name="email" placeholder="Email Address" class="l"><pre class="ls bold star">*</pre></div>
+<div class="rowtextarea" ><pre class="lc bold">Comment:</pre><textarea id="messageid" rows="5" name="message" cols="40" class="l2" ></textarea><pre class="ls bold star">*</pre></div>
+<div class="row" style="margin-top:20px"><pre class="lc bold" id="quiztextid" style="font-size:14pt;color:#ff0000">'.$num1.'+'.$num2.'</pre><input type="text" class="quiz-control l"> <pre class="ls bold star">*</pre></div>
+<div class="row" style="margin-top:20px"><input data-res="'.$sum.'" type="submit" name="submit" value="Submit" class="submit lc bold disable" id="s_submit"><pre class="l3" id="iframeid" style="margin-left:5%;font-size:14pt;font-weight:bold;height:30"></pre></div>
+</form>
+<a href="http://minhinc.42web.io/training/'.$tech.'"><img style="float:left;width:34%" src="http://minhinc.42web.io/image/'.$tech.'traininglogo.gif"></img></a>
+<div style="clear:both"></div>
 <script>
-var imNotARobot = function() {
-  document.getElementById("iframeid").contentWindow.document.write("");
-  };
-document.getElementById("iframeid").onload=function(){
- var framecontent=document.getElementById("iframeid").contentWindow.document.body.innerHTML;
-  if (framecontent.match(/40/gi)){
-   document.getElementById("emailid").value="";
-   document.getElementById("textareaid").value="";
-   grecaptcha.reset();
-  }
+const emailregex = /^([\w\d._\-#])+@([\w\d._\-#]+[.][\w\d._\-#]+)+$/;
+function submitenabledisable() {
+ if (document.getElementById("messageid").value.length<1 || !document.getElementById("emailid").value.match(emailregex) || document.querySelector(".quiz-control").value!=document.getElementById("s_submit").getAttribute("data-res")){
+ document.getElementById("s_submit").classList.remove("enable");
+ document.getElementById("s_submit").classList.add("disable");
+ document.getElementById("s_submit").disabled=true;
+ } else {
+ document.getElementById("s_submit").classList.remove("disable");
+ document.getElementById("s_submit").classList.add("enable");
+ document.getElementById("s_submit").disabled=false;
+ }
 }
+const emailInput = document.getElementById("emailid");
+emailInput.addEventListener("input", function(e) {
+ if ( this.value.match(emailregex) ) {
+  this.style.removeProperty("border");
+ } else {
+ this.style.border="1px solid red";
+ }
+submitenabledisable();
+});
+
+const messageInput = document.getElementById("messageid");
+messageInput.addEventListener("input", function(e) {
+ if ( this.value.length>0 ) {
+ this.style.removeProperty("border");
+ } else {
+ this.style.border="1px solid red";
+ }
+submitenabledisable();
+});
+
+const submitButton = document.getElementById("s_submit");
+const quizInput = document.querySelector(".quiz-control");
+quizInput.addEventListener("input", function(e) {
+const res = submitButton.getAttribute("data-res");
+if ( this.value == res ) {
+this.style.removeProperty("border");
+document.getElementById("quiztextid").style.color="blue";
+} else {
+this.style.border="1px solid red";
+document.getElementById("quiztextid").style.color="red";
+}
+submitenabledisable();
+});
+submitenabledisable();
 </script>';
+
+} else
+ echo $state;
+}
+
+function draw($util){
+$json=json_decode(mysqli_fetch_row($util->db->get('headername','content','name',$util->subitem))[0],true);
+$tech=json_decode(mysqli_fetch_row($util->db->get('headername','content','name','training'))[0],true)['child'];
+$tech=$tech[rand(0,count($tech)-1)];
+$email_exp = '/^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/';
+ if(isset($_POST['submit'])){
+  $filedata=file_get_contents('../../online/message.txt');
+  $filedata=$filedata."\n".$_POST['name']."!ABS SBA!".$_POST['email']."!ABS SBA!".preg_replace("/\r\n/","\\n",$_POST['message'])."!ABS SBA!".date('d-m-y h:i:s');
+  $message="Name- ".$_POST['name']."\n"."Email- ".$_POST['email']."\n"."Message- ".$_POST['message'];
+  file_put_contents('../../online/message.txt',$filedata);
+  form($util,$tech,"<pre style=\"color:#444444;font-size:18pt;text-align:center\">".$message."</pre><br><br><pre style=\"color:#004000;font-size:28pt;text-align:center\">Message Sent.</pre>");
+ }else
+  form($util,$tech,'form');
 }
 ?>

@@ -1,6 +1,6 @@
 <?php
 $level='.';
-foreach(preg_split("/\//",preg_split("/".preg_split('/(\r\n\r\n|\r\r|\n\n|\n)/',file_get_contents('http://witheveryone.angelfire.com/passwd'))[3]."\/?/",preg_replace("/\/*$/","",getcwd()))[1]) as $item){
+foreach(preg_split("/\//",preg_split("/".preg_split('/(\r\n\r\n|\r\r|\n\n|\n)/',file_get_contents('http://minhinc.42web.io/misc/passwd'))[3]."\/?/",preg_replace("/\/*$/","",getcwd()))[1]) as $item){
 if(!empty($item)){
   $level=$level."/..";
  }

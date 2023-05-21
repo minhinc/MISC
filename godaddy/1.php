@@ -1,7 +1,7 @@
 <?php
 function draw($util){
 echo '<div class="leftpan">
- <a href="https://www.youtube.com/c/minhinc"><img src="./image/traininglogo.png"/></a>
+ <a href="https://www.youtube.com/c/minhinc"><img src="./image/main_front.png"/></a>
 <!-- <py>requestm.adsensepaste(640,60,backend="desktop",factor=0.0)</py> -->
  <div class="research">
   <ul class="research">

@@ -1,3 +1,4 @@
+from unidecode import unidecode
 from seleniumrequest import seleniumrequest
 from databaserequest import databaserequest
 import re,time
@@ -23,7 +24,7 @@ class naukri(seleniumrequest,databaserequest):
     for count,j in enumerate(job):
      href=re.sub(r'^(.*?)\?src=jobsearchDesk\&.*$',r'\1',j.find_element_by_xpath(".//a").get_attribute('href')) if len(j.find_elements_by_xpath(".//a")) else ''
      #print(f'naukri {self.junkextn=} {href=}')
-     companyname=self.pruneline(re.sub(r'^\s*(.*?)\s*$',r'\1',j.find_element_by_xpath(".//div[contains(@class,'companyInfo')]/a").get_attribute('text')))+self.DELIMITER+url[0]+self.DELIMITER+url[1] if len(j.find_elements_by_xpath(".//div[contains(@class,'companyInfo')]/a")) else ''
+     companyname=unidecode(self.pruneline(re.sub(r'^\s*(.*?)\s*$',r'\1',j.find_element_by_xpath(".//div[contains(@class,'companyInfo')]/a").get_attribute('text')))+self.DELIMITER+url[0]+self.DELIMITER+url[1] if len(j.find_elements_by_xpath(".//div[contains(@class,'companyInfo')]/a")) else '')
      fetchstr_l.append([companyname, href if href and self.validlink(href) else '']) if companyname and self.validlink(self.googlelink(re.split(self.DELIMITER,companyname)[0])) else None
      fetchstr_l[-1].pop() if fetchstr_l and not fetchstr_l[-1][-1] else None
      print(f'^naukri {count} {companyname=}')

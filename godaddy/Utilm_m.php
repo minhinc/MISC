@@ -16,6 +16,10 @@ elseif(!empty($this->headername)) $json=json_decode(mysqli_fetch_row($this->db->
 echo '<!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+<meta name="description" content="Training and Research Tutorials">
+<meta name="keywords" content="HTML, CSS, JavaScript, Python, Machine Learning, Artificial Intelligence, ML, AI">
+<meta name="author" content="Minh Inc">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script data-ad-client="ca-pub-8488699542117607" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -45,7 +49,7 @@ $json=json_decode(mysqli_fetch_row($this->db->get('headername','content','name',
 if (!empty($json['comingevents']) && $this->headername != "about" && $this->subitem != "online"){
 echo '<div style="width:90%;height:40px;margin:10px auto;background-color:#0707a2"><pre style="float:left;padding-left:5%;line-height:40px;color:#ffffff;font-family:mytwcenmt;font-size:10px;">';
 echo $json['comingtraining'];
-echo '</pre><a href="http://www.minhinc.42web.io/about/online" style="float:right;margin:5px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:30px;font-size:10px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
+echo '</pre><a href="http://www.minhinc.42web.io/online" style="float:right;margin:5px 5%;padding:0px 5px;border-radius:5px;display:block;background-color:#53616e;line-height:30px;font-size:10px;color:#ffffff";font-family:arial, helvetica, sans;>...Know More</a></div><div style="clear:both"></div>';
 }
 }
 
@@ -73,7 +77,7 @@ foreach($json['child'] as $key){
 }
 $returnstring .= '<hr class="one">';
 if($this->subitem=='online') {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
-$returnstring .= '<div class="line" style="border-color:transparent"><div class="l"><a '.$color.' href="'.$this->level.'/about/online">Online Training</a></div></div>';
+$returnstring .= '<div class="line" style="border-color:transparent"><div class="l"><a '.$color.' href="'.$this->level.'/online">Online Training</a></div></div>';
 if($this->headername=='training' && $this->subitem=='qt') {$color='style="color:#f38502;font-weight:bold;"';}else{$color='';}
 $returnstring .= '<div class="line"><div class="l"><a '.$color.' href="'.$this->level.'/training/qt">Qt Training</a></div></div>';
 $returnstring .= '<div style="width:60%;margin:20px auto;">';

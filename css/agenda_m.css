@@ -62,7 +62,7 @@ div.pg div.slideheader pre.topic {width:99.99%;background-color:#eaebff;line-hei
 div.pg div.slideheader ul.slidecontent {background-color:#eaebff;width:99.99%;}
 div.pg div.slideheader ul.slidecontent li.big{margin-left:45px;font-size:11pt;list-style:disc;}
 div.pg div.slideheader ul.slidecontent li.sml{margin-left:45px;font-size:4pt;list-style:disc}
-div.pg div.slideheader ul.slidecontent li.big pre{font-size:11pt;font-family:mybembo}
+div.pg div.slideheader ul.slidecontent li.big pre{font-size:11pt;font-family:mybembo;font-weight:bold;}
 div.pg div.slideheader ul.slidecontent li.big a{color:#000000;font-size:13pt;font-family:mybembo}
 div.pg div.slideheader ul.slidecontent li.sml pre{font-size:3pt;font-family:mybembo}
 div.pg pre.slideabstract{ clear:both;width:100%;font-size:10pt;margin:5px 0px;font-style:Italic;font-family:mybembo;font-weight:bold;}

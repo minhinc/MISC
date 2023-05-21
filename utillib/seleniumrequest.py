@@ -145,7 +145,7 @@ class seleniumrequest:
     seleniumrequest.webdriverdict['linkedin'].get(r'https://www.linkedin.com')
     time.sleep(seleniumrequest.delay)
     seleniumrequest.webdriverdict['linkedin'].maximize_window()
-    seleniumrequest.webdriverdict['linkedin'].find_element_by_xpath("//button[contains(@class,'global-nav__primary-link artdeco-dropdown__trigger')]").click()
+    seleniumrequest.webdriverdict['linkedin'].find_element_by_xpath("//button[contains(@class,'global-nav__primary-link')][contains(.,'Me')]").click()
     time.sleep(1)
     seleniumrequest.webdriverdict['linkedin'].find_element_by_xpath('//a[@href="/m/logout/"]').click()
 #    seleniumrequest.webdriverdict['linkedin'].find_element_by_xpath("//a[@class='global-nav__secondary-link mv1']").click()

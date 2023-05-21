@@ -2,13 +2,15 @@ import urllib.request
 import requests
 import re
 import os
-from PIL import Image
+from PIL import Image,ImageDraw
 import time#D
 import sys
-#sys.path.append('..')
+sys.path.append(os.path.expanduser('~')+'/tmp/')
 #from gtc.databasem import databasec
 from .databasem import databasec
 from io import BytesIO
+from MISC.ffmpeg.libm import libc
+from MISC.utillib.util import Util
 def gets(file,head=False,get=False,binary=False,stream=False,retrycount=1,size=None,timeout=(10,20)):
  '''requests
   HEAD request, response datastructure is returned
@@ -210,3 +212,22 @@ def syncyoutube(*youtubelinklist):
  if ftpstring:
   os.system('cd ~/tmp/imageglobe/image/;~/tmp/ftp.sh mput image'+ftpstring)
 
+def preparemainfront(urltitle,subscriber):
+ libi=libc()
+ x='main_front.png'
+ print(f'TEST {urltitle=} {subscriber=}')
+ img=Image.open(os.path.expanduser('~')+'/tmp/imageglobe/image/main_front_orig.png').convert('RGBA')
+ img2=Image.open(os.path.expanduser('~')+'/tmp/imageglobe/image/'+re.sub('^.*?v=(.*)',r'\1'+'.jpg',urltitle[0])).convert('RGBA').resize((940-210,564-172))
+ img.paste(img2,(210,172,940,564),img2)
+ img2=Image.new('RGBA',(706,34),(255,255,255,255))
+ draw=ImageDraw.Draw(img2)
+ draw.text((0,0),urltitle[1],fill=(0,0,0,255),font=libi.getfont(urltitle[1],1.0,widthheight=True,setvideo=(706,34)))
+ img.paste(img2,(176,664,882,698),img2)
+ img2=Image.new('RGBA',(110,18),(255,255,255,255))
+ draw=ImageDraw.Draw(img2)
+ draw.text((0,0),subscriber,fill=(40,40,40,255),font=libi.getfont(subscriber,1.0,widthheight=True,setvideo=(110,18)))
+ img.paste(img2,(238,728,348,746),img2)
+ img.save(os.path.expanduser('~')+'/tmp/imageglobe/image/'+x)
+ if not os.path.exists(os.path.expanduser('~')+'/tmp/imageglobe/image/'+x) or not re.search(x,Util.ftp('ls','image'),flags=re.M) or int(re.sub(r'^.*?(\d+)(?:\s+\S+){3}\s+'+x+r'\s*.*',r'\1',Util.ftp('ls','image'),flags=re.DOTALL))!=os.path.getsize(os.path.expanduser('~')+'/tmp/imageglobe/image/'+x):
+   print(f'<=>requestm.preparemainfront image {x} being uploaded')
+   Util.ftp('put','image',os.path.expanduser('~')+'/tmp/imageglobe/image/main_front.png',localdir=os.path.expanduser('~')+'/tmp/imageglobe/image/')
