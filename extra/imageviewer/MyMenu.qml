@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import Qt.labs.platform as Qtlabs
 CustomMenu {
+id:custommenuid
  CustomMenuItem {
  text:qsTr("New...")
   onTriggered: {
@@ -19,15 +20,60 @@ CustomMenu {
     filedialogid.mode="new"
     filedialogid.acceptLabel="Open"
     filedialogid.open()
+    dismiss()
     }
    }
    CustomMenuItem {
-   text:qsTr("Replace..")
+   text:qsTr("Replace All..")
     onTriggered: {
     filedialogid.mode="replace"
     filedialogid.fileMode=Qtlabs.FileDialog.OpenFiles
     filedialogid.folder=(filedialogid.lastfolder==undefined?filedialogid.folder:filedialogid.lastfolder)
     filedialogid.open()
+    }
+   }
+   CustomMenuItem {
+   text:qsTr("Delete Item..")
+    onTriggered: {
+     splitviewid.itemAt(splitviewid.currentIndex).files.splice(splitviewid.itemAt(splitviewid.currentIndex).fileindex,1)
+     if (splitviewid.itemAt(splitviewid.currentIndex).files.length==splitviewid.itemAt(splitviewid.currentIndex).fileindex)
+      splitviewid.itemAt(splitviewid.currentIndex).fileindex-=1
+     else {
+      splitviewid.itemAt(splitviewid.currentIndex).fileindex+=1
+      splitviewid.itemAt(splitviewid.currentIndex).fileindex-=1
+     }
+     splitviewid.itemAt(splitviewid.currentIndex).forceActiveFocus()
+     dismiss()
+    }
+   }
+   CustomMenuItem {
+   text:qsTr("Insert(Pre)..")
+    onTriggered: {
+     filedialogid.mode="insert"
+     filedialogid.fileMode=Qtlabs.FileDialog.OpenFiles
+     filedialogid.folder=(filedialogid.lastfolder=undefined?filedialigid.folder:filedialogid.lastfolder)
+     filedialogid.open()
+    }
+    customsubmenu: CustomMenu {
+     CustomMenuItem {
+     text:qsTr("Post..")
+      onTriggered: {
+      filedialogid.mode="insertpost"
+      filedialogid.fileMode=Qtlabs.FileDialog.OpenFiles
+      filedialogid.folder=(filedialogid.lastfolder=undefined?filedialigid.folder:filedialogid.lastfolder)
+      filedialogid.open()
+      }
+     }
+    }
+   }
+   CustomMenuItem {
+   text:qsTr("Replace Item(Pre)..")
+    onTriggered: {
+     filedialogid.mode="replaceitem"
+     filedialogid.fileMode=Qtlabs.FileDialog.OpenFiles
+     filedialogid.folder=(filedialogid.lastfolder=undefined?filedialogid.folder:filedialogid.lastfolder)
+     filedialogid.open()
+     dismiss()
     }
    }
   }

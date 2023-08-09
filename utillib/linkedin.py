@@ -45,8 +45,8 @@ class linkedin(seleniumrequest,databaserequest,machinelearningrequest):
     with open('test.html','w') as f:
      f.write(self.webdriverdict['linkedin'].page_source)
 #    for count,i in enumerate(self.webdriverdict['linkedin'].find_elements_by_xpath("//a[@class='job-card-container__link job-card-container__company-name ember-view']")):
-#    for count,i in enumerate(self.webdriverdict['linkedin'].find_elements_by_xpath("//div[@class='artdeco-entity-lockup__subtitle ember-view']/span")):
-    for count,i in enumerate(self.webdriverdict['linkedin'].find_elements_by_xpath("//div[@class='artdeco-entity-lockup__subtitle ember-view']/div")):
+    for count,i in enumerate(self.webdriverdict['linkedin'].find_elements_by_xpath("//div[@class='artdeco-entity-lockup__subtitle ember-view']/span")):
+#    for count,i in enumerate(self.webdriverdict['linkedin'].find_elements_by_xpath("//div[@class='artdeco-entity-lockup__subtitle ember-view']/div")):
      companyname=unidecode(self.pruneline(i.text)+self.DELIMITER+url[0]+self.DELIMITER+url[1] if i.text and not re.search(r'^\s+$',i.text) else '')
      try:
       href=i.get_attribute('href')

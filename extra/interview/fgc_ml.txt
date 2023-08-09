@@ -1,0 +1,2 @@
+text="what is bayes theorem?" category=1 experience=2 domain="machine learning" language=python company=3 chapter=introduction
+text="nlp (natural language processing) is used in a)text mode b)binary mode c)neural network" experience=2 domain="machine learning" language=python chapter=introduction

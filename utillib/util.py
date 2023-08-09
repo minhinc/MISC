@@ -221,3 +221,9 @@ class Util:
     width=referencesize[0]
     height=(width*imagesize[1])//imagesize[0]
   return (2*(width//2),2*(height//2))
+ @staticmethod
+ def pprint(*a):
+  print(f'{"":-^40}')
+  for i in a:
+   print(f'{str(i):^40}')
+  print(f'{"":-^40}')

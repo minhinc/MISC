@@ -129,11 +129,12 @@ class gifc:
    return re.sub(r'[.]mp3$',('_'+str(duration) if duration else '')+'.mp3',filename) if refdimension[-3]==dimension[-3] and refdimension[-2]==dimension[-2] else self.libi.adddestdir(re.sub(r'[.]mp3$','_stereo'+('_'+str(duration) if duration else '')+'.mp3',filename))
 
   self.videoaudioadd(*[i for i in arg if len(i)<=2])
-  self.overlay(*[i for i in arg if len(i)==3 if not isaudiofile(i[0])])
-  audiolist.append((('aout',1),(0,round(self.libi.duration,3))))
-  for i in [i for i in arg if len(i)==3 and isaudiofile(i[0])]: #overlapping and audio processing
+  self.overlay(*[i for i in arg if len(i)==3 if not isaudiofile(re.sub(r'^(.*?)_\d+:\d+:.*([.].*)$',r'\1\2',i[0]))])
+  audiolist.append((('aout',1),(0,round(self.libi.duration,3)),0))
+  for i in [i for i in arg if len(i)==3 and isaudiofile(re.sub('^(.*?)_\d+:\d+:\d+.*([.].*)$',r'\1\2',i[0]))]: #overlapping and audio processing
 #   audiolist.append(((i[0][1],i[0][2]==None and 1 or float(i[0][2])),tuple(round(float(self.libi.getsecond(x)),3) for x in re.split('-',(i[2] if re.search('-',i[2]) else i[2]+'-'+str(float(self.libi.getsecond(i[2]))+float(self.libi.getsecond(self.libi.exiftool(i[0][1],'Duration'))))))))) if not i[0][1]==None and re.search('audio',self.libi.exiftool(i[0][1],'MIME Type'),flags=re.I) else None
-   [audiolist.append(((i[0],i[1]==None and 1 or float(i[1])),tuple(round(float(y),3) for y in re.split('-',(x if re.search('-',x) else x+'-'+str(float(x)+float(self.libi.getsecond(self.libi.exiftool(i[0],'Duration'))))))))) for x in (type(i[2])==tuple and i[2] or (i[2],))]
+#   [audiolist.append(((i[0],i[1]==None and 1 or float(i[1])),tuple(round(float(y),3) for y in re.split('-',(x if re.search('-',x) else x+'-'+str(float(x)+float(self.libi.getsecond(self.libi.exiftool(i[0],'Duration'))))))))) for x in (type(i[2])==tuple and i[2] or (i[2],))]
+   [audiolist.append(((re.sub(r'^(.*?)_\d+:.*([.].*)$',r'\1\2',i[0]),i[1]==None and 1 or float(i[1])),tuple(round(float(y),3) for y in re.split('-',(x if re.search('-',x) else x+'-'+str(float(x)+float(self.libi.getsecond(self.libi.exiftool(re.sub(r'^(.*?)_\d+:.*([.].*)$',r'\1\2',i[0]),'Duration'))))))),re.search(r'_\d+:\d+:\d+',i[0]) and float(self.libi.getsecond(re.split('_',re.sub(r'^.*?_(\d+:\d+:\d+.*)[.].*$',r'\1',i[0]))[count])) or 0)) for count,x in enumerate((type(i[2])==tuple and i[2] or (i[2],)))]
   print(f'<=>gifc.stroke2 audiolist={audiolist} \n self.beginstring={self.beginstring} \n self.returnstring={self.returnstring}')
  
   lastoffset=maxvolume=audiocount=0
@@ -142,20 +143,25 @@ class gifc:
   for x in audiolist[1:]:
    if not re.search(r'\s+-i\s+'+x[0][0],self.beginstring):
     self.beginstring+=' -i  '+x[0][0]
-  for i in sorted(set([y for i in audiolist for x in i[1:] for y in x]))[1:]:
-   for j in audiolist:
-     result.append((j[0],lastoffset-j[1][0],i-j[1][0])) if j[1][0]<i<=j[1][1] else None
+#  for i in sorted(set([y for i in audiolist for x in i[1:] for y in x]))[1:]:
+  for i in sorted(set([y for i in audiolist for x in i[1:-1] for y in x]))[1:]:
+   for count,j in enumerate(audiolist):
+#     result.append((j[0],lastoffset-j[1][0],i-j[1][0])) if j[1][0]<i<=j[1][1] else None
+     result.append((count,lastoffset-j[1][0],i-j[1][0])) if j[1][0]<i<=j[1][1] else None
 #     result.append((j[0],(lastoffset if re.search('_dot_',j[0][0]) else lastoffset-j[1][0]),(i if re.search('_dot_',j[0][0]) else i-j[1][0]))) if j[1][0]<i<=j[1][1] else None
 #     result.append((j[0],(lastoffset+eval(recordedaudiooffset) if re.search('_dot_',j[0][0]) else lastoffset-j[1][0]),(i+eval(recordedaudiooffset) if re.search('_dot_',j[0][0]) else i-j[1][0]))) if j[1][0]<i<=j[1][1] else None
    lastoffset=i
    print(f'<=>gifc.stroke2 {result=} {lastoffset=} {audiocount=}')
-   maxvolume=max([x[0][1] for x in result])
+#   maxvolume=max([x[0][1] for x in result])
+   maxvolume=max([audiolist[x[0]][0][1] for x in result])
    print(f'<=>gifc.stroke2 {maxvolume=}')
    if len(result)>1:
-    audiostring+=''.join([(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r':a]' if x[0][0]!='aout' else '[aout]')+'atrim='+str(round(x[1],3))+':'+str(round(x[2],3))+',volume='+str((x[0][1]/maxvolume)*len(result))+r',asetpts=PTS-STARTPTS[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r'];' if x[0][0]!='aout' else r'aout];') for x in result])+''.join([r'[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r']' if x[0][0]!='aout' else r'aout]') for x in result])+'amerge=inputs='+str(len(result))+'[aout'+str(audiocount)+r'];'
-#    audiostring+=''.join([(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r':a]' if x[0][0]!='aout' else '[aout]')+'atrim='+str(round((re.search(r'_dot_',x[0][0]) and eval(recordedaudiooffset) or 0)+x[1],3))+':'+str(round((re.search(r'_dot_',x[0][0]) and eval(recordedaudiooffset) or 0)+x[2],3))+',volume='+str((x[0][1]/maxvolume)*len(result))+r',asetpts=PTS-STARTPTS[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r'];' if x[0][0]!='aout' else r'aout];') for x in result])+''.join([r'[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r']' if x[0][0]!='aout' else r'aout]') for x in result])+'amerge=inputs='+str(len(result))+'[aout'+str(audiocount)+r'];'
+#    audiostring+=''.join([(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r':a]' if x[0][0]!='aout' else '[aout]')+'atrim='+str(round(x[1],3))+':'+str(round(x[2],3))+',volume='+str((x[0][1]/maxvolume)*len(result))+r',asetpts=PTS-STARTPTS[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r'];' if x[0][0]!='aout' else r'aout];') for x in result])+''.join([r'[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r']' if x[0][0]!='aout' else r'aout]') for x in result])+'amerge=inputs='+str(len(result))+'[aout'+str(audiocount)+r'];'
+#    audiostring+=''.join([(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r':a]' if x[0][0]!='aout' else '[aout]')+'atrim='+str(round(x[1],3))+':'+str(round(x[2],3))+',volume='+str((x[0][1]/maxvolume)*len(result))+r',asetpts=PTS-STARTPTS[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r'];' if x[0][0]!='aout' else r'aout];') for x in result])+''.join([r'[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(x[0][0]))+r']' if x[0][0]!='aout' else r'aout]') for x in result])+'amerge=inputs='+str(len(result))+'[aout'+str(audiocount)+r'];'
+    audiostring+=''.join([(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(audiolist[x[0]][0][0]))+r':a]' if audiolist[x[0]][0][0]!='aout' else '[aout]')+'atrim='+str(round(audiolist[x[0]][2]+x[1],3))+':'+str(audiolist[x[0]][2]+round(x[2],3))+',volume='+str((audiolist[x[0]][0][1]/maxvolume)*len(result))+r',asetpts=PTS-STARTPTS[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(audiolist[x[0]][0][0]))+r'];' if audiolist[x[0]][0][0]!='aout' else r'aout];') for x in result])+''.join([r'[aio'+(str(re.findall(r'-i\s+(\S+)',self.beginstring).index(audiolist[x[0]][0][0]))+r']' if audiolist[x[0]][0][0]!='aout' else r'aout]') for x in result])+'amerge=inputs='+str(len(result))+'[aout'+str(audiocount)+r'];'
    elif len(result)==1:
-    audiostring+=(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(result[0][0][0]))+r':a]' if result[0][0][0]!='aout' else '[aout]')+'atrim='+str(round(result[0][1],3))+':'+str(round(result[0][2],3))+r',asetpts=PTS-STARTPTS[aout'+str(audiocount)+'];'
+#    audiostring+=(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(result[0][0][0]))+r':a]' if result[0][0][0]!='aout' else '[aout]')+'atrim='+str(round(result[0][1],3))+':'+str(round(result[0][2],3))+r',asetpts=PTS-STARTPTS[aout'+str(audiocount)+'];'
+    audiostring+=(r'['+str(re.findall(r'-i\s+(\S+)',self.beginstring).index(audiolist[result[0][0]][0][0]))+r':a]' if audiolist[result[0][0]][0][0]!='aout' else '[aout]')+'atrim='+str(round(audiolist[result[0][0]][2]+result[0][1],3))+':'+str(round(audiolist[result[0][0]][2]+result[0][2],3))+r',asetpts=PTS-STARTPTS[aout'+str(audiocount)+'];'
    audiocount+=1
    result=[]
    print(f'TEST len(result)={len(result)} audiostring={audiostring}')

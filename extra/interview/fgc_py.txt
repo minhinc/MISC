@@ -1,0 +1,76 @@
+#default chapter=introduction,class,"data types",function,iterator,"package module",debugger,'special methods','special attributes',formatting,polymorphism,"control statements",exception domain=language
+text="python3 is\na)interpreter language b)assembly language c)machine language d)compilable lanugage,i.e c,c++" category=1 language=python company=3 experience=2 chapter=introduction domain=language
+text="who developed python?" language=python company=1 experience=1 chapter=introduction domain=language
+text="Python is object oriented programming language or procedural programming language" category=1 language=python experience=1-2 chapter=introduction domain=language
+text="how to quit python interpreter?" category=1 experience=1 language=python chapter=introduction domain=language
+text="what is most nearest to libraries in c,c++\na)package b)module c)class d)function" language=python company=2-3 chapter=introduction experience=2-3 domain=language
+text="How indentation is special in python.." language=python company=1-2 category=1 chapter=introduction experience=1 domain=language
+text="How coding is quick in python?" language=python category=1 chapter=introduction experience=2-3 domain=language
+text="What is doc string in python?" language=python category=1 experience=1-2 chapter=introduction domain=language
+text="what is package name for sending email?" language=python domain="networking" chapter=introduction experience=1 domain=language
+text="decorators used in python belong to which design pattern?" language=python,c++,qt,qml chapter=introduction category=2 experience=2-3 domain=language
+text="what is default return type in python?" language=python chapter=introduction category=1-2 experience=1-2 domain=language
+text="Special features in python?" category=1,2 experience=1-2 language=python company=2 chapter=introduction domain=language
+text="What kinds of applications can Python be used for?" category=1 experience=1 language=python company=3 chapter=introduction domain=language
+
+text="what is python literals and various data types in python?" category=1 experience=1 language=python company=1-2 chapter="data types" domain=language
+text="what is free variable?" language=python company=3 chapter="data types" domain=language
+text="what is different data binding types in python?" category=2 experience=2 language=python company=3 chapter="data types" domain=language
+text="why immutable data types can be hashed whereas mutable cannot be?" category=3 experience=3 company=3 language=python chapter="data types" domain=language
+text="how to concat immutable sequence types i.e. string, tuple" category=2-3 experience=2-3 language=python chapter="data types" domain=language
+text="what is char string equivalent in python?" category=1-2 experience=1 language=python chapter="data types" domain=language
+text="how memory is managed in python?" category=2-3 experience=3 company=2-3 language=python chapter="data types" domain=language
+
+text="what is starred parameters and starred arguments in python?" category=1-2 experience=1-2 language=python chapter=function domain=language
+text="what is difference between user defined function and methods?" category=2-3 language=python chapter=function domain=language
+
+text="what is a class?" language=c++,python category=2 experience=1 chapter=class domain=language
+text="how class is different in python from c++" category=1-3 experience=1-3 language=python company=3 chapter=class domain=language
+text="what is meta class?" category=1-3 experience=1-3 language=python company=3 chapter=class domain=language
+text="what is descriptor?" category=2-3 experience=1-3 language=python company=3 chapter=class domain=language
+text="what is code object frame object and traceback object?" category=3 experience=2-3 company=2-3 language=python chapter=class domain=language
+text="what is difference between package and module?" category=1-3 experience=1-3 language=python chapter="package module" domain=language
+text="what is iterator object in python?" category=3 experience=3 language=python company=2-3 chapter=iterator domain=language
+text="what is difference in class and metaclass" category=2-3 experience=3 language=python company=2-3 chapter=class domain=language
+text="what is special method lookups" category=2-3 experience=3 language=python company=2-3 chapter='special methods' domain=language
+text="what are all rich comparision methods" category=2-3 language=python company=2-3 chapter='special methods' domain=language
+text="what is reflected/swapped type special methods" category=2-3 language=python experience=2-3 chapter='special methods' domain=language
+text="what is augmented assignments" category=1 experience=1 language=python chapter='special methods' domain=language
+text="what is context manager" category=2-3 experience=3 language=python chapter='special methods' domain=language
+text="what is polymorphism and how it supported in python" category=3 experience=2-3 language=python chapter=polymorphism domain=language
+text="how lambda function is different from user defined function" language=python chapter=function domain=language
+text="what is serialization and deserialization of data" language=c,c++,python category=2-3 chapter=introduction domain=language
+text="what is shallow copy and deep copy of data" language=c,c++,python experience=1-2 chapter="data types" domain=language
+text="what is weak reference in python, any example" language=python chapter="data types" category=3 domain=language
+text="how finalizer is different in python to c++ destructor" language=python chapter=class           domain=language
+text="difference in using reversed builtin function and reverse list method" language=python chapter="data types" category=1-2 experience=1-2 domain=language
+text="what is generator in python" language=python chapter="control statements" category=2-3 experience=2-3 domain=language
+text="what is class object creation process through metaclass" language=python chapter=class category=3 experience=3 domain=language
+text="what is three basic types of objects module class and function" language=python chapter="package module" domain=language
+text="how is module different from package" language=python chapter="package module" category=1-2 experience=2-3 domain=language
+text="what is different built in types supported in python" language=python chapter=introduction experience=1-2 domain=language
+text="how many ways python interpreter can called -i -c -m" language=python chapter=introduction experience=1-2 category=1-2 domain=language
+text="what is variable in scope and block environment" language=python chapter=function category=2-3 domain=language
+text="what is argument slots in function how paremeter selection happens through arguments" language=python chapter=function category=2-3 experience=2-3 domain=language
+text="what is the latest version of python" category=1 language=python domain=language chapter=introduction
+text="what is interactive,scripting and command mode of python interpreter" category=1 language=python domain=language chapter=introduction experience=1-2
+text="what is builtin module" category=1 language=python domain=language chapter=introduction experience=1-2
+text="what is finally block in exception and else block in "control statements"" language=python domain=language chapter=exception,"control statements" experience=1-2
+text="why None,NotImplemented and Ellipsis are singleton type, what is singleton type" language=python domain=lanuage chapter="data types" experience=2-3 company=2-3 category=2
+text="what are callable types,i.e class, user defined function" language=python domain=language chapter="data types" category=2
+text="what is difference in user defined function and method" language=python domain=language chapter=function category=3 experience=2-3
+text="what is difference in instance method, class method and static method" language=python domain=language chapter=function,class category=3 experience=2-3
+text="while costomizing attribute methods what is difference in __getattr__ and __getattribute__" language=python domain=language chapter=function category=2 experience=1-2
+text="what is argument packing that implicitely happes while a function call is made" language=python domain=language chapter=function category=3 experience=3 company=3
+text="what is function decorator and class decorator, when the are resolved,i.e compile time or run time" language=python domain=language chapter=introduction category=3 experience=3
+text="what is name binding,i.e how names are bound to difference namespaces, what are difference namespaces" language=python domain=language chapter="package module" category=2 experience=2-3
+text="what is future statement in python" language=python domain=language chapter="package module" category=3 experience=2-3 company=2-3
+text="what happens if we use statement 'from module import *'" language=python domain=language chapter="package module" category=2 experience=2-3
+text="can we use relative module path while importing, how" language=python domain=language chapter="package module" category=1 experience=1-2
+text="what is various forms of import statement,i.e from <module> import <identfier>" language=python domain=langauge chapter="package module" category=1
+text="what is difference in user defined function and built in function" language=python domain=language chapter=function,class category=2 experience=2-3
+text="how feature is enabled from future release" language=python domain=language chapter="package module" category=2 experience=3 company=3
+text="what is coroutine function" language=python domain=language chapter=function category=1
+text="what is generator function" language=python domain=language chapter=function category=2
+text="what is async generator function" language=python domain=language chapter=function category=3 experience=2-3
+text="how a function is an object" language=python domain=language chapter=class,function category=3 experience=2-3

@@ -2,14 +2,14 @@ from fuzzywuzzy import fuzz,process
 from collections import OrderedDict
 import re
 
-class machinelearningrequest():
+class machinelearningrequest:
  def __init__(self):
   super(machinelearningrequest,self).__init__()
 #  self.blockedemail=' '.join(self.db.get('blockedemail'))
 #  self.junkemail=r'^('+(''.join([x[0]+'|' for x in self.db.get('junkemail')]))[:-1]+')$'
 
  def getmatching(self,*splitline,email=False,percent=50,muteprint=False):
-  print(f'matchinelearningrequest.getmatchingemail {splitline=}') if not muteprint else None
+  print(f'matchinelearningrequest.getmatchingemail {splitline=} {(email,percent,muteprint)=}') if not muteprint else None
   THRESHOLD=10
   out=[]
   out.extend(process.extract(splitline[0],splitline[1:],limit=None))

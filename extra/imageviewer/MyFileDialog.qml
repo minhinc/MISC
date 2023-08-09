@@ -50,6 +50,18 @@ property var lastfolder:undefined
    splitviewid.itemAt(splitviewid.currentIndex+1).SplitView.preferredWidth=(splitviewid.width-freewidth)/2
    splitviewid.setCurrentIndex(splitviewid.currentIndex+1)
    }
+  }else if (filedialogid.mode=="insert"){
+   splitviewid.itemAt(splitviewid.currentIndex).files.splice(splitviewid.itemAt(splitviewid.currentIndex).fileindex,0,...files)
+   splitviewid.itemAt(splitviewid.currentIndex).forceActiveFocus()
+  }else if (filedialogid.mode=="insertpost"){
+   splitviewid.itemAt(splitviewid.currentIndex).files.splice(splitviewid.itemAt(splitviewid.currentIndex).fileindex+1,0,...files)
+   splitviewid.itemAt(splitviewid.currentIndex).forceActiveFocus()
+  }else if (filedialogid.mode == "replaceitem") {
+   splitviewid.itemAt(splitviewid.currentIndex).files.splice(splitviewid.itemAt(splitviewid.currentIndex).fileindex,1,...files)
+   splitviewid.itemAt(splitviewid.currentIndex).fileindex+=1
+   splitviewid.itemAt(splitviewid.currentIndex).fileindex-=1
+//  splitviewid.itemAt(splitviewid.currentIndex).files.splice(splitviewid.itemAt(splitviewid.currentIndex).fileindex,1)
+   splitviewid.itemAt(splitviewid.currentIndex).forceActiveFocus()
   }
   for (var i=0;i<splitviewid.count;i++)
   splitviewid.itemAt(i).currentindex=i

@@ -192,10 +192,10 @@ class libc:
   return [x.replace('\\:',':').replace(DBL_ESC,'\\') for x in re.split(r'(?<!\\):',string_p.replace(r'\\',DBL_ESC))]
 
  def dimension(self,file_p):
-#  print(f'><libc.dimension {file_p=}')
+  print(f'><libc.dimension {file_p=}')
   if re.search(r'[.](mp4|mov|webm|mkv)$',file_p,flags=re.I):
 #   return [int(x) for x in os.popen('ffmpeg -i "+self.inputfile+" 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
-   retval= tuple([str(int(x)) for x in os.popen('ffmpeg -i '+file_p+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')])
+   retval= tuple([str(int(x)) for x in os.popen('ffprobe -i '+file_p+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')])
 #   print(f'libc.dimension {retval=} {file_p=}')
    return retval
   else:
@@ -430,7 +430,8 @@ command executed shell('/bin/bash') output if popen=True else None'''
    if len(str(c))>1:
     offsetx,offsety=wh(str(c)[1:],W/3,H/3)
    return (int(Decimal(int(str(c)[0])-1)%3)-1)*W/3+offsetx,(int(int(int(str(c)[0])-1)/3)-1)*H/3+offsety
-  a,b=wh(c)
+#  a,b=wh(c)
+  a,b=[round(x,3) for x in wh(c)]
 #  return r'(W-w)/2'+('+' if a>=0 else '')+str(a)+r'*W,(H-h)/2'+('+' if b>=0 else '')+str(b)+r'*H'
   '''
   if dimension:

@@ -20,7 +20,8 @@ class google(seleniumrequest,databaserequest,machinelearningrequest):
    file=open(re.sub(':','-',datetime.datetime.now().isoformat())+'_email.txt','w')
    for count,i in enumerate(url[:]):
     self.getlink(self.googlelink(re.split(self.DELIMITER,i[0])[0]+' '+self.getmatching(re.split(self.DELIMITER,i[0])[2],*re.findall(r'^.*?#(.*)?\s+[.]\w{2}',open('data/country.txt').read(),flags=re.M),muteprint=True)[0]),'linkedin') if companylink==None else None
-    url[count].extend([x for x in set([re.sub(r'^(.*?)/+$',r'\1',x.get_attribute('href')) for x in self.webdriverdict['linkedin'].find_elements_by_xpath("//div[@class='yuRUbf']/a[1]")]) if self.validlink(x)]) if companylink==None else url[count].extend(companylink)
+#    url[count].extend([x for x in set([re.sub(r'^(.*?)/+$',r'\1',x.get_attribute('href')) for x in self.webdriverdict['linkedin'].find_elements_by_xpath("//div[@class='yuRUbf']/a[1]")]) if self.validlink(x)]) if companylink==None else url[count].extend(companylink)
+    url[count].extend([x for x in set([re.sub(r'^(.*?)/+$',r'\1',x.get_attribute('href')) for count,x in enumerate(self.webdriverdict['linkedin'].find_elements_by_xpath("//div[@class='yuRUbf']/a[1]")) if count<20]) if self.validlink(x)]) if companylink==None else url[count].extend(companylink)
     companylink=self.fetcher.get(i,file=file,companyname=url[count+1][0] if (count+1)<len(url) else None) if len(i)>1 else print(f'google fetcher not called')
     print(f'google fetcher processed {count+1}/{len(url)} {i=}')
    file.close()

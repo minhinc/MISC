@@ -1,0 +1,1 @@
+text="what is semaphore?" domain="operating systems" language=c experience=3 category=2 chapter=synchronization

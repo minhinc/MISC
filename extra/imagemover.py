@@ -14,6 +14,12 @@ kvstring='''
 #:kivy 2.1.0
 #:import re re
 <ClickImage>:
+ canvas.before:
+  Color:
+   rgba: 0.267, 0.267, 0.267, 1
+  Rectangle:
+   pos: self.pos
+   size: self.size
  Label:
   id:labelid
   size:self.texture_size
