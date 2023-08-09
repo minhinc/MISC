@@ -1,1 +1,0 @@
-python3 ../ffmpeg_common.py 'Matrix Multiplication' --profile math --omni '/home/minhinc/tmp/MISC/ffmpeg/test/mathematicsreal/VID_20221201_144011.mp4,00:00:02-00:03:53' '=/home/minhinc/Videos/mm.mp4,(00:00:03-00:29:35,00:39:21-00:53:12)' /home/minhinc/tmp/imageglobe/resource/tail.mp4
