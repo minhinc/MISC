@@ -1,0 +1,9 @@
+#default chapter=Creational,Structural,Behavioural
+text="what is difference in abstract factory and factory method" chapter=creational category=3 experience=2-3 company=2-3 domain="design patterns"
+text="what is difference in visitor design pattern and decorator design pattern" chapter=behavioural,structural category=3 experience=3 company=2-3 domain="design patterns"
+text="what is difference in mediator and observer design pattern" chapter=behavioural category=3 experience=3 company=2-3 domain="design patterns"
+text="what is intrinsic and extrinsic terms in fly weight pattern" chapter=structural category=3 experience=3 company=3 domain="design patterns"
+text="what is difference in adaptor and proxy design pattern" chapter=structural category=3 experience=3 company=3 domain="design patterns"
+text="what id chain of responsibility and command deisng pattern" chapter=behavioural category=3 experience=3 company=3 domain="design patterns"
+text="what is strategy design pattern" chapter=behavioural category=3 experience=3 company=2-3 domain="design patterns"
+text="what open and close principle in designing" chapter=structural,behavioural category=2 domain="design patterns"

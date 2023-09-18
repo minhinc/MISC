@@ -113,7 +113,7 @@ class shader:
  defaultuniform=dict((('material.diffuse',0),('material.diffuse2',(1,0,0)),('material.specular',(0,0,0)),('material.emission',(0,0,0)),('material.ambient',(0,0,0)),('material.shininess',1)))
  vao={} # {'objfile':[imagecolor,vaomaterialname,vaolength,vaoid],..} # vao can be texture or color vao
  focusobject=None
- def __init__(self,*,objfile,id=None,addaxis=True,**kwarg):
+ def __init__(self,*,objfile,id=None,addaxis=False,**kwarg):
   '''\
   shader(objfile='sphere.obj',material_diffuse={'__UNKNOWN__':'yellowworldmap.png'},fixtransformation=[[0,0,6],['s',0.2,0.2,0.2]],extratransformation=[30,0,0,1] \
   '''
@@ -128,6 +128,7 @@ class shader:
   self.addlight(**{re.sub('^light_','light.',x):y for x,y in kwarg.items() if re.search(r'^light_',x)}) if 'light_position' in kwarg else None
   self.objfile=objfile
   self.id=shader.getid() if not id else id
+  self.children.append(shader(objfile='axis.obj',material_shininess=-1,addaxis=False)) if addaxis else None
   if not objfile or objfile in shader.vao:
    Util.pprint('DID NOT PROCEED',objfile,self,self.id)
    return
@@ -136,7 +137,7 @@ class shader:
   texcoord,usemtl=obj.drawarrayvertices[6]!=-1,obj.drawarrayvertices[8]
   countl=0
   record=False
-  self.children.append(shader(objfile='axis.obj',material_shininess=-2,addaxis=False)) if addaxis else None
+#  self.children.append(shader(objfile='axis.obj',material_shininess=-2,addaxis=False)) if addaxis else None
 
   def pushtovao(count1,count2,imagecolor,vaomaterialname):
    nonlocal self,texcoord
@@ -275,7 +276,7 @@ class shader:
 #   shader.utili.keyboard(kwarg['key'],shader.focusobject.transformation if not 'transformation' in kwarg else kwarg['transformation']) if type(kwarg['key'])==tuple or type(kwarg['key'])==list or kwarg['key'] in 'rRuUnNgGxXyYzZsS' else None
 #   shader.utili.keyboard(kwarg['key'],self.transformation if not 'transformation' in kwarg else kwarg['transformation']) if type(kwarg['key'])==tuple or type(kwarg['key'])==list or kwarg['key'] in 'rRuUnNgGxXyYzZsS' else None
    shader.utili.keyboard(kwarg['key'],self.transformation if not 'transformation' in kwarg else kwarg['transformation']) if type(kwarg['key'])==tuple or type(kwarg['key'])==list or kwarg['key'][0]=='[' or kwarg['key'][0]=='(' or kwarg['key'] in 'rRuUnNgGxXyYzZsS' else None
-#   print(f'TEST shader.keyboard after transformaton {shader.focusobject.transformation=}')
+#  print(f'TEST shader.keyboard after transformaton {shader.focusobject.transformation=}')
    self.switchlight(kwarg['key']=='o') if type(kwarg['key'])==str and kwarg['key'] in 'oO' else None
    if type(kwarg['key'])==str and kwarg['key'] in 'cC':
     if not hasattr(self,'back_material_shininess'):
@@ -319,6 +320,7 @@ cannnot be recursed'''
    while shader.keyboard2.index < len(shader.keyboard2.timeidkey) and float(shader.keyboard2.timeidkey[shader.keyboard2.index][0]) < (float(shader.keyboard2.timeidkey[0][0])+currenttime-shader.keyboard2.begintime+shader.keyboard2.processduration):
 #    print(f'TEST shader.keyboard2 {shader.keyboard2.index=} dropping')
 #    print(f'{shader.keyboard2.timeidkey[shader.keyboard2.index][2]=}')
+#    print(f'TEST keyboard2 {shader.keyboard2.timeidkey[shader.keyboard2.index][0]} {shader.keyboard2.timeidkey[shader.keyboard2.index][1]} {shader.keyboard2.timeidkey[shader.keyboard2.index][2]} {shader.keyboard2.idobjmap[shader.keyboard2.timeidkey[shader.keyboard2.index][1]].transformation=}')
 
 #todelete
     '''
@@ -328,7 +330,17 @@ cannnot be recursed'''
      print(f'TEST {shader.keyboard2.previoustime=} {shader.keyboard2.timeidkey[shader.keyboard2.index][0]=} {shader.keyboard2.index=} {len(shader.keyboard2.timeidkey)=}')
     '''
 
-    shader.keyboard2.idobjmap[shader.keyboard2.timeidkey[shader.keyboard2.index][1]].keyboard(key=shader.keyboard2.timeidkey[shader.keyboard2.index][2])
+    if re.search(r'\[\s*f',shader.keyboard2.timeidkey[shader.keyboard2.index][2]):
+     shader.keyboard2.idobjmap[shader.keyboard2.timeidkey[shader.keyboard2.index][1]].transformation=[[float(y) for y in re.findall(f'-?\s*\d+(?:[.]\d+)?',shader.keyboard2.timeidkey[shader.keyboard2.index][2])]]+[x for x in shader.keyboard2.idobjmap[shader.keyboard2.timeidkey[shader.keyboard2.index][1]].transformation if not len(x)==3]
+#     print(f'TEST keyboard2 {shader.keyboard2.idobjmap[shader.keyboard2.timeidkey[shader.keyboard2.index][1]].transformation=}')
+    else:
+     if re.search(r'^texture_',shader.keyboard2.timeidkey[shader.keyboard2.index][2]) and os.path.exists(re.sub(r'^texture_',r'',shader.keyboard2.timeidkey[shader.keyboard2.index][2])):
+#      print(f'TEST keyboard2 {shader.keyboard2.idobjmap[shader.keyboard2.timeidkey[shader.keyboard2.index][1]].__dict__=}')
+      tmp=re.sub(r'^texture_','',shader.keyboard2.timeidkey[shader.keyboard2.index][2])
+      tmp2=shader.keyboard2.idobjmap[shader.keyboard2.timeidkey[shader.keyboard2.index][1]].material_diffuse['__UNKNOWN__']
+      self.utili.createtextureobject(imagename=tmp,textureid=shader.texturename[tmp2])
+     else:
+      shader.keyboard2.idobjmap[shader.keyboard2.timeidkey[shader.keyboard2.index][1]].keyboard(key=shader.keyboard2.timeidkey[shader.keyboard2.index][2])
     shader.keyboard2.index+=1
    '''
    while shader.keyboard2.index < len(shader.keyboard2.timeidkey) and float(shader.keyboard2.timeidkey[shader.keyboard2.index][0]) <= float(shader.keyboard2.timeidkey[0][0])+currenttime - shader.keyboard2.begintime+shader.keyboard2.processduration:
@@ -407,7 +419,8 @@ cannnot be recursed'''
    shader.utili.pushuniattribtoshader(*[x for x in dict(shader.defaultuniform,**{re.sub('^material_','material.',x[0]):x[1] for x in self.__dict__.items()}).items() if re.search(r'^material[.](?!diffuse)',x[0])])
    if type(tmp)==str:
     if not tmp in shader.texturename:
-     shader.texturename[tmp]=self.utili.createtextureobject(imagename=tmp,textureid=1)
+#     shader.texturename[tmp]=self.utili.createtextureobject(imagename=tmp,textureid=1)
+     shader.texturename[tmp]=self.utili.createtextureobject(imagename=tmp)
     shader.utili.pushuniattribtoshader(('textureb',1),('material.diffuse',shader.defaultuniform['material.diffuse']))
     glActiveTexture(GL_TEXTURE0)
     glEnable(GL_TEXTURE_2D)

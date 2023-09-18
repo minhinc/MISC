@@ -1,1 +1,4 @@
-text="what is semaphore?" domain="operating systems" language=c experience=3 category=2 chapter=synchronization
+#default chapter=Introduction,"Introduction to Kernel","Shell Command and Shell","Creating Libraries","The Boot Process","The File System","Process Management","Memory Management","Multi Threading Programming","Inter Process Communications",Sockets,"Network Programming","Programming and Debugging Tools","Device Driver Introduction"
+text="what is semaphore?" domain="Linux Internals" experience=3 category=2 chapter="Inter process communications"
+text="what are types of kernel" domain="Linux Internals" experience=3 category=3 chapter="Introduction to Kernel" company=2-3
+text="what are different IPC mechanims" domain="Linux Internals" category=2 chapter="Inter process Communications"

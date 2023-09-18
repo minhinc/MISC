@@ -48,7 +48,8 @@ else:
       break
     break
 print(f'{bytedata[:48]=}')
-Image.frombytes('RGBA',img.size,bytes(bytedata),'raw').save(re.sub(r'^(.*)[.](.*)$',r'\1_t.\2',re.split("/",sys.argv[1])[-1]))
+#Image.frombytes('RGBA',img.size,bytes(bytedata),'raw').save(re.sub(r'^(.*)[.](.*)$',r'\1_t.\2',re.split("/",sys.argv[1])[-1]))
+Image.frombytes('RGBA',img.size,bytes(bytedata),'raw').save(re.sub(r'^(.*)[.](.*)$',r'\1_t.png',re.split("/",sys.argv[1])[-1]))
 print(f'{"":-^40}')
 print(re.sub(r'^(.*)[.](.*)$',r'\1_t.\2',re.split("/",sys.argv[1])[-1]))
 print(f'{"":-^40}')

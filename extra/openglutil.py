@@ -281,14 +281,17 @@ class Utilc:
     glVertexAttribPointer(self.getattribloc(i[0],j[0]),j[2],GL_FLOAT,GL_FALSE,0,None)
   return vaobj
 
- def createtextureobject(self,*,imagename,textureid):
-  '''createtextureobject(imagename=('one.png','two.png'),textureid=2)
+ def createtextureobject(self,*,imagename,textureid=None):
+  '''createtextureobject(imagename=('one.png','two.png'))
   createtextureobject(imagename='one.png',textureid=(1,)
-  textureid - tuple -> pre created textureid int - number of textureobject to be created'''
+  textureid - tuple -> pre created textureid'''
   imagename=(imagename,) if type(imagename)==str else imagename
-  if type(textureid)==int:
-   textureid=glGenTextures(textureid)
+  if textureid==None:
+   textureid=glGenTextures(len(imagename))
    textureid=(textureid,) if not type(textureid)==np.ndarray else textureid
+  else:
+   textureid=(textureid,) if type(textureid)!=tuple and type(textureid)!=list else textureid
+#  print(f'TEST createtextureobject {textureid=}')
   for count,i in enumerate(textureid):
    img=Image.open(imagename[count]).convert('RGBA')
    img=img.transpose(Image.FLIP_TOP_BOTTOM)

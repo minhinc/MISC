@@ -1,0 +1,62 @@
+#default chapter=Introduction,"Qt Core","Memory Management","Event Management",Widget,"QPainter and Image Management","Layout Management","Model View Controller","Plugin Architecture","Graphics Views","XML and JSON","Inter Process Communication",Multithreading,"Web Kit","Database","Internationalizatio and Localization",Networking,QtQuick,Qml,"Drag and Drop","Deployment and Testing","Embedded Qt and HMI",Debug,MVC
+text="What is the base class of all classes in Qt" category=1 chapter=introduction company=2-3 domain=qt language=python,c++
+text="what are the libraries available through qt, i.e. qtcore qtwidgets" category=2 language=python,c++ chapter="Qt Core" domain=qt experience=1-2 company=2-3
+text="what signature used for signal and slot" category=1 language=python,c++ chapter="Qt Core" domain=qt experience=1-2
+text="what is meta class framework in qt/qml" category=2 language=python,c++ chapter="QtQuick" domain=qt experience=2-3 company=2-3
+text="what is X11 windowing and event mechanism framework" category=2 language=python,c++ chapter="introduction" domain=qt experience=3 company=2-3
+text="which class maintain event queue and dispatches events\na)QCoreApplication b)QWidget c)QPaintDevice d)QObject" language=python,c++ chapter="Qt Core" domain=qt experience=2-3
+text="which class deals with creation and managing window\na)QApplication b)QPaintDevice c)QPainter d)QWidget" language=python,c++ chapter=introduction domain=qt  category=2
+text="qwidget is derived from which all class(es)" language=python,c++ chapter="Qt Core" domain=qt category=3 language=python,c++ experience=2-3
+text="what is parent child relationship?\na)Containment b)Inheritance\nPlease explain" category=2 chapter="Qt Core" domain=qt experience=2-3 language=python,c++
+text="what is equivalent of signal and slot in unix" category=3 chapter="Qt Core" company=2-3 domain=qt experience=2-3 language=python,c++
+text="what is difference in jump,next and step in gdb debugger" category=1 chapter=Debug domain=qt experience=2-3 language=python,c++
+text="which class handles Gui event queue.\na)QWidget b)QGuiApplication c)QApplication d)QCoreApplication" category=2 chapter="Event Management" company=2-3 domain=qt experience=2-3 language=python,c++
+text="what is difference between hardware events, gui events and custom events" category=2 chapter="Event Management" domain=qt language=python,c++
+text="what is difference in function call flow in normal programming i.e c/c++ and gui programming. Hint - How functions are called" category=2 chapter="Event Management" domain=qt language=python,c++
+text="what is event and event id, how much allocated to hardware events and user events" category=1 chapter="Event Management" domain=qt language=python,c++
+text="how event mechanism happens in X11 windowing systems" category=3 chapter="Event Management" domain=qt language=python,c++ experience=3 company=2-3
+text="what is full form of widget" category=1 chapter=Widget domain=qt language=python,c++ experience=1-2 
+text="what is windowing system" category=2 chapter=widget domain=qt language=python,c++ experience=2-3 company=2-3
+text="If qt follows X11 windowing system then how window creation happens" category=3 chapter=widget domain=qt language=python,c++ experience=2-3 company=2-3
+text="is qt a windowing system? how many windowing systems are available famous" chapter=widget category=3 domain=qt language=python,c++ experience=2-3 company=2-3
+text="qwidget derives from which all classes" chapter=widget category=1 domain=qt language=python,c++
+text="what is inheritance heirarchy of QPainter" chapter=widget category=1 domain=qt language=python,c++
+text="what is difference between qpainter and qpaintdevice" category=2 chapter=widget company=2-3 domain=qt language=python,c++ experience=2-3
+text="qpainter paints on qpaintdevice, what is transformation matrix" category=2 chapter=widget company=2-3 domain=qt language=python,c++ experience=2-3
+text="there are may qwidget i.e. Qpushbutton, qcombobox. what relationship it is 'has a' or 'is a'. what is 'has a' relationship when we draw multiple widget" category=2 chapter=widget domain=qt language=python,c++
+text="what is layouting and what is alternative to layouting. Hint setgeometry on widget resize events" category=2 chapter="Layout Management" language=python,c++ domain=qt
+text="what are different ways of layouting supported in qt or what are different layout managers. Hint BoxLayout, GridLayout" category=2 chapter="Layout Management" language=python,c++ domain=qt experience=1-2
+text="what is layout architecture. Hint Layout Manager calling setgeometry on widget resize events" category=2 chapter="Layout Management",widget,"QPainter and Image Management" domain=qt experience=2-3 language=python,c++
+text="what is basic functionality provided through QObject" category=2 chapter="Qt Core" company=2 domain=qt experience=2-3 language=python,c++
+text="what is meta object system in Qt" category=3 chapter="Qt Core",QtQuick company=3 domain=qt experience=2-3 language=python,c++
+text="which string is commonly used QString or python str" category=3 company=2-3 chapter="Qt Core" domain=qt language=python,c++
+text="how to define property in python side to access it in qml" category=2 company=2-3 chapter=QtQuick domain=qt language=python
+text="how to call function in python side from qml. Hint use Slot decorator" category=2 company=2-3 chapter=QtQuick domain=qt language=python
+text="how to connect signal diclared in qml to python slot" category=2 chapter=qtquick domain=qt,qml language=python
+text="how to connect signal declared in python side to slot in qml side" category=2 chapter=qtquick domain=qt,qml language=python
+text="how to make python class available in qml" category=3 chapter=qtquick domain=qt,qml experience=2-3 language=python company=2-3
+text="how pass class instance from python to qml" category=3 chapter=qtquick,qml domain=qt,qml experience=2-3 language=python company=2-3
+text="MVC design pattern resembles which design pattern among 23 GoF design patterns" category=3 company=2-3 chapter=MVC experience=3 language=python,c++ domain=qt
+text="What is MVC design patter" category=2 chapter=MV company=2-3 chapter=MVC experience=3 language=python,c++ domain=qt
+text="what is role of Delegate in Qt MVC framework, list few deletegate class" category=2 chapter=MVC experience=2 language=python,c++ domain=qt
+text="list few qt model and view classes" category=2 chapter=MVC experience=2-3 language=python,c++ domain=qt
+text="qprocess derives from QIODevice. List few basic function of QIODevice" category=2 chapter="Inter Process Communication" experience=2-3 language=python,c++ domain=qt
+text="list few classes derives from QIODevice" category=3 chapter="Inter Process Communication" company=2-3 experience=2-3 language=python,c++ domain=qt
+text="hat is thread and process relationship in general os concept" category=2 chapter="Inter Process Communication" experience=1-2 language=python,c++,c domain=qt,"linux internals"
+text="what are states QProcess maintain,i.e. 'Not running',Running,Starting' hello=sing " category=2 chapter="Inter Process Communication" experience=1-2 language=python,c++ domain=qt
+text="what are IPC classes available in qt,i.e qsharedmemory" category=2 chapter="Inter Process Communication" language=python,c++ domain=qt
+text="qthread is subclssed from which class" category=2 chapter="Inter Process Communication" language=python,c++ domain=qt
+text="threaing os model needs function address to start. how to start qthread. which function it enters" chapter="Inter Process Communication" category=2 experience=2-3 language=python,c++ domain=qt
+text="what is thread synchronization and process synchronization" category=2 chapter="Inter Process Communication" experience=2-3 language=python,c++ domain=qt
+text="write a small program subclassing QtWidget QWidget" category=2 chapter=Widget language=python,c++ domain=qt
+text="how to export python class to Qml side" category=3 chapter=qtquick language=python experience=2-3 domain=qt
+text="how to export python class instance to Qml" category=3 chapter=qtquick language=python experience=2-3 domain=qt
+text="how to connect slot in python side when signal generated in qml" category=3 chapter=qtquick,qml language=python experience=3 domain=qt
+text="how .ui file, generated from designer, get integrated with main program" category=2 chapter=introduction experience=2-3 language=python,c++ domain=qt
+text="how .rc, resource file, get integrated with main program" category=2 chapter=introduction experience=2-3 language=python,c++ domain=qt
+text="how event handlers are defined for hardware envents and user events" chapter="Event Management" category=2 experience=2-3 language=python,c++ domain=qt
+text="what is scene graph technology in qt (graphics views) and qml" chapter="Graphics Views" category=3 experience=2-3 language=python,c++ domain=qt company=2-3
+text="what is local and grand coordinate systems in transformation matrix used in qpainter" category=2 chapter=widget company=2-3 experience=2-3 domain=qt language=python,c++
+text="In 2d graphics though qpainter rotation happens along which axis" category=2 chapter=widget domain=qt language=python,c++
+text="what is formula of circle and ellipse used in qpainter" category=1 chapter=widget experience=1-2 domain=qt language=python,c++
+text="how to introduce property binding in python side and prove property binding in qml side" chapter=qtquick category=3 company=3 domain=qt,qml language=python

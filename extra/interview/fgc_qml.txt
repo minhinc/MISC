@@ -1,0 +1,8 @@
+#default chapter=Introduction,"Qt Properties","Building Block of QML","Composing UI","User Input","Components and Structures","QtQuick Controls","State and Transition","Dynamic creation of Items","Pyton Integration","Graphical Effects",Animations,"Presenting Data"
+text="if property name is xxx then would be automatic slot in qml Hint- onXxxChanged" category=2 chapter="Qt Properties" domain=qml language=python,c++
+text="How to access inner module member from external module in qml. Hint-alias" category=3 chapter="Components and Structures" domain=qt,qml language=python,c++
+text="how to create singleton instance in qml" category=3 chapter="Building Block of QML" domain=qml experience=2-3 language=python,c++ company=2-3
+text="how to implement qpainter drawing on qwidget in qml side" category=3 chapter="Components and Structures" domain=qml language=python,c++ experience=2-3 company=2-3
+text="what is anchor layout in qml and how about placing child widget at the bottom right corner" category=2 domain=qml language=python chapter="Composing UI" experience=2-3
+text="How mvc is implemented in qml. how to use repeater" chapter="Composing UI" category=3 company=2-3 domain=qml language=python experience=2-3
+text="what is property binding in qml" chapter="Qt Properties" category=2 company=2-3 domain=qml language=python

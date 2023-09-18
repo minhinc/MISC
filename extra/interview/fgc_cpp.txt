@@ -18,7 +18,7 @@ text="what is difference in copy constructor and assignment operator" language=c
 text="what is synthesised copy constructor" language=c++ chapter=class domain=language category=2 experience=2-3 company=2-3
 text="what is difference in single and multiple inheritance from object layout or vtable perspective" language=c++ chapter=polymorphism domain=language category=3 experience=3 company=2-3
 text="what is virtual function and virtual base class" language=c++ chapter=polymorphism domain=language category=2
-text=what is frience function and friend class" language=c++ chapter=class domain=language category=2 experience=1-2
+text="what is frience function and friend class" language=c++ chapter=class domain=language category=2 experience=1-2
 text="how default parameter play role in function overloading" language=c++ chapter=inheritance,function domain=language category=2 experience=1-2
 text="how virtual base class is layed out in object layout or vtable" language=c++ chapter=polymorphism domain=language category=3 experience=3 company=2-3
 text="how common virtual base class is finalised in object layout" language=c++ chapter=polymorphism domain=language category=3 experience=3 company=3
