@@ -1,4 +1,5 @@
-<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">#Afghanistan	.af
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">
+#Afghanistan	.af
 #Aland Islands	.ax
 #Albania	.al
 #Algeria	.dz
@@ -45,7 +46,7 @@
 #Catalonia	.cat
 #Cayman Islands	.ky
 #Central African Republic	.cf
-#Chad	.td (stands for Tchad)
+#Chad	(stands for Tchad)	.td
 #Chile	.cl
 #China	.cn
 #Christmas Island	.cx

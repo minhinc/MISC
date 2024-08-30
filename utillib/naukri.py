@@ -5,7 +5,7 @@ import re,time
 
 class naukri(seleniumrequest,databaserequest):
  def __init__(self,display=True):
-  super(naukri,self).__init__(display,'linkedin')
+  super(naukri,self).__init__(display)
  def get(self,*url):
   """url
   get("ai","india",10)

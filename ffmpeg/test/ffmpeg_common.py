@@ -1,7 +1,8 @@
 import os,datetime,random,re,sys
 sys.path.append(os.path.expanduser('~')+r'/tmp')
 from MISC.ffmpeg.gifm import gifc
-from MISC.utillib.util import Util
+#from MISC.utillib.util import Util
+from MISC.utillib.util import utilcm
 
 class ffmpeg_common:
  def usage(self):
@@ -27,10 +28,11 @@ overlapping - (audio,volume,timestamp) or (image,position,tuple(timestamps)) or 
   else:
    print(f'{"":-^60}\n{"NO VIDEO DIMENSION SET":^60}\n{"":-^60}')
    self.usage()
-  self.profile=Util.getarg('--profile',count=2)
-  self.notail=Util.getarg('--notail')
-  self.title=Util.getarg('--title',2) or ''
-  self.nospellcheck=Util.getarg('--nospellcheck')
+  self.profile=utilcm.getarg('--profile',count=2)
+  self.notail=utilcm.getarg('--notail')
+  self.title=utilcm.getarg('--title',2) or ''
+  self.nospellcheck=utilcm.getarg('--nospellcheck')
+  self.notoprightlogo=utilcm.getarg('--notoprightlogo')
   for x in [x for x in re.split(r'\s+',self.title) if x and not self.nospellcheck]:
    if os.system('egrep -i -e "^'+x+'$" /usr/share/dict/british-english'):
     print(f'SPELLING MISTAKE IN TITLE {x=} use --nospellcheck')
@@ -75,7 +77,8 @@ overlapping - (audio,volume,timestamp) or (image,position,tuple(timestamps)) or 
   if self.profile:
    print(f'TEST {self.stroketuple=}')
 #   self.stroketuple[1:1]=(self.g.libi.str2tuple(os.path.expanduser('~')+'/tmp/imageglobe/resource/'+self.profile+'toprightlogo.png,326,'+(len(self.stroketuple[0])==1 and '00:00:00' or re.split('-',type(self.stroketuple[0][1])==tuple and self.stroketuple[0][1][0] or self.stroketuple[0][1])[0])),)
-   self.stroketuple[1:1]=(self.g.libi.str2tuple(os.path.expanduser('~')+'/tmp/imageglobe/resource/'+self.profile+'toprightlogo.png,326,00:00:00'),)
+   if not self.notoprightlogo:
+    self.stroketuple[1:1]=(self.g.libi.str2tuple(os.path.expanduser('~')+'/tmp/imageglobe/resource/'+self.profile+'toprightlogo.png,326,00:00:00'),)
   if self.title:
    self.stroketuple[1:1]=((self.g.utili.omnitext(re.sub(r'\s',r'\\n',self.title),size=min(0.6,1.0-len(re.split(r'\s',self.title))*0.1),duration=6),'5','6'),(os.path.expanduser('~')+r'/tmp/imageglobe/resource/cork.mp3','0.2','7'))
   print(f'TEST {sys.argv=} {self.stroketuple=}')

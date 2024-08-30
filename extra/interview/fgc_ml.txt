@@ -1,6 +1,2 @@
-#default chapter=Introduction,"Bayes Theorem","Natural Language Processing","Tensor Flow",Matplotlib
-text="what is bayes theorem" category=1 experience=2 domain="machine learning" language=python company=3 chapter=introduction
-text="nlp (natural language processing) is used in \na)text mode \nb)binary mode \nc)neural network" experience=2 domain="machine learning" language=python chapter=introduction
-text="scikit-learn what all classes available for naive bayes" category=3 chapter="Bayes Theorem" language=python company=3 domain="machine learning" experience=2-3
-text="how to draw 4 subplots in same figure in matplotlib" category=1 chapter="Matplotlib" language=python company=2 domain="machine learning"
-text="where tensorflow is used in machine learning" category=3 chapter="Tensor Flow" language=python company=3 domain="machine learning" experience=2-3
+text="what is bayes theorem?" category=1 experience=2 domain="machine learning" language=python company=3 chapter=introduction
+text="nlp (natural language processing) is used in a)text mode b)binary mode c)neural network" experience=2 domain="machine learning" language=python chapter=introduction

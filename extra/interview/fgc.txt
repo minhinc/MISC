@@ -1,14 +1,14 @@
-#default text="" category=1-3 experience=1-3 domain="linux internals",algorithms,"data structures",embedded,networking,database,"machine learning","artificial intelligence",language,"device driver","linux kernels",qt,qml,"design patterns" language=c,c++,python,java,perl,shell company=1-3 chapter=""
+#default text="" category=1-3 experience=1-3 domain="linux internals",algorithms,"data structures",embedded,networking,database,"machine learning","artificial intelligence",language,"device driver","linux kernels" language=c,c++,qt,qml,python,java,perl,shell company=1-3 chapter=""
 fgc_py.txt
-fgc_qt.txt
-fgc_qml.txt
+#fgc_qt.txt
+#fgc_qml.txt
 fgc_cpp.txt
 #fgc_c.txt
 #fgc_gl.txt
 fgc_ml.txt
 #fgc_ai.txt
 #fgc_ldd.txt
-fgc_li.txt
+#fgc_li.txt
 #fgc_lk.txt
-fgc_dp.txt
+#fgc_dp.txt
 #fgc_kv.txt

@@ -1,20 +1,28 @@
 import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp/')
-from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
+import builtins
+import traceback
+from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger,PdfMerger,PdfReader
 import io,os,re
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import datetime
-#from MISC.extra.debugwrite import print
+from pathlib import Path
+from MISC.extra.debugwrite import print
 
-class Util:
- customtag=['<h[yor]?>','<m>','<a>','<c>','<cb>','<cc>','<cs>']
- DELIMITER='!ABS SBA!'
+class utilc:
+ kwargc=dict( \
+  customtag=['<h[yor]?>','<m>','<a>','<c>','<cb>','<cc>','<cs>'], \
+  delimiter='!ABS SBA!', \
+  round=3, \
+  fps=15 \
+ )
+ moduleclassc=(('MISC.utillib.seleniumrequest','seleniumrequestc()'),('MISC.utillib.databaserequest','databaserequestc()'),('MISC.utillib,machinelearningrequest','machinelearningrequestc()'),('MISC.utillib.database','databasec(False)'))
  def __init__(self):
-  super(Util,self).__init__()
+  super(utilc,self).__init__()
  def concatpdf(self,dir):
   merger=PdfFileMerger()
   for count,i in enumerate(sorted([i for i in os.listdir(dir) if os.path.isfile(dir+r'/'+i) and re.search(r'[.]pdf$',i,flags=re.I)],key=str.lower)):
-   print('<=>Util.concatpdf processing i ->',i)
+   print(f'M Util.concatpdf processing i ->',i)
    classname=re.sub(r'^(.*?)[.]pdf',r'\1',i)
    packet = io.BytesIO()
    existing_pdf = PdfFileReader(open(dir+r'/'+i, "rb"))
@@ -36,47 +44,60 @@ class Util:
    output.write(outputStream)
    outputStream.close()
    merger.append(PdfFileReader(open(dir+r'/'+classname+'_tmp.pdf','rb')))
-  print(r'<=>Util.concatpdf generating '+dir+r'/output/pyreverse.pdf ...')
+  print(f'M Util.concatpdf generating '+dir+r'/output/pyreverse.pdf ...')
   if not os.path.exists(dir+r'/output'):
    os.mkdir(dir+r'/output')
   merger.write(dir+r'/output/pyreverse.pdf')
   merger.close()
-  print(r'<=>Util.concatpdf deleting all '+dir+r'/*_tmp.pdf files...')
+  print(f'M Util.concatpdf deleting all '+dir+r'/*_tmp.pdf files...')
   os.system(r'rm '+dir+r'/*_tmp.pdf')
 
- @staticmethod
- def getarg(arg,count=1,removehyphen=False):
+ def concatpdffiles(self,*files):
+  merger=PdfMerger()
+  for count,i in enumerate(files):
+   print(f'I {i} {count+1}/{len(files)}')
+   merger.append(PdfReader(open(i, "rb")))
+  merger.write(re.sub(r'\s+','',files[0][:10]).lower()+'_'+"{dd.year}_{dd.month}_{dd.day}_{dd.hour}_{dd.minute}_{dd.second}.pdf".format(dd=datetime.datetime.now()))
+  merger.close()
+  
+
+ def getarg(self,arg,count=1,removehyphen=False,removearg=True):
   """count=0 if argument to be returned
     count=1 if argument presense is checked (True/False)
     count=2 if argument next value to be returned
+    count=-1 if agument till next -- or till end to be returned
     removehyphen - if count=0 then hyphen should be removed?"""
-  print(f'><Util.getarg {arg=}')
-  ret=False
-  index=([count for count in range(len(sys.argv)) if re.search(arg,sys.argv[count])] or [None])[0]
-  print(f'<=>Util.getarg {index=}')
+  print(f'E Util.getarg {arg=}')
+  ret=None
+  index=([count for count in range(len(sys.argv)) if re.search(r'^'+arg+r'$',sys.argv[count])] or [None])[0]
+  print(f'M Util.getarg {index=}')
   '''
   if [x for x in sys.argv if re.search(arg,x)]:
    ret=sys.argv[sys.argv.index(arg)+1] if count>1 else True
    sys.argv[sys.argv.index(arg):sys.argv.index(arg)+(2 if count>=2 else 1)]=''
   '''
   if index:
-   ret=sys.argv[index+1] if count>1 else re.sub(r'^(-+)','' if removehyphen else r'\1',sys.argv[index]) if count==0 else True
-   sys.argv[index:index+(2 if count>=2 else 1)]=[]
+   if count>=0:
+    ret=sys.argv[index+1] if count>1 else re.sub(r'^(-+)','' if removehyphen else r'\1',sys.argv[index]) if count==0 else True
+    if removearg:
+     sys.argv[index:index+(2 if count>=2 else 1)]=[]
+   else:
+    ret=sys.argv[index+1:([x for x in range(index+1,len(sys.argv)) if re.search(r'^--',sys.argv[x])] or [len(sys.argv)])[0]]
+    if removearg:
+     sys.argv[index:([x for x in range(index+1,len(sys.argv)) if re.search(r'^--',sys.argv[x])] or [len(sys.argv)])[0]]=[]
   return ret
 
- @staticmethod
- def webpageurl(http=False):
+ def webpageurl(self,http=False):
   return (r'http://' if http else '')+r'minhinc.42web.io'
 
- @staticmethod
- def push(*file,dir,push=False):
+ def push(self,*file,dir,push=False):
   data=None
   retry=2
   if not hasattr(Util.push,'file'):
    Util.push.file=[]
   count=[x for x in Util.push.file if x[1]==dir]
   count[0][0].extend(file) if count else Util.push.file.append([list(file),dir])
-  print(f'<=>Util.push {Util.push.file=} {push=}')
+  print(f'M Util.push {Util.push.file=} {push=}')
   if push:
    for dir in Util.push.file:
     os.mkdir(os.path.expanduser('~')+r'/tmp/imageglobe/'+dir[1]) if not os.path.exists(os.path.expanduser('~')+r'/tmp/imageglobe/'+dir[1]) else None
@@ -87,24 +108,25 @@ class Util:
       break
      retry-=1
     else:
-     print('Util.push Could Not Connect')
+     print('C Util.push Could Not Connect')
      return None
 #    outputfile=' '.join([x for x in dir[0] if not re.search(x,data) or re.sub(r'^.*?(\d+)(?:\s+\w+){3}\s+'+x+r'\s*$',r'\1',data,flags=re.DOTALL) != re.sub(r'^.*?(\d+)(\s+\w+){3}\s+'+x+r'\s*$',r'\1',os.popen(r'ls -la '+x).read(),flags=re.M)])
     outputfile=' '.join([x for x in dir[0] if not re.search(x,data)])
-    print(f'TEST Util.push data ->{dir[1]=} {outputfile=}')
+    print(f'D Util.push data ->{dir[1]=} {outputfile=}')
     os.system('cd ~/tmp/imageglobe/'+dir[1]+';'+r'~/tmp/ftp.sh '+'mput '+dir[1]+' '+outputfile) if outputfile else None
 #   [[os.system(f"cp {x} {os.path.expanduser('~')}/tmp/imageglobe/{dir[1]}") for x in dir[0]] for dir in Util.push.file] if push else None
    Util.push.file=[]
- @staticmethod
- def searchhtmltag(htmltaglist,htmlstr):
+
+ def searchhtmltag(self,htmltaglist,htmlstr):
   htmltaglist=[re.sub(r'^<(.*)>$',r'\1',x) for x in htmltaglist]
   resulttag={}
   for i in re.findall(r'<(\w+)',htmlstr,flags=re.DOTALL):
    if [x for x in htmltaglist if re.search(r'^'+x+r'$',i)]:
     resulttag[i]=1 if i not in resulttag else resulttag[i]+1
-  print(f'--------- HTML TAG DETECTED ----------')
+  print(f'I --------- HTML TAG DETECTED ----------')
   print(resulttag)
-  print(f'---------------------------')
+  print(f'I ---------------------------')
+
  '''
  @staticmethod
  def gethtmltagdescripancy(htmltaglist,htmlstr):
@@ -118,13 +140,12 @@ class Util:
      else:
       resulttag[i][0]+=1
       resulttag[i].append(x) if x not in resulttag[i] else None
-  print(f'---------- HTML TAG DISCREPENCY FOUND ----------')
+  print(f'I ---------- HTML TAG DISCREPENCY FOUND ----------')
   print(resulttag)
   print(f'---------------------------')
  '''
 
- @staticmethod
- def usertagdescripancy(tech):
+ def usertagdescripancy(self,tech):
   mismatchdict=dict()
   for count,i in enumerate(re.split('\n',os.popen(f'python3 ../gc/seed.py print {tech}').read())):
    for j in __class__.customtag:
@@ -135,13 +156,11 @@ class Util:
      mismatchdict[j]=(count,i[:20],j,count1,count2)
   return mismatchdict
 
- @staticmethod
- def mysqldump():
+ def mysqldump(self):
   open(f'dbname{datetime.datetime.today():%Y_%m_%d}.sql','w').write(re.sub('utf8mb4_0900_ai_ci','utf8mb4_general_ci',os.popen('mysqldump -p -u root epiz_30083730_minhinc').read()))
 
- @staticmethod
- def ftp(mode,dir,*filelist,localdir='.'):
-  print(f'><Util.ftp {mode=} {dir=} {filelist=} {localdir=}')
+ def ftp(self,mode,dir,*filelist,localdir='.'):
+  print(f'E Util.ftp {mode=} {dir=} {filelist=} {localdir=}')
   filelist=[re.sub(r'^.*/(.*)$',r'\1',x) for x in filelist]
   retrycount=2
   while retrycount:
@@ -150,13 +169,13 @@ class Util:
     break
    retrycount-=1
   return retrycount if not retrycount else data
- @staticmethod
- def gettable():
-  return {i[1]:re.findall(r'(\w+)\s+(\w*(?:CHAR|INT|TEXT|BLOB))',i[2]) for i in re.findall('^(.*?)CREATE TABLE.*?(\w+)\s*\(\s*(.*?)"\s*\)',open(os.path.expanduser('~')+r'/tmp/MISC/utillib/'+'databasem.py').read(),flags=re.M) if not re.search('#',i[0])}
- @staticmethod
- def converttolatin1(strpar):
+ def gettable(self):
+  return {i[1]:re.findall(r'(\w+)\s+(\w*(?:CHAR|INT|TEXT|BLOB))',i[2]) for i in re.findall('^(.*?)CREATE TABLE.*?(\w+)\s*\(\s*(.*?)"\s*\)',open(os.path.expanduser('~')+r'/tmp/MISC/utillib/'+'database.py').read(),flags=re.M) if not re.search('#',i[0])}
+
+ def converttolatin1(self,strpar):
   return strpar.encode('latin1').decode('latin1')
 
+ '''
  @staticmethod
  def syncimagedir():
   filelistremote=[i for i in re.findall(r'^(?:[d-]rw.*?)(\S+)$',Util.ftp('ls','image',''),flags=re.M) if not i=='.' and not i=='..']
@@ -182,8 +201,9 @@ class Util:
    height=int(referencesize[1]*ratio)
    width=(height*imagesize[0])//imagesize[1]
   return (width,height) if width<imagesize[0] else imagesize
- @staticmethod
- def scaledwidthheight(imagesize,scalesize=None,referencesize=None,libi=None):
+ '''
+
+ def scaledwidthheight(self,imagesize,scalesize=None,referencesize=None,libi=None):
   '''\
   ---------------------------------------
   |         <referencesize>/<windowsize>|
@@ -200,7 +220,7 @@ class Util:
   ---------------------------------------
   '''
   width=height=None
-  print(f'><Util.scaledwidthheight {imagesize=} {scalesize=} {referencesize=} {libi=}')
+  print(f'E Util.scaledwidthheight {imagesize=} {scalesize=} {referencesize=} {libi=}')
   if type(imagesize)==str and not re.search(r'^\d+x\d+$',imagesize):
    imagesize=[int(x) for x in libi.videoattribute(imagesize)[0]]
   elif re.search(r'^\d+x\d+$',imagesize):
@@ -209,7 +229,7 @@ class Util:
    scalesize=(libi.videowidth,libi.videoheight)
   if referencesize==None:
    referencesize=(libi.videowidth,libi.videoheight)
-  print(f'<=>Util.scaledwidthheight {imagesize=} {scalesize=} {referencesize=} {libi=}')
+  print(f'M Util.scaledwidthheight {imagesize=} {scalesize=} {referencesize=} {libi=}')
   if abs(scalesize[0]-imagesize[0])//imagesize[0]<=abs(scalesize[1]-imagesize[1])//imagesize[1]:
    width,height=scalesize[0],(scalesize[0]*imagesize[1])//imagesize[0]
    if height>referencesize[1]:
@@ -221,9 +241,81 @@ class Util:
     width=referencesize[0]
     height=(width*imagesize[1])//imagesize[0]
   return (2*(width//2),2*(height//2))
- @staticmethod
- def pprint(*a):
-  print(f'{"":-^40}')
+
+ def pprint(self,*a):
+  print(f'I {"":-^40}')
   for i in a:
-   print(f'{str(i):^40}')
-  print(f'{"":-^40}')
+   print(f'I {str(i):^40}')
+  print(f'I {"":-^40}')
+
+ def getlist(self,url):
+#  print(f'E Util.getlist {url=}')
+  if type(url)==list or type(url)==tuple:
+   return [x for x in (url[0] if type(url)==tuple and len(url)==1 else url)]
+  else:
+   return [] if not url else [url] if not typeof(url)==dict else [url[count] for count in range(len(url))] if not [x for x in url if not type(x)==int] else url.values()
+
+ def getdict(self,url):
+#  print(f'util.getdict {url=} {starb=}')
+  if type(url)==list or type(url)==tuple:
+   return {count:x for count,x in enumerate(url[0] if type(url)==tuple and len(url)==1 else url)}
+  else:
+   return {} if not url else {0:url} if [x for x in url if not type(x)==int] else url
+
+ def exec(self,arg):
+  self.arg=arg
+  return self.arg
+
+ def usage(self,*arg,count=1):
+  if len(sys.argv)<=count:
+   print(f'--- usage ---')
+   [print(i) for i in arg]
+   sys.exit(-1)
+
+ def print(self,args):
+  print(args[0],f' {traceback.extract_stack(None,2)[0][1]} {traceback.extract_stack(None,2)[0][2]} ',args[2:])
+ '''
+ def moduleclassinstance(self,modulename,classobj):
+  return sys.modules[__name__].moduleclassinstance(modulename,classobj)
+ def populatemodulefunc(self,*moduleclass):
+  print(f'E utilc.populatemodulefunc {moduleclass=}')
+  sys.modules[__name__].populatemodulefunc(*moduleclass)
+ '''
+
+
+class utildict(builtins.dict):
+ def append(self,value):
+  self[len(self)]=value if not type(value)==dict else value.values()[0]
+ def extend(self,*value):
+  [self.append(x if not type(x)==dict else x.values()[0]) for x in value]
+ def index(self,item):
+  itemt=tuple(item) if type(item)==list else item.items()[0] if type(item)==dict else item
+  return [count for count,item in enumerate(self.items()) if item==itemt][0]
+
+print(f'C ****** WELCOME TO UTIL MODULE *****')
+def cmc(*moduleclass):#create module class
+ print(f'E util.cmc {moduleclass=}')
+ '''
+ if [x for x in moduleclass if not type(x)==str]:
+  print(f'C util.populatemodulefunc module name and class name must be string. exiting..')
+  sys.exit(-1)
+ createdmoduletmp=[xx for xx in sys.modules if hasattr(sys.modules[xx],'__file__') and hasattr(sys.modules[xx],'__name__')  and not sys.modules[xx].__name__ == sys.modules[moduleclass[0]].__name__ and str(Path(str(sys.modules[xx].__file__)).resolve())==str(Path(str(sys.modules[moduleclass[0]].__file__)).resolve())]
+ [setattr(sys.modules[moduleclass[0]],re.sub(r'^\s*(\S+)(?=[\s(]).*',r'\1',x)+'m',eval(moduleclass[0]+'.'+x) if not createdmoduletmp else getattr(sys.modules[createdmoduletmp[0]],re.sub(r'^\s*(\S+)(?=[\s(]).*',r'\1',x)+'m')) for x in moduleclass[1:]]
+ '''
+ [setattr(sys.modules[moduleclass[0]],x.__class__.__name__+'m',x) for x in moduleclass[1:]]
+
+def mce(modulename,classobj):#module class exists?
+ moduleloadedtmp=[sys.modules[xx] for xx in sys.modules if hasattr(sys.modules[xx],'__file__') and hasattr(sys.modules[xx],'__name__')  and not sys.modules[xx].__name__ == sys.modules[modulename].__name__ and str(Path(str(sys.modules[xx].__file__)).resolve())==str(Path(str(sys.modules[modulename].__file__)).resolve())]
+ print(f'C util.mce object {getattr(moduleloadedtmp[0],classobj.__name__+"m")} already loaded "{modulename}:{sys.modules[modulename].__file__}" -> "{moduleloadedtmp[0].__name__}:{moduleloadedtmp[0].__file__}"...') if moduleloadedtmp else None
+ return moduleloadedtmp and getattr(moduleloadedtmp[0],classobj.__name__+'m') or moduleloadedtmp
+
+cmc(__name__,mce(__name__,utilc) or utilc())
+'''
+#populatemodulefunc(__name__,dictc())
+for i in utilc.moduleclassc:
+ exec('import '+i[0])
+ createdmoduletmp=[xx for xx in sys.modules if hasattr(sys.modules[xx],'__file__') and hasattr(sys.modules[xx],'__name__')  and not sys.modules[xx].__name__ == sys.modules[i[0]].__name__ and str(Path(str(sys.modules[xx].__file__)).resolve())==str(Path(str(sys.modules[i[0]].__file__)).resolve())]
+ setattr(sys.modules[i[0]],re.sub(r'^(.*?)\(.*',r'\1',i[1])+'m',getattr(sys.modules[createdmoduletmp[0]],re.sub(r'^(.*?)\(.*',r'\1',i[1])+'m') if createdmoduletmp else eval(i[0]+'.'+i[1]))
+ print('M util module initialized the module -> {i=}')
+'''
+__all__=['utilcm','utildict','print']

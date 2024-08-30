@@ -2,10 +2,11 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import sys;sys.path.append('/home/minhinc/tmp')
+import sys;sys.path.append(os.path.expanduser('~')+r'/tmp')
 from MISC.extra.shader import shader
 #from MISC.extra.openglexample.loco.global2 import global2
-from MISC.extra.openglexample.marsview.global2 import global2
+from MISC.extra.openglexample.moontree.global2 import global2
+#from MISC.extra.openglexample.earthseason.global2 import global2
 utili=shader.utili
 
 shaderi=None
@@ -18,8 +19,10 @@ def init():
  glEnable(GL_BLEND)
  glEnable(GL_DEPTH_TEST)
  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
+ glEnable(GL_CULL_FACE)
+ glCullFace(GL_BACK)
 # glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA)
- glutFullScreen()
+# glutFullScreen()
 
 def display():
  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
@@ -36,7 +39,7 @@ def reshape(w,h):
  glMatrixMode(GL_PROJECTION)
  glLoadIdentity()
 # gluPerspective(40,w/h if w>=h else h/w, 1, 100)
- gluPerspective(20,w/h if w>=h else h/w, 1, 100)
+ gluPerspective(20,w/h if w>=h else h/w, 1, 200)
 # glOrtho(-4.0,4.0,-4.0*h/w,4.0*h/w,1,20) if (w<=h) else glOrtho(-4.0*w/h,4.0*w/h,-4.0,4.0,1,20)
  glMatrixMode(GL_MODELVIEW)
  glLoadIdentity()

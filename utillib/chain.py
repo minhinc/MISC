@@ -1,28 +1,14 @@
-import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp')
+import sys;sys.path.append('/home/minhinc/tmp')
+from MISC.utillib.util import print
 if len(sys.argv)<2:
- print(f'usage - chain.py <tech> <country> <pagecount> [<tech> <country> <pagecount>]\npython3 chain.py qt india 2\npython3 chain.py qt india 2 python australia 2')
+ print(f'I usage - python3 chain.py [--headless] [--nolinkedin] [--tech <tech> <country> <pagecount> <tech> <country> <pagecount>..] [--link <tech> <country> <link> <link>] [--email <tech> <emailid1> <emailid2>..] [--emailsubject <title>]')
+ print(f'I python3 chain.py --tech py netherland 2 gl brazil 2 --link py nicaragua http://bbox.com http://msn.com')
+ print(f'I python3 chain.py --email qt abc@gmail.com mail@email.com')
+ print(f'I python3 chain.py --tech py netherland 2 gl brazil 2 --link py nicaragua http://bbox.com http://msn.com --emailsubject "shadowmap"')
+ print(f'I python3 chain.py --email qt abc@gmail.com mail@email.com --emailsubject "bayes theorem"')
  sys.exit(-1)
-from MISC.utillib.naukri import naukri
-from MISC.utillib.linkedin import linkedin
-from MISC.utillib.google import google
-from MISC.utillib.fetcher import fetcher
-from machinelearningrequest import machinelearningrequest
-from seleniumrequest import seleniumrequest
-from databaserequest import databaserequest
-chain=[]
-retval=None
-ml=machinelearningrequest()
-db=databaserequest()
-for i in 'naukri','linkedin','google':
- chain.append(eval(i+'()'))
-for i in range(int(len(sys.argv)/3)):
- url_t=[ml.getmatching(sys.argv[i*3+1],*[x[1] for x in db.db.search2('tech',mode='get')])[0].lower(),ml.getmatching(sys.argv[i*3+2],*[x[1] for x in db.db.search2('country',mode='get')])[0].lower(),int(sys.argv[i*3+3])]
- while url_t:
-  url=url_t
-  url_t=[]
-  for i in chain:
-   retval=i.get(*url)
-   url_t.extend(retval) if retval else None
- print(f'final {url=}')
-seleniumrequest.close()
-[i.quitfetcherthread() for i in chain if type(i)==google]
+from MISC.utillib.linkedin import linkedincm
+from MISC.utillib.google import googlecm
+from MISC.utillib.sendmail import sendmailcm
+#print(f'I  chainm {sys.argv=}',sendmailcm.get(googlecm.get(linkedincm.get())))
+print(f'I  chainm {sys.argv=}',googlecm.get(linkedincm.get()))

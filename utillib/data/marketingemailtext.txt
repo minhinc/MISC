@@ -1,18 +1,22 @@
 <table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:youtubeimagewidth;">
+<tr><td height="40"></td></tr>
+<tr><td><hr style="width:100%;height:2px;text-align:center;background-color:#59c3b8"</td></tr>
+<tr><td><pre style="color:#caa691;font-size:12px">youtubemonthyear</pre></td></tr>
+<tr><td height="5"></td></tr>
+<tr><td align="center"><img style="max-width:300px" src="http://witheveryone.angelfire.com/image/minhinsider.png"/></td></tr>
+<tr><td height="20"></td></tr>
+<tr><td align="center"><pre style="font-family:calibri;color:#222222;font-size:16px">Welcome to the latest edition of Educational YouTube videos on <b>"youtubesubject"<b><br><b>Enjoy Watching...!!!</b></pre></td></tr>
+<tr><td height="40"></td></tr>
+<tr>
+<td ><a href="https://www.youtube.com/@minhinc" style="text-decoration:none;float:left;margin-left:40%;font-size:20px;background-color:#a3b1be;color:#004000;font-family:arial, helvetica, sans;font-weight:bold">Minh Inc</a>
+<a href="https://www.youtube.com/@minhinc/?sub_confirmation=1" style="text-decoration:none;display:block;float:right;;color:#ffffff;font-size:14px;text-align:center;width:80px;line-height:30px;border-radius:2px;background-color:#cc0000;font-family:arial, helvetica, sans;">Subscribe</a></td>
+</tr>
+<tr>
+ <td align="center"><a href="https://www.youtube.com/watch?v=youtubeid"><div style="max-width:640px;max-height:360px;background-image:url(https://img.youtube.com/vi/youtubeid/maxresdefault.jpg);background-repeat:no-repeat;background-position:center;background-size:100%"><img src="http://witheveryone.angelfire.com/image/ytb_t.png"/></div></a></td>
+</tr>
 <tr><td height="20"></td></tr>
 <tr>
- <td align="left"><a href="https://www.youtube.com/c/minhinc" style="text-decoration:none;font-size:12pt;font-weight:bold;color:#000"><span style="font-size:18pt;color:#666">YouTube Video : </span>youtubetech</a><br><a style="margin-left:1%;font-size:8pt;" href="https://youtube.com/c/minhinc">https://youtube.com/c/minhinc</a></td>
-</tr>
-<tr><td height="60"></td></tr>
-<tr>
-<td ><a href="https://www.youtube.com/c/minhinc" style="text-decoration:none;float:left;margin-left:35%;font-size:20px;background-color:#a3b1be;color:#004000;font-family:arial, helvetica, sans;font-weight:bold">Minh Inc</a>
-<a href="https://www.youtube.com/c/minhinc/?sub_confirmation=1" style="text-decoration:none;display:block;float:right;;color:#ffffff;font-size:14px;text-align:center;width:80px;line-height:30px;border-radius:2px;background-color:#cc0000;font-family:arial, helvetica, sans;">Subscribe</a></td>
-</tr>
-<tr>
- <td align="center"><a href="https://www.youtube.com/watch?v=youtubeid"><img src="http://minhinc.42web.io/image/youtubeid.jpg" width="100%"/></a></td>
-</tr>
-<tr>
- <td align="left"><a href="https://www.youtube.com/c/minhinc" style="text-decoration:none;font-size:14px;font-weight:bold;color:#000">youtubetitle</a></td>
+ <td align="center"><a href="https://www.youtube.com/@minhinc" style="max-width:50%;height:auto;text-decoration:none;font-size:20px;font-weight:bold;color:#000;display:inline-block;background-color:#02bdff;border-radius:12px;padding:10px 10px 10px 10px">youtubetitle</a></td>
 </tr>
 <tr><td height="200"></td></tr>
 <tr>
@@ -21,7 +25,7 @@
 <tr><td height="250"></td></tr>
 <tr>
  <td  align="center">
- <pre style="text-align:center;margin-top:5px"><a href="http://minhinc.42web.io/unsubscribe/index.php?email=XXX" target="_blank" style="color:#4444ff;font-weight:bold;font-family:arial,helvetica,sans-serif;font-size:9pt;">Unsubscribe</a></pre>
+ <pre style="text-align:center;margin-top:5px"><a href="http://minhinc.42web.io/unsubscribe/index.php?email=fff14d0b-547b-401d-9907-4efe9834c371" target="_blank" style="color:#4444ff;font-weight:bold;font-family:arial,helvetica,sans-serif;font-size:9pt;">Unsubscribe</a></pre>
  </td>
 </tr>
 </table>

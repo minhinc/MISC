@@ -125,3 +125,15 @@ class sendmailc(fetchc):
   finally:
    smtp.quit()
   print('sendmailc::get')
+class sendmailc:
+ emailclientc={'MISC.extra.emailclient.brevo':None}
+ def __init__(self,*arg,**kwarg):
+  print(f'E sendmail.__init__ {(argc,kwarg)=}')
+  super(sendmailc,self).__init__(*arg,**kwarg)
+  for i in [i for i in sendmailc.emailclientc if sendmailc.emailclientc[i]==None]:
+   classnametmp=re.sub(r'.*[.](.*)$',r'\1',i)+'cm'
+   exec(f'from {i} import {classnametmp}')
+   sendmailc.emailclientc[i]=getattr(sys.modules[i],classnametmp)
+   print(f'M sendmailc.__init__ class {classnametmp} imported from {i}')
+
+ def get(self):

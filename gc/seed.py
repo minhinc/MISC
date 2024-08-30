@@ -1,13 +1,13 @@
 import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp')
 import time
 import re
-from MISC.utillib.util import Util
+from MISC.utillib.util import utilcm
 from MISC.ffmpeg.libm import libc
 if re.search(r'^(win|cygwin)',sys.platform,flags=re.I):
  import pymysql
  pymysql.install_as_MySQLdb()
 import MySQLdb
-import MISC.utillib.databasem as databasem
+import MISC.utillib.database as databasem
 libi=libc()
 def _id_(db,country):
  if not country.isdigit():
@@ -47,7 +47,7 @@ else:
   for i in tabledict:
    print(f'<=>push truncating {i=}')
    dbi.search2(i,mode='trunc')
-   dbi.search2(i,*[[Util.converttolatin1(x) for x in re.split(Util.DELIMITER,eval(line))] for line in re.split('\n',tabledict[i]) if line],mode='insertbulk')
+   dbi.search2(i,*[[utilcm.converttolatin1(x) for x in re.split(utilcm.kwargc['delimiter'],eval(line))] for line in re.split('\n',tabledict[i]) if line],mode='insertbulk')
  elif re.search('youtube',sys.argv[1],flags=re.I):
   from selenium import webdriver
   import json
@@ -80,9 +80,9 @@ else:
  elif re.search('print',sys.argv[1],flags=re.I):
   for i in ((sys.argv[2],) if len(sys.argv)>=3 else [x[0] for x in dbi.search2('',mode='showtables')]):
    print('      '+i+'      ')
-#   [print(Util.converttolatin1(Util.DELIMITER.join(str(y) if type(y)==int else y for y in x))) for x in dbi.search2(i,'*','name','R','.*',mode='get')]
-   [print(repr(Util.DELIMITER.join(str(y) if type(y)==int else y for y in x))) for x in dbi.search2(i,'*',mode='get')]
-#   for i in [Util.converttolatin1(Util.DELIMITER.join(str(y) if type(y)==int else y for y in x)) for x in dbi.search2(i,'*','name','R','.*',mode='get')]:
+#   [print(utilcm.converttolatin1(utilcm.kwargc['delimiter'].join(str(y) if type(y)==int else y for y in x))) for x in dbi.search2(i,'*','name','R','.*',mode='get')]
+   [print(repr(utilcm.kwargc['delimiter'].join(str(y) if type(y)==int else y for y in x))) for x in dbi.search2(i,'*',mode='get')]
+#   for i in [utilcm.converttolatin1(utilcm.kwargc['delimiter'].join(str(y) if type(y)==int else y for y in x)) for x in dbi.search2(i,'*','name','R','.*',mode='get')]:
 #    print(i)
 #    print(eval(repr(i)))
  elif len(sys.argv)<=2:
@@ -97,7 +97,7 @@ else:
   print(f'{tmptuple=} {len(tmptuple)=}')
   print(dbi.search2(sys.argv[2],*tmptuple,mode=('insert' if not type(tmptuple)=='tuple' else 'insertbulk')))
  elif re.search('update',sys.argv[1],flags=re.I):
-  print(dbi.search2(sys.argv[2],sys.argv[3],Util.converttolatin1(sys.argv[4]),*sys.argv[5:],mode='update'))
+  print(dbi.search2(sys.argv[2],sys.argv[3],utilcm.converttolatin1(sys.argv[4]),*sys.argv[5:],mode='update'))
  elif re.search('search',sys.argv[1],flags=re.I):
   print(dbi.search2(*sys.argv[2:],mode='search'))
  elif re.search('get',sys.argv[1],flags=re.I):

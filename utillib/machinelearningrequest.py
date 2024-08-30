@@ -1,10 +1,11 @@
 from fuzzywuzzy import fuzz,process
 from collections import OrderedDict
-import re
+import re,os,sys;sys.path.append(os.path.expanduser('~')+'/tmp')
+from MISC.utillib.util import utilcm
 
-class machinelearningrequest:
- def __init__(self):
-  super(machinelearningrequest,self).__init__()
+class machinelearningrequestc:
+ def __init__(self,**kwarg):
+  super(machinelearningrequestc,self).__init__()
 #  self.blockedemail=' '.join(self.db.get('blockedemail'))
 #  self.junkemail=r'^('+(''.join([x[0]+'|' for x in self.db.get('junkemail')]))[:-1]+')$'
 
@@ -53,3 +54,4 @@ class machinelearningrequest:
 #  print(f'44 {out=}')
   return list(OrderedDict.fromkeys(out))
 '''
+import MISC.utillib.util;MISC.utillib.util.cmc(__name__,MISC.utillib.util.mce(__name__,machinelearningrequestc) or machinelearningrequestc())

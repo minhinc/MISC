@@ -9,6 +9,7 @@ import copy
 import configparser
 #from MISC.extra.debugwrite import print
 import MISC.ffmpeg.filterm as filterm
+from MISC.utillib.util import utilcm
 class libc:
  '''library class to provide basic functions'''
  counti=-1
@@ -117,7 +118,8 @@ class libc:
 #  self.videowidth,self.videoheight=[int(x) for x in os.popen('ffmpeg -i '+self.inputfile+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')] if self.inputfile else None,None
   config=configparser.ConfigParser()
   config.read(os.path.expanduser('~')+r'/minh.ini')
-  self.debugf=int(config['debug']['level'])
+#  self.debugf=int(config['debug']['level'])
+  self.debugf=0
   self.duration=self.videowidth=self.videoheight=0
   if inputfile:
    self.setvideo(inputfile)
@@ -193,6 +195,7 @@ class libc:
 
  def dimension(self,file_p):
   print(f'><libc.dimension {file_p=}')
+  print(f'TEST libc.dimension {file_p=}')
   if re.search(r'[.](mp4|mov|webm|mkv)$',file_p,flags=re.I):
 #   return [int(x) for x in os.popen('ffmpeg -i "+self.inputfile+" 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')]
    retval= tuple([str(int(x)) for x in os.popen('ffprobe -i '+file_p+' 2>&1|grep -oP \'Stream .*, \K[0-9]+x[0-9]+\'').read().split('x')])
@@ -613,3 +616,4 @@ command executed shell('/bin/bash') output if popen=True else None'''
  def vformat(self,type):
 #  return ' -pix_fmt yuv420p -c:v libx264 ' if type=='mp4' and not self.debugf else ' -pix_fmt rgba -c:v png ' if type=='mov' else ' '
   return ' ' if type=='mp4' and not self.debugf else ' -pix_fmt rgba -c:v png ' if type=='mov' else ' '
+import MISC.utillib.util;MISC.utillib.util.cmc(__name__,MISC.utillib.util.mce(__name__,libc) or libc())

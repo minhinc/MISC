@@ -1,15 +1,15 @@
 import sys,os;sys.path.append(os.path.expanduser('~')+'/tmp')
 from PIL import Image
 import re
-from MISC.utillib.util import Util
+from MISC.utillib.util import utilcm
 if len(sys.argv)<=2:
  print(f'{"usage":-^40}')
  print(f'transparent.py <file> <color> [--fuzz] [--mode]')
  print(f'transparent.py abc.png 000000ff')
  print(f'transparent.py abc.png 000000ff --fuzz 10 --mode full')
  sys.exit(-1)
-fuzz=int(Util.getarg('--fuzz',count=2)) or 10
-mode=Util.getarg('--mode',count=2) or 'outer'
+fuzz=int(utilcm.getarg('--fuzz',count=2)) or 10
+mode=utilcm.getarg('--mode',count=2) or 'outer'
 img=Image.open(sys.argv[1]).convert('RGBA')
 bytedata=img.tobytes()
 bytedata=list(bytedata)
