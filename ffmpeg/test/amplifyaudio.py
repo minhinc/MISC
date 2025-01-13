@@ -8,12 +8,15 @@ def exec(str_):
  global _prints_
  os.system(str_)
  _prints_+=('\n' if _prints_ else '')+str_
+def fixvideotime(time_):
+ videoduration=libcm.getsecond(re.sub(r'^.*Duration\s*:\s*([0-9.:]+)\s*,.*$',r'\1',os.popen(f'ffprobe {sys.argv[1]} 2>&1').read(),flags=re.DOTALL|re.I))
+ return str(eval(re.sub(r'\$',str(videoduration),time_)))
 if not [x for x in sys.argv if re.search(r'[.]mp4$',x,flags=re.I)]:
- print(f'---usage---\n./a.py [*.mp4] [cutpoints]\n./a.py abc.mp4\n./a.py abc.mp4 1.2:23 34.4:$\n./a.py 0:23 34.5:$')
+ print(f'---usage---\n./a.py [*.mp4] [cutpoints]\n./a.py abc.mp4\n./a.py abc.mp4 \'1.2:23\' \'34.4:$\'\n./a.py \'0:23\' \'34.5:$-1\'')
  sys.argv[1:1]=[re.findall(f'^(.*[.](?:(?!(?:py|mp3)).)*)$',os.popen(f'ls -t').read(),flags=re.M)[0]]
 print(f'File to change {sys.argv[1:]=}\nsleep for 15 seconds press ctrl+c to cancel')
 time.sleep(15)
-_cutpointl_=[[y if re.search(r'\$',y) else str(int(re.sub(r'^(.*)[.].*$',r'\1',y))*60)+(re.sub(r'^.*([.].*)$',r'\1',y) if re.search(r'[.]',y) else '') for y in re.split(r':',x)] for x in sys.argv if re.search(r'^[0-9.:$]+$',x)]
+_cutpointl_=[[y if y=='$' else fixvideotime(y) if re.search(r'\$',y) else str(int(re.sub(r'^(.*)[.].*$',r'\1',y))*60+(float(re.sub(r'^.*[.](.*)$',r'\1',y) if re.search(r'[.]',y) else '0'))) for y in re.split(r':',x)] for x in sys.argv if re.search(r'^[0-9.\-:$]+$',x)]
 _singleoutputfile_=re.sub(r'^(.*)[.](.*)$',r'\1'+'_a.'+r'\2',sys.argv[1])
 _audiofile_=re.sub(r'^(.*)[.].*$',r'\1'+'.mp3',sys.argv[1])
 exec(f"ffmpeg -i {sys.argv[1]} -y {_audiofile_}")
@@ -30,4 +33,4 @@ if _cutpointl_:
  for count,x in enumerate(_cutpointl_):
   exec(f'ffmpeg'+(f' -ss {libcm.getsecond(x[0],True)}' if float(x[0])!=0.0 else '')+(f' -to {libcm.getsecond(x[1],True)}' if x[1]!='$' else '')+f' -i {_singleoutputfile_} -c copy -y '+re.sub(r'^(.*)[.](.*)$',r'\1'+f'_{count}.'+r'\2',_singleoutputfile_))
 
-print(f'*********command executed**********\n{_prints_}\n{volume=}\n{_audiofile_=}\n**********')
+print(f'*********command executed**********\n{_prints_}\n{_cutpointl_=}\n{volume=}\n{_audiofile_=}\n**********')

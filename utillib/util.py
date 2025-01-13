@@ -1,4 +1,4 @@
-import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp/')
+import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp') if not os.path.expanduser('~')+'/tmp' in sys.path else None
 import builtins
 import traceback
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger,PdfMerger,PdfReader
@@ -7,7 +7,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import datetime
 from pathlib import Path
-from MISC.extra.debugwrite import print
+#from MISC.extra.config import _configi as print
 
 class utilc:
  kwargc=dict( \
@@ -302,12 +302,17 @@ def cmc(*moduleclass):#create module class
  createdmoduletmp=[xx for xx in sys.modules if hasattr(sys.modules[xx],'__file__') and hasattr(sys.modules[xx],'__name__')  and not sys.modules[xx].__name__ == sys.modules[moduleclass[0]].__name__ and str(Path(str(sys.modules[xx].__file__)).resolve())==str(Path(str(sys.modules[moduleclass[0]].__file__)).resolve())]
  [setattr(sys.modules[moduleclass[0]],re.sub(r'^\s*(\S+)(?=[\s(]).*',r'\1',x)+'m',eval(moduleclass[0]+'.'+x) if not createdmoduletmp else getattr(sys.modules[createdmoduletmp[0]],re.sub(r'^\s*(\S+)(?=[\s(]).*',r'\1',x)+'m')) for x in moduleclass[1:]]
  '''
- [setattr(sys.modules[moduleclass[0]],x.__class__.__name__+'m',x) for x in moduleclass[1:]]
+# [setattr(sys.modules[moduleclass[0]],x.__class__.__name__+'m',x) for x in moduleclass[1:]]
+ [setattr(sys.modules[moduleclass[0]],re.sub('c$','',x.__class__.__name__)+'i',x) for x in moduleclass[1:]]
 
 def mce(modulename,classobj):#module class exists?
+ print(f'>< util.mce {modulename=} {classobj=}')
  moduleloadedtmp=[sys.modules[xx] for xx in sys.modules if hasattr(sys.modules[xx],'__file__') and hasattr(sys.modules[xx],'__name__')  and not sys.modules[xx].__name__ == sys.modules[modulename].__name__ and str(Path(str(sys.modules[xx].__file__)).resolve())==str(Path(str(sys.modules[modulename].__file__)).resolve())]
- print(f'C util.mce object {getattr(moduleloadedtmp[0],classobj.__name__+"m")} already loaded "{modulename}:{sys.modules[modulename].__file__}" -> "{moduleloadedtmp[0].__name__}:{moduleloadedtmp[0].__file__}"...') if moduleloadedtmp else None
- return moduleloadedtmp and getattr(moduleloadedtmp[0],classobj.__name__+'m') or moduleloadedtmp
+# print(f'C util.mce object {getattr(moduleloadedtmp[0],classobj.__name__+"m")} already loaded "{modulename}:{sys.modules[modulename].__file__}" -> "{moduleloadedtmp[0].__name__}:{moduleloadedtmp[0].__file__}"...') if moduleloadedtmp else None
+ print(f'C util.mce object {getattr(moduleloadedtmp[0],re.sub("c$","i",classobj.__name__))} already loaded "{modulename}:{sys.modules[modulename].__file__}" -> "{moduleloadedtmp[0].__name__}:{moduleloadedtmp[0].__file__}"...') if moduleloadedtmp else None
+# return moduleloadedtmp and getattr(moduleloadedtmp[0],classobj.__name__+'m') or moduleloadedtmp
+ print(f'D util.mce {moduleloadedtmp=}')
+ return moduleloadedtmp and getattr(moduleloadedtmp[0],re.sub('c$','',classobj.__name__)+'i') or moduleloadedtmp
 
 cmc(__name__,mce(__name__,utilc) or utilc())
 '''
@@ -318,4 +323,4 @@ for i in utilc.moduleclassc:
  setattr(sys.modules[i[0]],re.sub(r'^(.*?)\(.*',r'\1',i[1])+'m',getattr(sys.modules[createdmoduletmp[0]],re.sub(r'^(.*?)\(.*',r'\1',i[1])+'m') if createdmoduletmp else eval(i[0]+'.'+i[1]))
  print('M util module initialized the module -> {i=}')
 '''
-__all__=['utilcm','utildict','print']
+__all__=['utili','utildict']
