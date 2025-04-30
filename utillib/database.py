@@ -6,7 +6,10 @@ import sys;sys.path.append(os.path.expanduser('~')+r'/tmp')
 if re.search(r'^(win|cygwin).*',sys.platform,flags=re.I):
  import pymysql
  pymysql.install_as_MySQLdb()
-import MySQLdb
+elif re.search(r'raspberrypi',os.popen('uname -a').read(),flags=re.I):
+ import sqlite3#pip3 install pysqlite3
+else:
+ import MySQLdb
 import time
 from MISC.utillib.util import utilcm
 class databasec:
@@ -68,7 +71,10 @@ class databasec:
    self.conn=None 
    return False
   try:
-   self.conn=MySQLdb.connect(host=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[0],user=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[1],passwd=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[2],db=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[3],connect_timeout=10,read_timeout=10,write_timeout=10)
+   if re.search(r'raspberrypi',os.popen('uanme -a').read(),flags=re.I):
+    self.conn=mysqlite3.connect(re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[3])
+   else:
+    self.conn=MySQLdb.connect(host=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[0],user=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[1],passwd=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[2],db=re.split(r'\s+',re.split('\n',open(os.path.expanduser('~/passwd')).read())[0])[3],connect_timeout=10,read_timeout=10,write_timeout=10)
    print('database re-connected',file=sys.stderr)
   except:
    print('database could not be connected')

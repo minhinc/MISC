@@ -1,5 +1,4 @@
 import os,sys;sys.path.append(os.path.expanduser('~')+r'/tmp') if not os.path.expanduser('~')+'/tmp' in sys.path else None
-import builtins
 import traceback
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger,PdfMerger,PdfReader
 import io,os,re
@@ -7,21 +6,27 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import datetime
 from pathlib import Path
-#from MISC.extra.config import _configi as print
+from MISC.extra.config import _configi
+from MISC.extra.config import _configi as print
 
-class utilc:
+class _utilc:
+ '''
  kwargc=dict( \
   customtag=['<h[yor]?>','<m>','<a>','<c>','<cb>','<cc>','<cs>'], \
   delimiter='!ABS SBA!', \
   round=3, \
   fps=15 \
  )
- moduleclassc=(('MISC.utillib.seleniumrequest','seleniumrequestc()'),('MISC.utillib.databaserequest','databaserequestc()'),('MISC.utillib,machinelearningrequest','machinelearningrequestc()'),('MISC.utillib.database','databasec(False)'))
+ '''
+# moduleclassc=(('MISC.utillib.seleniumrequest','seleniumrequestc()'),('MISC.utillib.databaserequest','databaserequestc()'),('MISC.utillib,machinelearningrequest','machinelearningrequestc()'),('MISC.utillib.database','databasec(False)'))
  def __init__(self):
-  super(utilc,self).__init__()
- def concatpdf(self,dir):
+  super(_utilc,self).__init__()
+ def concatpdf(self,dir_):
+  '''Concat pdf 'file in a directory' or 'list of files'
+  dir_(s) Name of the directory containing all pdf files or\
+   list of pdf files to be concatenated'''
   merger=PdfFileMerger()
-  for count,i in enumerate(sorted([i for i in os.listdir(dir) if os.path.isfile(dir+r'/'+i) and re.search(r'[.]pdf$',i,flags=re.I)],key=str.lower)):
+  for count,i in enumerate(sorted([i for i in (dir_ if _config.type(dir_)=='sequence' else [dir_] if os.path.isfile(dir_) else os.listdir(dir_)) if os.path.isfile(dir+r'/'+i) and re.search(r'[.]pdf$',i,flags=re.I)],key=str.lower)):
    print(f'M Util.concatpdf processing i ->',i)
    classname=re.sub(r'^(.*?)[.]pdf',r'\1',i)
    packet = io.BytesIO()
@@ -283,7 +288,7 @@ class utilc:
  '''
 
 
-class utildict(builtins.dict):
+class utildictc:
  def append(self,value):
   self[len(self)]=value if not type(value)==dict else value.values()[0]
  def extend(self,*value):
@@ -291,7 +296,10 @@ class utildict(builtins.dict):
  def index(self,item):
   itemt=tuple(item) if type(item)==list else item.items()[0] if type(item)==dict else item
   return [count for count,item in enumerate(self.items()) if item==itemt][0]
+ def insert(self,index_,hashs_,hashi_):
+  index_=[int(x) for x in re.split(':',str(index_))]
 
+"""
 print(f'C ****** WELCOME TO UTIL MODULE *****')
 def cmc(*moduleclass):#create module class
  print(f'E util.cmc {moduleclass=}')
@@ -315,6 +323,8 @@ def mce(modulename,classobj):#module class exists?
  return moduleloadedtmp and getattr(moduleloadedtmp[0],re.sub('c$','',classobj.__name__)+'i') or moduleloadedtmp
 
 cmc(__name__,mce(__name__,utilc) or utilc())
+"""
+_configi.cmc(__name__,_utilc)
 '''
 #populatemodulefunc(__name__,dictc())
 for i in utilc.moduleclassc:
