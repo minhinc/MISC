@@ -49,7 +49,7 @@ class _brevoemailclientc(_emailclientc):
   super(_brevoemailclientc,self).__init__(*args,**kwargs)
 
  def password(self):
-  return "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"
+  return config_brevopassword
 
  def connect(self):
   print(f'>< connecting Brevo')
